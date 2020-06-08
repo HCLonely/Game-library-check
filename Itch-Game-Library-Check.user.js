@@ -51,15 +51,22 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
   var whiteList = GM_getValue('whiteList') || []
   var blackList = GM_getValue('blackList') || []
   var url = window.location.href
+  var enable = true
 
   if (whiteList.length > 0) {
+    enable = false
+
     var _iterator = _createForOfIteratorHelper(whiteList)
     var _step
 
     try {
       for (_iterator.s(); !(_step = _iterator.n()).done;) {
         var e = _step.value
-        if (!url.includes(e)) return
+
+        if (url.includes(e)) {
+          enable = true
+          break
+        }
       }
     } catch (err) {
       _iterator.e(err)
@@ -67,13 +74,19 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
       _iterator.f()
     }
   } else if (blackList.length > 0) {
+    enable = true
+
     var _iterator2 = _createForOfIteratorHelper(blackList)
     var _step2
 
     try {
       for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
         var _e = _step2.value
-        if (url.includes(_e)) return
+
+        if (url.includes(_e)) {
+          enable = false
+          break
+        }
       }
     } catch (err) {
       _iterator2.e(err)
@@ -81,6 +94,8 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
       _iterator2.f()
     }
   }
+
+  if (!enable) return
 
   if (getItchGameLibrary().length === 0) {
     Swal.fire({
