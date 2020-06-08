@@ -69,26 +69,27 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
 
   function _checkItchGame () {
     _checkItchGame = _asyncToGenerator(/* #__PURE__ */regeneratorRuntime.mark(function _callee2 () {
-      var itchGames, itchLink
+      var first
+      var itchGames
+      var itchLink
+      var _args2 = arguments
       return regeneratorRuntime.wrap(function _callee2$ (_context2) {
         while (1) {
           switch (_context2.prev = _context2.next) {
             case 0:
+              first = _args2.length > 0 && _args2[0] !== undefined ? _args2[0] : true
               itchGames = getItchGameLibrary()
               itchLink = $('a[href*=".itch.io/"]')
 
               if (!(itchLink.length === 0)) {
-                _context2.next = 4
+                _context2.next = 5
                 break
               }
 
               return _context2.abrupt('return')
 
-            case 4:
-              _context2.next = 6
-              return updateItchGameLibrary(false)
-
-            case 6:
+            case 5:
+              if (first) updateItchGameLibrary(false)
               itchLink.map(function (i, e) {
                 var _href$match
 
@@ -122,7 +123,13 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
     var loop = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true
     var i = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1
     var games = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : []
-    if (!loop && i !== 1) return GM_setValue('itchGames', _toConsumableArray(new Set([].concat(_toConsumableArray(getItchGameLibrary()), _toConsumableArray(games)))))
+
+    if (!loop && i !== 1) {
+      GM_setValue('itchGames', _toConsumableArray(new Set([].concat(_toConsumableArray(getItchGameLibrary()), _toConsumableArray(games)))))
+      checkItchGame(false)
+      return
+    }
+
     return new Promise(function (resolve, reject) {
       if (loop) {
         Swal[i === 1 ? 'fire' : 'update']({
@@ -177,7 +184,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
 
               case 5:
                 if (!((_response$response = response.response) === null || _response$response === void 0 ? void 0 : _response$response.num_items)) {
-                  _context.next = 21
+                  _context.next = 23
                   break
                 }
 
@@ -212,13 +219,15 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
                 }))
 
               case 18:
-                return _context.abrupt('return', GM_setValue('itchGames', _toConsumableArray(new Set([].concat(_toConsumableArray(getItchGameLibrary()), _toConsumableArray(games))))))
-
-              case 19:
-                _context.next = 23
-                break
+                GM_setValue('itchGames', _toConsumableArray(new Set([].concat(_toConsumableArray(getItchGameLibrary()), _toConsumableArray(games)))))
+                checkItchGame(false)
+                return _context.abrupt('return', true)
 
               case 21:
+                _context.next = 25
+                break
+
+              case 23:
                 console.error(response)
                 return _context.abrupt('return', Swal.update({
                   icon: 'error',
@@ -226,7 +235,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
                   text: '详情请查看控制台'
                 }))
 
-              case 23:
+              case 25:
               case 'end':
                 return _context.stop()
             }
