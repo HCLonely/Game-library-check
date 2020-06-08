@@ -28,6 +28,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
 // @supportURL     https://github.com/HCLonely/Game-library-check/issues
 // @updateURL      https://github.com/HCLonely/Game-library-check/blob/master/Game-Library-Check.user.js
 // @include        *
+// @exclude        *://itch.io/login
 // @require        https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js
 // @require        https://cdn.jsdelivr.net/npm/regenerator-runtime@0.13.5/runtime.min.js
 // @require        https://cdn.jsdelivr.net/npm/sweetalert2@9
@@ -39,7 +40,6 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
 // @grant          GM_registerMenuCommand
 // @grant          GM_openInTab
 // @connect        itch.io
-// @connect        *
 // @run-at         document-end
 // ==/UserScript==
 
@@ -163,7 +163,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
                   break
                 }
 
-                Swal.update({
+                Swal.fire({
                   title: '获取itch游戏库数据失败！',
                   text: '请先登录',
                   icon: 'error',
