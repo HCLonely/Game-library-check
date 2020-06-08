@@ -1,0 +1,19 @@
+{
+  "name": "game-library-check",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/HCLonely/Game-library-check.git"
+  },
+  "author": "HCLonely",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/HCLonely/Game-library-check/issues"
+  },
+  "homepage": "https://github.com/HCLonely/Game-library-check#readme"
+}
