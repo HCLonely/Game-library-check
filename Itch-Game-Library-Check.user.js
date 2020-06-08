@@ -337,5 +337,5 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
   GM_registerMenuCommand('更新itch游戏库', updateItchGameLibrary)
   GM_registerMenuCommand('白名单', addWhiteList)
   GM_registerMenuCommand('黑名单', addBlackList)
-  GM_addStyle('.itch-io-game-link-owned{background:#008000 !important}')
+  GM_addStyle('.itch-io-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}')
 })()
