@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node index.js && standard ./Itch-Game-Library-Check.user.js --fix"
   },
   "repository": {
     "type": "git",
@@ -15,5 +16,11 @@
   "bugs": {
     "url": "https://github.com/HCLonely/Game-library-check/issues"
   },
-  "homepage": "https://github.com/HCLonely/Game-library-check#readme"
+  "homepage": "https://github.com/HCLonely/Game-library-check#readme",
+  "devDependencies": {
+    "@babel/core": "^7.10.2",
+    "@babel/preset-env": "^7.10.2",
+    "babel-eslint": "^10.1.0",
+    "standard": "^14.3.4"
+  }
 }
