@@ -310,7 +310,7 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
     Swal.fire({
       title: '添加白名单',
       input: 'textarea',
-      inputValues: whiteList.join('\n'),
+      inputValue: whiteList.join('\n'),
       showCancelButton: true,
       confirmButtonText: '保存',
       cancelButtonText: '取消'
@@ -324,7 +324,7 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
     Swal.fire({
       title: '添加黑名单',
       input: 'textarea',
-      inputValues: blackList.join('\n'),
+      inputValue: blackList.join('\n'),
       showCancelButton: true,
       confirmButtonText: '保存',
       cancelButtonText: '取消'
