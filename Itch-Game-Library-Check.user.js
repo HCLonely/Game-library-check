@@ -21,7 +21,7 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
 // @name           游戏库检测-itch
 // @name:en        Itch Game Library Check
 // @namespace      itch-game-library-check
-// @version        1.0.3
+// @version        1.0.4
 // @description    检测itch.io游戏是否已拥有
 // @description:en Check if the game of itch.io is already owned
 // @author         HCLonely
@@ -202,7 +202,7 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
       })
     }).then(/* #__PURE__ */function () {
       var _ref2 = _asyncToGenerator(/* #__PURE__ */regeneratorRuntime.mark(function _callee (response) {
-        var _response$response
+        var _response$response, _response$response2
 
         return regeneratorRuntime.wrap(function _callee$ (_context) {
           while (1) {
@@ -274,10 +274,23 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
                 return _context.abrupt('return', true)
 
               case 21:
-                _context.next = 25
+                _context.next = 30
                 break
 
               case 23:
+                if (!(((_response$response2 = response.response) === null || _response$response2 === void 0 ? void 0 : _response$response2.num_items) === 0)) {
+                  _context.next = 28
+                  break
+                }
+
+                GM_setValue('itchGames', _toConsumableArray(new Set(games)))
+                return _context.abrupt('return', Swal.update({
+                  icon: 'success',
+                  title: 'itch游戏库数据更新完成',
+                  text: ''
+                }))
+
+              case 28:
                 console.error(response)
                 return _context.abrupt('return', Swal.update({
                   icon: 'error',
@@ -285,7 +298,7 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
                   text: '详情请查看控制台'
                 }))
 
-              case 25:
+              case 30:
               case 'end':
                 return _context.stop()
             }
