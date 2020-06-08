@@ -21,7 +21,7 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
 // @name           游戏库检测-itch
 // @name:en        Itch Game Library Check
 // @namespace      itch-game-library-check
-// @version        1.0.1
+// @version        1.0.2
 // @description    检测itch.io游戏是否已拥有
 // @description:en Check if the game of itch.io is already owned
 // @author         HCLonely
@@ -316,7 +316,7 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
       cancelButtonText: '取消'
     }).then(function (_ref4) {
       var value = _ref4.value
-      if (value) GM_setValue('whiteList', value.split('\n'))
+      value ? GM_setValue('whiteList', value.split('\n')) : GM_setValue('whiteList', [])
     })
   }
 
@@ -330,7 +330,7 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
       cancelButtonText: '取消'
     }).then(function (_ref5) {
       var value = _ref5.value
-      if (value) GM_setValue('blackList', value.split('\n'))
+      value ? GM_setValue('blackList', value.split('\n')) : GM_setValue('blackList', [])
     })
   }
 
