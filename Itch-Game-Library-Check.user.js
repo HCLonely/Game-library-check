@@ -267,8 +267,7 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
                 return _context.abrupt('return', Swal.update({
                   icon: 'error',
                   title: 'itch游戏库数据更新失败',
-                  text: '详情请查看控制台',
-                  showCancelButton: true
+                  text: '详情请查看控制台'
                 }))
 
               case 25:
@@ -297,6 +296,7 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
       title: '添加白名单',
       input: 'textarea',
       inputValues: whiteList.join('\n'),
+      showCancelButton: true,
       confirmButtonText: '保存',
       cancelButtonText: '取消'
     }).then(function (_ref4) {
@@ -310,6 +310,7 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
       title: '添加黑名单',
       input: 'textarea',
       inputValues: blackList.join('\n'),
+      showCancelButton: true,
       confirmButtonText: '保存',
       cancelButtonText: '取消'
     }).then(function (_ref5) {
