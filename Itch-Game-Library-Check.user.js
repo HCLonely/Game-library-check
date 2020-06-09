@@ -50,6 +50,8 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
 (function () {
   var whiteList = GM_getValue('whiteList') || []
   var blackList = GM_getValue('blackList') || []
+  console.log(GM_getValue('whiteList'), GM_getValue('blackList'))
+  console.log(whiteList, blackList)
   var url = window.location.href
   var enable = true
 
@@ -320,6 +322,7 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
   }
 
   function addWhiteList () {
+    var whiteList = GM_getValue('whiteList') || []
     Swal.fire({
       title: '添加白名单',
       input: 'textarea',
@@ -329,11 +332,12 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
       cancelButtonText: '取消'
     }).then(function (_ref4) {
       var value = _ref4.value
-      value ? GM_setValue('whiteList', value.split('\n')) : GM_setValue('whiteList', [])
+      if (value !== undefined) value ? GM_setValue('whiteList', value.split('\n')) : GM_setValue('whiteList', [])
     })
   }
 
   function addBlackList () {
+    var blackList = GM_getValue('blackList') || []
     Swal.fire({
       title: '添加黑名单',
       input: 'textarea',
@@ -343,7 +347,7 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
       cancelButtonText: '取消'
     }).then(function (_ref5) {
       var value = _ref5.value
-      value ? GM_setValue('blackList', value.split('\n')) : GM_setValue('blackList', [])
+      if (value !== undefined) value ? GM_setValue('blackList', value.split('\n')) : GM_setValue('blackList', [])
     })
   }
 
