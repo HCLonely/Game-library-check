@@ -21,7 +21,7 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
 // @name           游戏库检测-itch
 // @name:en        Itch Game Library Check
 // @namespace      itch-game-library-check
-// @version        1.0.4
+// @version        1.0.5
 // @description    检测itch.io游戏是否已拥有
 // @description:en Check if the game of itch.io is already owned
 // @author         HCLonely
