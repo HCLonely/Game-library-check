@@ -1,27 +1,27 @@
 /* eslint-disable no-void,no-func-assign,no-fallthrough,no-unsafe-finally,no-mixed-operators */
+function _createForOfIteratorHelper (o, allowArrayLike) { var it; if (typeof Symbol === 'undefined' || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === 'number') { if (it) o = it; var i = 0; var F = function F () {}; return { s: F, n: function n () { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] } }, e: function e (_e2) { throw _e2 }, f: F } } throw new TypeError('Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.') } var normalCompletion = true; var didErr = false; var err; return { s: function s () { it = o[Symbol.iterator]() }, n: function n () { var step = it.next(); normalCompletion = step.done; return step }, e: function e (_e3) { didErr = true; err = _e3 }, f: function f () { try { if (!normalCompletion && it.return != null) it.return() } finally { if (didErr) throw err } } } }
+
 function _toConsumableArray (arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread() }
 
 function _nonIterableSpread () { throw new TypeError('Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.') }
+
+function _unsupportedIterableToArray (o, minLen) { if (!o) return; if (typeof o === 'string') return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === 'Object' && o.constructor) n = o.constructor.name; if (n === 'Map' || n === 'Set') return Array.from(o); if (n === 'Arguments' || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen) }
 
 function _iterableToArray (iter) { if (typeof Symbol !== 'undefined' && Symbol.iterator in Object(iter)) return Array.from(iter) }
 
 function _arrayWithoutHoles (arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr) }
 
+function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i] } return arr2 }
+
 function asyncGeneratorStep (gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value } catch (error) { reject(error); return } if (info.done) { resolve(value) } else { Promise.resolve(value).then(_next, _throw) } }
 
 function _asyncToGenerator (fn) { return function () { var self = this; var args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next (value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, 'next', value) } function _throw (err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, 'throw', err) } _next(undefined) }) } }
-
-function _createForOfIteratorHelper (o, allowArrayLike) { var it; if (typeof Symbol === 'undefined' || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === 'number') { if (it) o = it; var i = 0; var F = function F () {}; return { s: F, n: function n () { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] } }, e: function e (_e2) { throw _e2 }, f: F } } throw new TypeError('Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.') } var normalCompletion = true; var didErr = false; var err; return { s: function s () { it = o[Symbol.iterator]() }, n: function n () { var step = it.next(); normalCompletion = step.done; return step }, e: function e (_e3) { didErr = true; err = _e3 }, f: function f () { try { if (!normalCompletion && it.return != null) it.return() } finally { if (didErr) throw err } } } }
-
-function _unsupportedIterableToArray (o, minLen) { if (!o) return; if (typeof o === 'string') return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === 'Object' && o.constructor) n = o.constructor.name; if (n === 'Map' || n === 'Set') return Array.from(o); if (n === 'Arguments' || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen) }
-
-function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i] } return arr2 }
 
 // ==UserScript==
 // @name           游戏库检测-itch
 // @name:en        Itch Game Library Check
 // @namespace      itch-game-library-check
-// @version        1.0.5
+// @version        1.0.6
 // @description    检测itch.io游戏是否已拥有
 // @description:en Check if the game of itch.io is already owned
 // @author         HCLonely
@@ -36,17 +36,18 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
 // @require        https://cdn.jsdelivr.net/npm/regenerator-runtime@0.13.5/runtime.min.js
 // @require        https://cdn.jsdelivr.net/npm/sweetalert2@9
 // @require        https://cdn.jsdelivr.net/npm/promise-polyfill@8.1.3/dist/polyfill.min.js
+// @require        https://cdn.jsdelivr.net/npm/overhang@1.0.8/dist/overhang.min.js
+// @resource       overhang https://cdn.jsdelivr.net/npm/overhang@1.0.8/dist/overhang.min.css
 // @grant          GM_setValue
 // @grant          GM_getValue
 // @grant          GM_addStyle
 // @grant          GM_xmlhttpRequest
 // @grant          GM_registerMenuCommand
+// @grant          GM_getResourceText
 // @grant          GM_openInTab
 // @connect        itch.io
 // @run-at         document-end
 // ==/UserScript==
-
-/* global $,Swal,GM_getValue,GM_setValue,GM_openInTab,GM_xmlhttpRequest,GM_addStyle,GM_registerMenuCommand,regeneratorRuntime */
 (function () {
   var whiteList = GM_getValue('whiteList') || []
   var blackList = GM_getValue('blackList') || []
@@ -54,66 +55,6 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
   console.log(whiteList, blackList)
   var url = window.location.href
   var enable = true
-
-  if (whiteList.length > 0) {
-    enable = false
-
-    var _iterator = _createForOfIteratorHelper(whiteList)
-    var _step
-
-    try {
-      for (_iterator.s(); !(_step = _iterator.n()).done;) {
-        var e = _step.value
-
-        if (url.includes(e)) {
-          enable = true
-          break
-        }
-      }
-    } catch (err) {
-      _iterator.e(err)
-    } finally {
-      _iterator.f()
-    }
-  } else if (blackList.length > 0) {
-    enable = true
-
-    var _iterator2 = _createForOfIteratorHelper(blackList)
-    var _step2
-
-    try {
-      for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-        var _e = _step2.value
-
-        if (url.includes(_e)) {
-          enable = false
-          break
-        }
-      }
-    } catch (err) {
-      _iterator2.e(err)
-    } finally {
-      _iterator2.f()
-    }
-  }
-
-  if (!enable) return
-
-  if (getItchGameLibrary().length === 0) {
-    Swal.fire({
-      title: '游戏库检测脚本提醒',
-      icon: 'warning',
-      text: '没有检测到itch游戏库数据，是否立即获取？',
-      showCancelButton: true,
-      confirmButtonText: '获取',
-      cancelButtonText: '取消'
-    }).then(function (_ref) {
-      var value = _ref.value
-      if (value) updateItchGameLibrary()
-    })
-  } else {
-    checkItchGame()
-  }
 
   function checkItchGame () {
     return _checkItchGame.apply(this, arguments)
@@ -190,6 +131,7 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
           icon: 'info'
         })
       }
+
       GM_xmlhttpRequest({
         method: 'GET',
         url: 'https://itch.io/my-purchases?page='.concat(i, '&format=json'),
@@ -203,7 +145,7 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
         }
       })
     }).then(/* #__PURE__ */function () {
-      var _ref2 = _asyncToGenerator(/* #__PURE__ */regeneratorRuntime.mark(function _callee (response) {
+      var _ref = _asyncToGenerator(/* #__PURE__ */regeneratorRuntime.mark(function _callee (response) {
         var _response$response, _response$response2
 
         return regeneratorRuntime.wrap(function _callee$ (_context) {
@@ -215,23 +157,33 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
                   break
                 }
 
-                Swal.fire({
-                  title: '获取itch游戏库数据失败！',
-                  text: '请先登录',
-                  icon: 'error',
-                  showCancelButton: true,
-                  confirmButtonText: '登录',
-                  cancelButtonText: '取消'
-                }).then(function (_ref3) {
-                  var value = _ref3.value
-                  if (value) {
-                    GM_openInTab('https://itch.io/login', {
-                      active: true,
-                      insert: true,
-                      setParent: true
-                    })
-                  }
-                })
+                if (loop) {
+                  Swal.fire({
+                    title: '获取itch游戏库数据失败！',
+                    text: '请先登录',
+                    icon: 'error',
+                    showCancelButton: true,
+                    confirmButtonText: '登录',
+                    cancelButtonText: '取消'
+                  }).then(function (_ref2) {
+                    var value = _ref2.value
+                    if (value) {
+                      GM_openInTab('https://itch.io/login', {
+                        active: true,
+                        insert: true,
+                        setParent: true
+                      })
+                    }
+                  })
+                } else {
+                  $('body').overhang({
+                    type: 'error',
+                    message: 'itch.io登录凭证已过期，请重新登录<a href="https://itch.io/login" target="_blank">https://itch.io/login</a>',
+                    html: true,
+                    closeConfirm: true
+                  })
+                }
+
                 return _context.abrupt('return', false)
 
               case 5:
@@ -240,6 +192,7 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
                   break
                 }
 
+                // eslint-disable-line camelcase
                 games = [].concat(_toConsumableArray(games), _toConsumableArray($.makeArray($('<div>'.concat(response.response.content, '</div>')).find('a.thumb_link.game_link')).map(function (e, i) {
                   var _$$attr$match
 
@@ -285,6 +238,7 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
                   break
                 }
 
+                // eslint-disable-line camelcase
                 GM_setValue('itchGames', _toConsumableArray(new Set(games)))
                 return _context.abrupt('return', Swal.update({
                   icon: 'success',
@@ -309,7 +263,7 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
       }))
 
       return function (_x) {
-        return _ref2.apply(this, arguments)
+        return _ref.apply(this, arguments)
       }
     }()).catch(function (error) {
       console.error(error)
@@ -330,8 +284,8 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
       showCancelButton: true,
       confirmButtonText: '保存',
       cancelButtonText: '取消'
-    }).then(function (_ref4) {
-      var value = _ref4.value
+    }).then(function (_ref3) {
+      var value = _ref3.value
       if (value !== undefined) value ? GM_setValue('whiteList', value.split('\n')) : GM_setValue('whiteList', [])
     })
   }
@@ -345,8 +299,8 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
       showCancelButton: true,
       confirmButtonText: '保存',
       cancelButtonText: '取消'
-    }).then(function (_ref5) {
-      var value = _ref5.value
+    }).then(function (_ref4) {
+      var value = _ref4.value
       if (value !== undefined) value ? GM_setValue('blackList', value.split('\n')) : GM_setValue('blackList', [])
     })
   }
@@ -354,5 +308,67 @@ function _arrayLikeToArray (arr, len) { if (len == null || len > arr.length) len
   GM_registerMenuCommand('更新itch游戏库', updateItchGameLibrary)
   GM_registerMenuCommand('白名单', addWhiteList)
   GM_registerMenuCommand('黑名单', addBlackList)
+
+  if (whiteList.length > 0) {
+    enable = false
+
+    var _iterator = _createForOfIteratorHelper(whiteList)
+    var _step
+
+    try {
+      for (_iterator.s(); !(_step = _iterator.n()).done;) {
+        var e = _step.value
+
+        if (url.includes(e)) {
+          enable = true
+          break
+        }
+      }
+    } catch (err) {
+      _iterator.e(err)
+    } finally {
+      _iterator.f()
+    }
+  } else if (blackList.length > 0) {
+    enable = true
+
+    var _iterator2 = _createForOfIteratorHelper(blackList)
+    var _step2
+
+    try {
+      for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+        var _e = _step2.value
+
+        if (url.includes(_e)) {
+          enable = false
+          break
+        }
+      }
+    } catch (err) {
+      _iterator2.e(err)
+    } finally {
+      _iterator2.f()
+    }
+  }
+
+  if (!enable) return
+
+  if (getItchGameLibrary().length === 0) {
+    Swal.fire({
+      title: '游戏库检测脚本提醒',
+      icon: 'warning',
+      text: '没有检测到itch游戏库数据，是否立即获取？',
+      showCancelButton: true,
+      confirmButtonText: '获取',
+      cancelButtonText: '取消'
+    }).then(function (_ref5) {
+      var value = _ref5.value
+      if (value) updateItchGameLibrary()
+    })
+  } else {
+    checkItchGame()
+  }
+
   GM_addStyle('.itch-io-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}')
+  GM_addStyle(GM_getResourceText(overhang))
 })()

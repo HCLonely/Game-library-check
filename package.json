@@ -22,5 +22,21 @@
     "@babel/preset-env": "^7.10.2",
     "babel-eslint": "^10.1.0",
     "standard": "^14.3.4"
+  },
+  "standard": {
+    "parser": "babel-eslint",
+    "globals": [
+      "$",
+      "GM_setValue",
+      "GM_getValue",
+      "GM_addStyle",
+      "GM_xmlhttpRequest",
+      "GM_getResourceText",
+      "GM_registerMenuCommand",
+      "GM_openInTab",
+      "Swal",
+      "regeneratorRuntime",
+      "overhang"
+    ]
   }
 }
