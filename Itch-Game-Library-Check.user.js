@@ -51,8 +51,6 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
 (function () {
   var whiteList = GM_getValue('whiteList') || []
   var blackList = GM_getValue('blackList') || []
-  console.log(GM_getValue('whiteList'), GM_getValue('blackList'))
-  console.log(whiteList, blackList)
   var url = window.location.href
   var enable = true
 
