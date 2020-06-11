@@ -21,9 +21,9 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
 // @name           游戏库检测-itch
 // @name:en        Itch Game Library Check
 // @namespace      itch-game-library-check
-// @version        1.0.6
-// @description    检测itch.io游戏是否已拥有
-// @description:en Check if the game of itch.io is already owned
+// @version        1.0.7
+// @description    检测itch.io游戏是否已拥有。
+// @description:en Check if the game of itch.io is already owned.
 // @author         HCLonely
 // @license        MIT
 // @iconURL        https://itch.io/favicon.ico
@@ -45,6 +45,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
 // @grant          GM_registerMenuCommand
 // @grant          GM_getResourceText
 // @grant          GM_openInTab
+// @grant          unsafeWindow
 // @connect        itch.io
 // @run-at         document-end
 // ==/UserScript==
@@ -70,7 +71,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
             case 0:
               first = _args2.length > 0 && _args2[0] !== undefined ? _args2[0] : true
               itchGames = getItchGameLibrary()
-              itchLink = $('a[href*=".itch.io/"]')
+              itchLink = $('a[href*=".itch.io/"]:not("itch-io-game-link-owned")')
 
               if (!(itchLink.length === 0)) {
                 _context2.next = 5
@@ -368,5 +369,6 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
   }
 
   GM_addStyle('.itch-io-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}')
-  GM_addStyle(GM_getResourceText(overhang))
+  GM_addStyle(GM_getResourceText('overhang'))
+  unsafeWindow.checkItchGame = checkItchGame
 })()

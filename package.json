@@ -34,6 +34,7 @@
       "GM_getResourceText",
       "GM_registerMenuCommand",
       "GM_openInTab",
+      "unsafeWindow",
       "Swal",
       "regeneratorRuntime",
       "overhang"
