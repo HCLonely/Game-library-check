@@ -10,7 +10,7 @@
 // @iconURL        https://www.gog.com/favicon.ico
 // @homepage       https://github.com/HCLonely/Game-library-check
 // @supportURL     https://github.com/HCLonely/Game-library-check/issues
-// @updateURL      https://github.com/HCLonely/Game-library-check/blob/master/Gog-Game-Library-Check.user.js
+// @updateURL      https://github.com/HCLonely/Game-library-check/raw/master/Gog-Game-Library-Check.user.js
 // @include        *
 // @require        https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js
 // @require        https://cdn.jsdelivr.net/npm/regenerator-runtime@0.13.5/runtime.min.js

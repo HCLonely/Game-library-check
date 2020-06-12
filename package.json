@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "itch": "node ./tools/itch.js && standard ./Itch-Game-Library-Check.user.js --fix && echo 格式化完成",
-    "gog": "node ./tools/gog.js && standard ./Gog-Game-Library-Check.user.js --fix && echo 格式化完成"
+    "gog": "node ./tools/gog.js && standard ./Gog-Game-Library-Check.user.js --fix && echo 格式化完成",
+    "build": "npm run itch && npm run gog"
   },
   "repository": {
     "type": "git",

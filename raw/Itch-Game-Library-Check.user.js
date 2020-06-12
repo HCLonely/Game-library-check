@@ -10,7 +10,7 @@
 // @iconURL        https://itch.io/favicon.ico
 // @homepage       https://github.com/HCLonely/Game-library-check
 // @supportURL     https://github.com/HCLonely/Game-library-check/issues
-// @updateURL      https://github.com/HCLonely/Game-library-check/blob/master/Itch-Game-Library-Check.user.user.js
+// @updateURL      https://github.com/HCLonely/Game-library-check/raw/master/Itch-Game-Library-Check.user.user.js
 // @include        *
 // @exclude        *://itch.io/login
 // @require        https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js
