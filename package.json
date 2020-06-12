@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "node index.js && standard ./Itch-Game-Library-Check.user.js --fix"
+    "itch": "node ./tools/itch.js && standard ./Itch-Game-Library-Check.user.js --fix && echo 格式化完成",
+    "gog": "node ./tools/gog.js && standard ./Gog-Game-Library-Check.user.js --fix && echo 格式化完成"
   },
   "repository": {
     "type": "git",

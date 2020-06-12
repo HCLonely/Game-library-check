@@ -18,20 +18,19 @@ function asyncGeneratorStep (gen, resolve, reject, _next, _throw, key, arg) { tr
 function _asyncToGenerator (fn) { return function () { var self = this; var args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next (value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, 'next', value) } function _throw (err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, 'throw', err) } _next(undefined) }) } }
 
 // ==UserScript==
-// @name           游戏库检测-itch
-// @name:en        Itch Game Library Check
-// @namespace      itch-game-library-check
-// @version        1.0.8
-// @description    检测itch.io游戏是否已拥有。
-// @description:en Check if the game of itch.io is already owned.
+// @name           游戏库检测-gog
+// @name:en        Gog Game Library Check
+// @namespace      gog-game-library-check
+// @version        1.0.0
+// @description    检测gog游戏是否已拥有。
+// @description:en Check if the game of GOG is already owned.
 // @author         HCLonely
 // @license        MIT
-// @iconURL        https://itch.io/favicon.ico
+// @iconURL        https://www.gog.com/favicon.ico
 // @homepage       https://github.com/HCLonely/Game-library-check
 // @supportURL     https://github.com/HCLonely/Game-library-check/issues
-// @updateURL      https://github.com/HCLonely/Game-library-check/blob/master/Itch-Game-Library-Check.user.user.js
+// @updateURL      https://github.com/HCLonely/Game-library-check/blob/master/Gog-Game-Library-Check.user.js
 // @include        *
-// @exclude        *://itch.io/login
 // @require        https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js
 // @require        https://cdn.jsdelivr.net/npm/regenerator-runtime@0.13.5/runtime.min.js
 // @require        https://cdn.jsdelivr.net/npm/sweetalert2@9
@@ -45,8 +44,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
 // @grant          GM_registerMenuCommand
 // @grant          GM_getResourceText
 // @grant          GM_openInTab
-// @grant          unsafeWindow
-// @connect        itch.io
+// @connect        www.gog.com
 // @run-at         document-end
 // ==/UserScript==
 (function () {
@@ -55,25 +53,25 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
   var url = window.location.href
   var enable = true
 
-  function checkItchGame () {
-    return _checkItchGame.apply(this, arguments)
+  function checkGogGame () {
+    return _checkGogGame.apply(this, arguments)
   }
 
-  function _checkItchGame () {
-    _checkItchGame = _asyncToGenerator(/* #__PURE__ */regeneratorRuntime.mark(function _callee2 () {
+  function _checkGogGame () {
+    _checkGogGame = _asyncToGenerator(/* #__PURE__ */regeneratorRuntime.mark(function _callee2 () {
       var first
-      var itchGames
-      var itchLink
+      var gogGames
+      var gogLink
       var _args2 = arguments
       return regeneratorRuntime.wrap(function _callee2$ (_context2) {
         while (1) {
           switch (_context2.prev = _context2.next) {
             case 0:
               first = _args2.length > 0 && _args2[0] !== undefined ? _args2[0] : true
-              itchGames = getItchGameLibrary()
-              itchLink = $('a[href*=".itch.io/"]:not("itch-io-game-link-owned")')
+              gogGames = getGogGameLibrary()
+              gogLink = $('a[href*="www.gog.com/game/"]:not("gog-game-link-owned")')
 
-              if (!(itchLink.length === 0)) {
+              if (!(gogLink.length === 0)) {
                 _context2.next = 5
                 break
               }
@@ -81,8 +79,8 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
               return _context2.abrupt('return')
 
             case 5:
-              if (first) updateItchGameLibrary(false)
-              itchLink.map(function (i, e) {
+              if (first) updateGogGameLibrary(false)
+              gogLink.map(function (i, e) {
                 var _href$match
 
                 var _this = $(e)
@@ -90,10 +88,10 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
                 var href = _this.attr('href')
 
                 if (!/\/$/.test(href)) href += '/'
-                var itchGameLink = (_href$match = href.match(/https?:\/\/(.*?\/.*?)\//i)) === null || _href$match === void 0 ? void 0 : _href$match[1]
+                var gogGameLink = (_href$match = href.match(/https?:\/\/www.gog.com\/game\/([\d\w_]+)/i)) === null || _href$match === void 0 ? void 0 : _href$match[1]
 
-                if (itchGameLink && itchGames.includes(itchGameLink)) {
-                  _this.addClass('itch-io-game-link-owned')
+                if (gogGameLink && gogGames.includes(gogGameLink.toLowerCase())) {
+                  _this.addClass('gog-game-link-owned')
                 }
               })
 
@@ -104,28 +102,28 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
         }
       }, _callee2)
     }))
-    return _checkItchGame.apply(this, arguments)
+    return _checkGogGame.apply(this, arguments)
   }
 
-  function getItchGameLibrary () {
-    return GM_getValue('itchGames') || []
+  function getGogGameLibrary () {
+    return GM_getValue('gogGames') || []
   }
 
-  function updateItchGameLibrary () {
+  function updateGogGameLibrary () {
     var loop = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true
     var i = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1
     var games = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : []
 
     if (!loop && i !== 1) {
-      GM_setValue('itchGames', _toConsumableArray(new Set([].concat(_toConsumableArray(getItchGameLibrary()), _toConsumableArray(games)))))
-      checkItchGame(false)
+      GM_setValue('gogGames', _toConsumableArray(new Set([].concat(_toConsumableArray(getGogGameLibrary()), _toConsumableArray(games)))))
+      checkGogGame(false)
       return
     }
 
     return new Promise(function (resolve, reject) {
       if (loop) {
         Swal[i === 1 ? 'fire' : 'update']({
-          title: '正在更新itch游戏库数据...',
+          title: '正在更新gog游戏库数据...',
           text: '\u7B2C '.concat(i, ' \u9875'),
           icon: 'info'
         })
@@ -133,7 +131,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
 
       GM_xmlhttpRequest({
         method: 'GET',
-        url: 'https://itch.io/my-purchases?page='.concat(i, '&format=json'),
+        url: 'https://www.gog.com/account/getFilteredProducts?hiddenFlag=0&mediaType=1&page='.concat(i, '&sortBy=date_purchased'),
         timeout: 15000,
         nocache: true,
         responseType: 'json',
@@ -145,20 +143,22 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
       })
     }).then(/* #__PURE__ */function () {
       var _ref = _asyncToGenerator(/* #__PURE__ */regeneratorRuntime.mark(function _callee (response) {
-        var _response$response, _response$response2
+        var _response$response, _response$response$pr, _response$response3, _response$response3$p
+
+        var _response$response2
 
         return regeneratorRuntime.wrap(function _callee$ (_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                if (!/https?:\/\/itch.io\/login/i.test(response.finalUrl)) {
+                if (!/openlogin/i.test(response.finalUrl)) {
                   _context.next = 5
                   break
                 }
 
                 if (loop) {
                   Swal.fire({
-                    title: '获取itch游戏库数据失败！',
+                    title: '获取gog游戏库数据失败！',
                     text: '请先登录',
                     icon: 'error',
                     showCancelButton: true,
@@ -167,7 +167,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
                   }).then(function (_ref2) {
                     var value = _ref2.value
                     if (value) {
-                      GM_openInTab('https://itch.io/login', {
+                      GM_openInTab('https://www.gog.com/#openlogin', {
                         active: true,
                         insert: true,
                         setParent: true
@@ -177,7 +177,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
                 } else {
                   $('body').overhang({
                     type: 'error',
-                    message: 'itch.io登录凭证已过期，请重新登录<a href="https://itch.io/login" target="_blank">https://itch.io/login</a>',
+                    message: 'GOG登录凭证已过期，请重新登录<a href="https://www.gog.com/#openlogin" target="_blank">https://www.gog.com/#openlogin</a>',
                     html: true,
                     closeConfirm: true
                   })
@@ -186,25 +186,25 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
                 return _context.abrupt('return', false)
 
               case 5:
-                if (!((_response$response = response.response) === null || _response$response === void 0 ? void 0 : _response$response.num_items)) {
+                if (!((_response$response = response.response) === null || _response$response === void 0 ? void 0 : (_response$response$pr = _response$response.products) === null || _response$response$pr === void 0 ? void 0 : _response$response$pr.length)) {
                   _context.next = 23
                   break
                 }
 
                 // eslint-disable-line camelcase
-                games = [].concat(_toConsumableArray(games), _toConsumableArray($.makeArray($('<div>'.concat(response.response.content, '</div>')).find('a.thumb_link.game_link')).map(function (e, i) {
-                  var _$$attr$match
+                games = [].concat(_toConsumableArray(games), _toConsumableArray(response.response.products.map(function (e) {
+                  var _e$url, _e$url$split
 
-                  return (_$$attr$match = $(e).attr('href').match(/https?:\/\/(.*?\/.*?)\//i)) === null || _$$attr$match === void 0 ? void 0 : _$$attr$match[1]
+                  return e === null || e === void 0 ? void 0 : (_e$url = e.url) === null || _e$url === void 0 ? void 0 : (_e$url$split = _e$url.split('/')) === null || _e$url$split === void 0 ? void 0 : _e$url$split[2]
                 })))
 
-                if (!(response.response.num_items === 50)) {
+                if (!(((_response$response2 = response.response) === null || _response$response2 === void 0 ? void 0 : _response$response2.totalPages) < i)) {
                   _context.next = 13
                   break
                 }
 
                 _context.next = 10
-                return updateItchGameLibrary(loop, ++i, games)
+                return updateGogGameLibrary(loop, ++i, games)
 
               case 10:
                 return _context.abrupt('return', _context.sent)
@@ -215,45 +215,36 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
                   break
                 }
 
-                GM_setValue('itchGames', _toConsumableArray(new Set(games)))
+                GM_setValue('gogGames', _toConsumableArray(new Set(games)))
                 return _context.abrupt('return', Swal.update({
                   icon: 'success',
-                  title: 'itch游戏库数据更新完成',
+                  title: 'gog游戏库数据更新完成',
                   text: ''
                 }))
 
               case 18:
-                GM_setValue('itchGames', _toConsumableArray(new Set([].concat(_toConsumableArray(getItchGameLibrary()), _toConsumableArray(games)))))
-                checkItchGame(false)
+                GM_setValue('gogGames', _toConsumableArray(new Set([].concat(_toConsumableArray(getGogGameLibrary()), _toConsumableArray(games)))))
+                checkGogGame(false)
                 return _context.abrupt('return', true)
 
               case 21:
-                _context.next = 30
+                _context.next = 26
                 break
 
               case 23:
-                if (!(((_response$response2 = response.response) === null || _response$response2 === void 0 ? void 0 : _response$response2.num_items) === 0)) {
-                  _context.next = 28
+                if (!(((_response$response3 = response.response) === null || _response$response3 === void 0 ? void 0 : (_response$response3$p = _response$response3.products) === null || _response$response3$p === void 0 ? void 0 : _response$response3$p.length) !== 0)) {
+                  _context.next = 26
                   break
                 }
 
-                // eslint-disable-line camelcase
-                GM_setValue('itchGames', _toConsumableArray(new Set(games)))
-                return _context.abrupt('return', Swal.update({
-                  icon: 'success',
-                  title: 'itch游戏库数据更新完成',
-                  text: ''
-                }))
-
-              case 28:
                 console.error(response)
                 return _context.abrupt('return', Swal.update({
                   icon: 'error',
-                  title: 'itch游戏库数据更新失败',
+                  title: 'gog游戏库数据更新失败',
                   text: '详情请查看控制台'
                 }))
 
-              case 30:
+              case 26:
               case 'end':
                 return _context.stop()
             }
@@ -268,7 +259,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
       console.error(error)
       return Swal.update({
         icon: 'error',
-        title: 'itch游戏库数据更新失败',
+        title: 'gog游戏库数据更新失败',
         text: '详情请查看控制台'
       })
     })
@@ -304,7 +295,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
     })
   }
 
-  GM_registerMenuCommand('更新itch游戏库', updateItchGameLibrary)
+  GM_registerMenuCommand('更新gog游戏库', updateGogGameLibrary)
   GM_registerMenuCommand('白名单', addWhiteList)
   GM_registerMenuCommand('黑名单', addBlackList)
 
@@ -352,23 +343,22 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
 
   if (!enable) return
 
-  if (getItchGameLibrary().length === 0) {
+  if (getGogGameLibrary().length === 0) {
     Swal.fire({
       title: '游戏库检测脚本提醒',
       icon: 'warning',
-      text: '没有检测到itch游戏库数据，是否立即获取？',
+      text: '没有检测到gog游戏库数据，是否立即获取？',
       showCancelButton: true,
       confirmButtonText: '获取',
       cancelButtonText: '取消'
     }).then(function (_ref5) {
       var value = _ref5.value
-      if (value) updateItchGameLibrary()
+      if (value) updateGogGameLibrary()
     })
   } else {
-    checkItchGame()
+    checkGogGame()
   }
 
-  GM_addStyle('.itch-io-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}')
+  GM_addStyle('.gog-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}')
   GM_addStyle(GM_getResourceText('overhang'))
-  unsafeWindow.checkItchGame = checkItchGame
 })()

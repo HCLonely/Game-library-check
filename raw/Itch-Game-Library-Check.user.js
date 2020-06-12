@@ -2,7 +2,7 @@
 // @name           游戏库检测-itch
 // @name:en        Itch Game Library Check
 // @namespace      itch-game-library-check
-// @version        1.0.7
+// @version        1.0.8
 // @description    检测itch.io游戏是否已拥有。
 // @description:en Check if the game of itch.io is already owned.
 // @author         HCLonely
@@ -10,7 +10,7 @@
 // @iconURL        https://itch.io/favicon.ico
 // @homepage       https://github.com/HCLonely/Game-library-check
 // @supportURL     https://github.com/HCLonely/Game-library-check/issues
-// @updateURL      https://github.com/HCLonely/Game-library-check/blob/master/Game-Library-Check.user.js
+// @updateURL      https://github.com/HCLonely/Game-library-check/blob/master/Itch-Game-Library-Check.user.user.js
 // @include        *
 // @exclude        *://itch.io/login
 // @require        https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js
