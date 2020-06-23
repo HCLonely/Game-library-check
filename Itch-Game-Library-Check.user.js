@@ -266,7 +266,6 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
         return _ref.apply(this, arguments)
       }
     }()).catch(function (error) {
-      console.log(error)
       console.error(error)
       return Swal.update({
         icon: 'error',
