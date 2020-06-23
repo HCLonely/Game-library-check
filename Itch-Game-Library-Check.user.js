@@ -21,7 +21,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
 // @name           游戏库检测-itch
 // @name:en        Itch Game Library Check
 // @namespace      itch-game-library-check
-// @version        1.0.9
+// @version        1.0.10
 // @description    检测itch.io游戏是否已拥有。
 // @description:en Check if the game of itch.io is already owned.
 // @author         HCLonely
@@ -33,6 +33,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
 // @include        *
 // @exclude        *://itch.io/login
 // @require        https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js
+// @require        https://cdn.jsdelivr.net/npm/components-jqueryui@1.12.1/ui/effect.min.js
 // @require        https://cdn.jsdelivr.net/npm/regenerator-runtime@0.13.5/runtime.min.js
 // @require        https://cdn.jsdelivr.net/npm/sweetalert2@9
 // @require        https://cdn.jsdelivr.net/npm/promise-polyfill@8.1.3/dist/polyfill.min.js
@@ -265,6 +266,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
         return _ref.apply(this, arguments)
       }
     }()).catch(function (error) {
+      console.log(error)
       console.error(error)
       return Swal.update({
         icon: 'error',
