@@ -2,7 +2,7 @@
 // @name           游戏库检测-gog
 // @name:en        Gog Game Library Check
 // @namespace      gog-game-library-check
-// @version        1.0.0
+// @version        1.0.1
 // @description    检测gog游戏是否已拥有。
 // @description:en Check if the game of GOG is already owned.
 // @author         HCLonely
@@ -12,6 +12,7 @@
 // @supportURL     https://github.com/HCLonely/Game-library-check/issues
 // @updateURL      https://github.com/HCLonely/Game-library-check/raw/master/Gog-Game-Library-Check.user.js
 // @include        *
+// @exclude        *://www.gog.com/*
 // @require        https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js
 // @require        https://cdn.jsdelivr.net/npm/regenerator-runtime@0.13.5/runtime.min.js
 // @require        https://cdn.jsdelivr.net/npm/sweetalert2@9
@@ -201,6 +202,14 @@
   } else {
     checkGogGame()
   }
+
+  const observer = new MutationObserver(checkGogGame)
+  observer.observe(document.documentElement, {
+    attributes: true,
+    characterData: true,
+    childList: true,
+    subtree: true
+  })
 
   GM_addStyle('.gog-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}')
   GM_addStyle(GM_getResourceText('overhang'))

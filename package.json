@@ -28,6 +28,7 @@
   "standard": {
     "parser": "babel-eslint",
     "globals": [
+      "MutationObserver",
       "$",
       "GM_setValue",
       "GM_getValue",

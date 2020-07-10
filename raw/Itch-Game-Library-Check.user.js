@@ -2,7 +2,7 @@
 // @name           游戏库检测-itch
 // @name:en        Itch Game Library Check
 // @namespace      itch-game-library-check
-// @version        1.0.10
+// @version        1.0.11
 // @description    检测itch.io游戏是否已拥有。
 // @description:en Check if the game of itch.io is already owned.
 // @author         HCLonely
@@ -211,6 +211,14 @@
   } else {
     checkItchGame()
   }
+
+  const observer = new MutationObserver(checkItchGame)
+  observer.observe(document.documentElement, {
+    attributes: true,
+    characterData: true,
+    childList: true,
+    subtree: true
+  })
 
   GM_addStyle('.itch-io-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}')
   GM_addStyle(GM_getResourceText('overhang'))
