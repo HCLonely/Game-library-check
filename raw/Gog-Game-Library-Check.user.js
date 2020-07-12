@@ -2,7 +2,7 @@
 // @name           游戏库检测-gog
 // @name:en        Gog Game Library Check
 // @namespace      gog-game-library-check
-// @version        1.0.1
+// @version        1.0.2
 // @description    检测gog游戏是否已拥有。
 // @description:en Check if the game of GOG is already owned.
 // @author         HCLonely
@@ -36,13 +36,14 @@
   const url = window.location.href
   let enable = true
 
-  async function checkGogGame (first = true) {
+  async function checkGogGame (first = true, again = false) {
     const gogGames = getGogGameLibrary()
-    const gogLink = $('a[href*="www.gog.com/game/"]:not("gog-game-link-owned")')
+    const gogLink = again ? $('a[href*="www.gog.com/game/"]:not("gog-game-checked")') : $('a[href*="www.gog.com/game/"]:not("gog-game-link-owned")')
     if (gogLink.length === 0) return
     if (first) updateGogGameLibrary(false)
     gogLink.map((i, e) => {
       const _this = $(e)
+      _this.addClass('gog-game-checked')
       let href = _this.attr('href')
       if (!/\/$/.test(href)) href += '/'
       const gogGameLink = href.match(/https?:\/\/www.gog.com\/game\/([\d\w_]+)/i)?.[1]
@@ -203,7 +204,7 @@
     checkGogGame()
   }
 
-  const observer = new MutationObserver(checkGogGame)
+  const observer = new MutationObserver(() => { checkGogGame(false, true) })
   observer.observe(document.documentElement, {
     attributes: true,
     characterData: true,

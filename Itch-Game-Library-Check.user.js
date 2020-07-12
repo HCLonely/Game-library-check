@@ -21,7 +21,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
 // @name           游戏库检测-itch
 // @name:en        Itch Game Library Check
 // @namespace      itch-game-library-check
-// @version        1.0.11
+// @version        1.0.12
 // @description    检测itch.io游戏是否已拥有。
 // @description:en Check if the game of itch.io is already owned.
 // @author         HCLonely
@@ -63,6 +63,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
   function _checkItchGame () {
     _checkItchGame = _asyncToGenerator(/* #__PURE__ */regeneratorRuntime.mark(function _callee2 () {
       var first
+      var again
       var itchGames
       var itchLink
       var _args2 = arguments
@@ -71,22 +72,25 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
           switch (_context2.prev = _context2.next) {
             case 0:
               first = _args2.length > 0 && _args2[0] !== undefined ? _args2[0] : true
+              again = _args2.length > 1 && _args2[1] !== undefined ? _args2[1] : false
               itchGames = getItchGameLibrary()
-              itchLink = $('a[href*=".itch.io/"]:not("itch-io-game-link-owned")')
+              itchLink = again ? $('a[href*=".itch.io/"]:not("itch-io-game-checked")') : $('a[href*=".itch.io/"]:not("itch-io-game-link-owned")')
 
               if (!(itchLink.length === 0)) {
-                _context2.next = 5
+                _context2.next = 6
                 break
               }
 
               return _context2.abrupt('return')
 
-            case 5:
+            case 6:
               if (first) updateItchGameLibrary(false)
               itchLink.map(function (i, e) {
                 var _href$match
 
                 var _this = $(e)
+
+                _this.addClass('itch-io-game-checked')
 
                 var href = _this.attr('href')
 
@@ -98,7 +102,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
                 }
               })
 
-            case 7:
+            case 8:
             case 'end':
               return _context2.stop()
           }
@@ -369,7 +373,9 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
     checkItchGame()
   }
 
-  var observer = new MutationObserver(checkItchGame)
+  var observer = new MutationObserver(function () {
+    checkItchGame(false, true)
+  })
   observer.observe(document.documentElement, {
     attributes: true,
     characterData: true,

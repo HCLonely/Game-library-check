@@ -2,7 +2,7 @@
 // @name           游戏库检测-itch
 // @name:en        Itch Game Library Check
 // @namespace      itch-game-library-check
-// @version        1.0.11
+// @version        1.0.12
 // @description    检测itch.io游戏是否已拥有。
 // @description:en Check if the game of itch.io is already owned.
 // @author         HCLonely
@@ -38,13 +38,14 @@
   const url = window.location.href
   let enable = true
 
-  async function checkItchGame (first = true) {
+  async function checkItchGame (first = true, again = false) {
     const itchGames = getItchGameLibrary()
-    const itchLink = $('a[href*=".itch.io/"]:not("itch-io-game-link-owned")')
+    const itchLink = again ? $('a[href*=".itch.io/"]:not("itch-io-game-checked")') : $('a[href*=".itch.io/"]:not("itch-io-game-link-owned")')
     if (itchLink.length === 0) return
     if (first) updateItchGameLibrary(false)
     itchLink.map((i, e) => {
       const _this = $(e)
+      _this.addClass('itch-io-game-checked')
       let href = _this.attr('href')
       if (!/\/$/.test(href)) href += '/'
       const itchGameLink = href.match(/https?:\/\/(.*?\/.*?)\//i)?.[1]
@@ -212,7 +213,7 @@
     checkItchGame()
   }
 
-  const observer = new MutationObserver(checkItchGame)
+  const observer = new MutationObserver(() => { checkItchGame(false, true) })
   observer.observe(document.documentElement, {
     attributes: true,
     characterData: true,
