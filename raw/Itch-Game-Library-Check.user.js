@@ -2,7 +2,7 @@
 // @name           游戏库检测-itch
 // @name:en        Itch Game Library Check
 // @namespace      itch-game-library-check
-// @version        1.0.12
+// @version        1.1.1
 // @description    检测itch.io游戏是否已拥有。
 // @description:en Check if the game of itch.io is already owned.
 // @author         HCLonely
@@ -19,9 +19,12 @@
 // @require        https://cdn.jsdelivr.net/npm/sweetalert2@9
 // @require        https://cdn.jsdelivr.net/npm/promise-polyfill@8.1.3/dist/polyfill.min.js
 // @require        https://cdn.jsdelivr.net/npm/overhang@1.0.8/dist/overhang.min.js
+// @require        https://greasyfork.org/scripts/418102-tm-request/code/TM_request.js?version=902218
+// @require        https://greasyfork.org/scripts/426803-gistsync/code/gistSync.js?version=933451
 // @resource       overhang https://cdn.jsdelivr.net/npm/overhang@1.0.8/dist/overhang.min.css
 // @grant          GM_setValue
 // @grant          GM_getValue
+// @grant          GM_listValues
 // @grant          GM_addStyle
 // @grant          GM_xmlhttpRequest
 // @grant          GM_registerMenuCommand
@@ -29,6 +32,7 @@
 // @grant          GM_openInTab
 // @grant          unsafeWindow
 // @connect        itch.io
+// @connect        api.github.com
 // @run-at         document-end
 // ==/UserScript==
 
