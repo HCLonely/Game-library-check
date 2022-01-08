@@ -1,5 +1,5 @@
 /* eslint-disable no-void,no-func-assign,no-fallthrough,no-unsafe-finally,no-mixed-operators */
-function _createForOfIteratorHelper (o, allowArrayLike) { var it; if (typeof Symbol === 'undefined' || o[Symbol.iterator] == null) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === 'number') { if (it) o = it; var i = 0; var F = function F () {}; return { s: F, n: function n () { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] } }, e: function e (_e2) { throw _e2 }, f: F } } throw new TypeError('Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.') } var normalCompletion = true; var didErr = false; var err; return { s: function s () { it = o[Symbol.iterator]() }, n: function n () { var step = it.next(); normalCompletion = step.done; return step }, e: function e (_e3) { didErr = true; err = _e3 }, f: function f () { try { if (!normalCompletion && it.return != null) it.return() } finally { if (didErr) throw err } } } }
+function _createForOfIteratorHelper (o, allowArrayLike) { var it = typeof Symbol !== 'undefined' && o[Symbol.iterator] || o['@@iterator']; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === 'number') { if (it) o = it; var i = 0; var F = function F () {}; return { s: F, n: function n () { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] } }, e: function e (_e2) { throw _e2 }, f: F } } throw new TypeError('Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.') } var normalCompletion = true; var didErr = false; var err; return { s: function s () { it = it.call(o) }, n: function n () { var step = it.next(); normalCompletion = step.done; return step }, e: function e (_e3) { didErr = true; err = _e3 }, f: function f () { try { if (!normalCompletion && it.return != null) it.return() } finally { if (didErr) throw err } } } }
 
 function _toConsumableArray (arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread() }
 
@@ -7,7 +7,7 @@ function _nonIterableSpread () { throw new TypeError('Invalid attempt to spread 
 
 function _unsupportedIterableToArray (o, minLen) { if (!o) return; if (typeof o === 'string') return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === 'Object' && o.constructor) n = o.constructor.name; if (n === 'Map' || n === 'Set') return Array.from(o); if (n === 'Arguments' || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen) }
 
-function _iterableToArray (iter) { if (typeof Symbol !== 'undefined' && Symbol.iterator in Object(iter)) return Array.from(iter) }
+function _iterableToArray (iter) { if (typeof Symbol !== 'undefined' && iter[Symbol.iterator] != null || iter['@@iterator'] != null) return Array.from(iter) }
 
 function _arrayWithoutHoles (arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr) }
 
@@ -21,7 +21,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
 // @name           游戏库检测-gog
 // @name:en        Gog Game Library Check
 // @namespace      gog-game-library-check
-// @version        1.0.2
+// @version        1.0.3
 // @description    检测gog游戏是否已拥有。
 // @description:en Check if the game of GOG is already owned.
 // @author         HCLonely
@@ -191,7 +191,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
                 return _context.abrupt('return', false)
 
               case 5:
-                if (!((_response$response = response.response) === null || _response$response === void 0 ? void 0 : (_response$response$pr = _response$response.products) === null || _response$response$pr === void 0 ? void 0 : _response$response$pr.length)) {
+                if (!((_response$response = response.response) !== null && _response$response !== void 0 && (_response$response$pr = _response$response.products) !== null && _response$response$pr !== void 0 && _response$response$pr.length)) {
                   _context.next = 23
                   break
                 }
@@ -273,7 +273,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
   function addWhiteList () {
     var whiteList = GM_getValue('whiteList') || []
     Swal.fire({
-      title: '添加白名单',
+      title: '添加白名单网站',
       input: 'textarea',
       inputValue: whiteList.join('\n'),
       showCancelButton: true,
@@ -288,7 +288,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
   function addBlackList () {
     var blackList = GM_getValue('blackList') || []
     Swal.fire({
-      title: '添加黑名单',
+      title: '添加黑名单网站',
       input: 'textarea',
       inputValue: blackList.join('\n'),
       showCancelButton: true,
@@ -300,9 +300,26 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
     })
   }
 
+  function setting () {
+    Swal.fire({
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: '白名单网站',
+      denyButtonText: '黑名单网站',
+      cancelButtonText: '关闭'
+    }).then(function (_ref5) {
+      var isConfirmed = _ref5.isConfirmed
+      var isDenied = _ref5.isDenied
+
+      if (isConfirmed) {
+        addWhiteList()
+      } else if (isDenied) {
+        addBlackList()
+      }
+    })
+  }
+
   GM_registerMenuCommand('更新gog游戏库', updateGogGameLibrary)
-  GM_registerMenuCommand('白名单', addWhiteList)
-  GM_registerMenuCommand('黑名单', addBlackList)
 
   if (whiteList.length > 0) {
     enable = false
@@ -356,8 +373,8 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
       showCancelButton: true,
       confirmButtonText: '获取',
       cancelButtonText: '取消'
-    }).then(function (_ref5) {
-      var value = _ref5.value
+    }).then(function (_ref6) {
+      var value = _ref6.value
       if (value) updateGogGameLibrary()
     })
   } else {

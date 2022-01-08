@@ -21,7 +21,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
 // @name           游戏库检测-itch
 // @name:en        Itch Game Library Check
 // @namespace      itch-game-library-check
-// @version        1.1.2
+// @version        1.1.3
 // @description    检测itch.io游戏是否已拥有。
 // @description:en Check if the game of itch.io is already owned.
 // @author         HCLonely
@@ -286,7 +286,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
   function addWhiteList () {
     var whiteList = GM_getValue('whiteList') || []
     Swal.fire({
-      title: '添加白名单',
+      title: '添加白名单网站',
       input: 'textarea',
       inputValue: whiteList.join('\n'),
       showCancelButton: true,
@@ -301,7 +301,7 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
   function addBlackList () {
     var blackList = GM_getValue('blackList') || []
     Swal.fire({
-      title: '添加黑名单',
+      title: '添加黑名单网站',
       input: 'textarea',
       inputValue: blackList.join('\n'),
       showCancelButton: true,
@@ -313,9 +313,27 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
     })
   }
 
+  function setting () {
+    Swal.fire({
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: '白名单网站',
+      denyButtonText: '黑名单网站',
+      cancelButtonText: '关闭'
+    }).then(function (_ref5) {
+      var isConfirmed = _ref5.isConfirmed
+      var isDenied = _ref5.isDenied
+
+      if (isConfirmed) {
+        addWhiteList()
+      } else if (isDenied) {
+        addBlackList()
+      }
+    })
+  }
+
   GM_registerMenuCommand('更新itch游戏库', updateItchGameLibrary)
-  GM_registerMenuCommand('白名单', addWhiteList)
-  GM_registerMenuCommand('黑名单', addBlackList)
+  GM_registerMenuCommand('设置', setting)
 
   if (whiteList.length > 0) {
     enable = false
@@ -369,8 +387,8 @@ function _asyncToGenerator (fn) { return function () { var self = this; var args
       showCancelButton: true,
       confirmButtonText: '获取',
       cancelButtonText: '取消'
-    }).then(function (_ref5) {
-      var value = _ref5.value
+    }).then(function (_ref6) {
+      var value = _ref6.value
       if (value) updateItchGameLibrary()
     })
   } else {

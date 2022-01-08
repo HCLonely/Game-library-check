@@ -2,7 +2,7 @@
 // @name           游戏库检测-itch
 // @name:en        Itch Game Library Check
 // @namespace      itch-game-library-check
-// @version        1.1.2
+// @version        1.1.3
 // @description    检测itch.io游戏是否已拥有。
 // @description:en Check if the game of itch.io is already owned.
 // @author         HCLonely
@@ -155,7 +155,7 @@
   function addWhiteList () {
     const whiteList = GM_getValue('whiteList') || []
     Swal.fire({
-      title: '添加白名单',
+      title: '添加白名单网站',
       input: 'textarea',
       inputValue: whiteList.join('\n'),
       showCancelButton: true,
@@ -168,7 +168,7 @@
   function addBlackList () {
     const blackList = GM_getValue('blackList') || []
     Swal.fire({
-      title: '添加黑名单',
+      title: '添加黑名单网站',
       input: 'textarea',
       inputValue: blackList.join('\n'),
       showCancelButton: true,
@@ -178,9 +178,23 @@
       if (value !== undefined) value ? GM_setValue('blackList', value.split('\n')) : GM_setValue('blackList', [])
     })
   }
+  function setting() {
+    Swal.fire({
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: '白名单网站',
+      denyButtonText: '黑名单网站',
+      cancelButtonText: '关闭'
+    }).then(({ isConfirmed, isDenied }) => {
+      if (isConfirmed) {
+        addWhiteList()
+      } else if (isDenied) {
+        addBlackList()
+      }
+    })
+  }
   GM_registerMenuCommand('更新itch游戏库', updateItchGameLibrary)
-  GM_registerMenuCommand('白名单', addWhiteList)
-  GM_registerMenuCommand('黑名单', addBlackList)
+  GM_registerMenuCommand('设置', setting)
 
   if (whiteList.length > 0) {
     enable = false
