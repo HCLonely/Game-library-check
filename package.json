@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "itch": "node ./tools/itch.js && standard ./Itch-Game-Library-Check.user.js --fix && echo 格式化完成",
-    "gog": "node ./tools/gog.js && standard ./Gog-Game-Library-Check.user.js --fix && echo 格式化完成",
-    "build": "npm run itch && npm run gog"
+    "itch": "node ./tools/itch.js",
+    "gog": "node ./tools/gog.js",
+    "epic": "node ./tools/epic.js",
+    "build": "npm run itch && npm run gog && npm run epic"
   },
   "repository": {
     "type": "git",
@@ -22,25 +23,8 @@
   "devDependencies": {
     "@babel/core": "^7.17.5",
     "@babel/preset-env": "^7.16.11",
+    "axios": "^0.26.1",
     "babel-eslint": "^10.1.0",
-    "standard": "^16.0.4"
-  },
-  "standard": {
-    "parser": "babel-eslint",
-    "globals": [
-      "MutationObserver",
-      "$",
-      "GM_setValue",
-      "GM_getValue",
-      "GM_addStyle",
-      "GM_xmlhttpRequest",
-      "GM_getResourceText",
-      "GM_registerMenuCommand",
-      "GM_openInTab",
-      "unsafeWindow",
-      "Swal",
-      "regeneratorRuntime",
-      "overhang"
-    ]
+    "eslint": "^8.10.0"
   }
 }

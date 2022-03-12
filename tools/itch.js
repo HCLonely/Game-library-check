@@ -1,15 +1,15 @@
-const fs = require('fs')
-const babel = require('@babel/core')
+const fs = require('fs');
+const babel = require('@babel/core');
 
-const itchJs = fs.readFileSync('./raw/Itch-Game-Library-Check.user.js', 'utf8')
-babel.transform(itchJs, {}, function (err, result) {
+const itchJs = fs.readFileSync('./raw/Itch-Game-Library-Check.user.js', 'utf8');
+babel.transform(itchJs, {}, (err, result) => {
   if (err) {
-    return console.error('babel转换失败: ', err)
+    return console.error('babel转换失败: ', err);
   }
-  fs.writeFile('./Itch-Game-Library-Check.user.js', '/* eslint-disable no-void,no-func-assign,no-fallthrough,no-unsafe-finally,no-mixed-operators */\n' + result.code, function (error) {
+  fs.writeFile('./Itch-Game-Library-Check.user.js', `/* eslint-disable no-void,no-func-assign,no-fallthrough,no-unsafe-finally,no-mixed-operators */\n${result.code}`, (error) => { // eslint-disable-line
     if (error) {
-      return console.error('Itch-Game-Library-Check.user.js文件写入失败: ', error)
+      return console.error('Itch-Game-Library-Check.user.js文件写入失败: ', error);
     }
-    console.log('Itch-Game-Library-Check.user.js文件写入成功')
-  })
-})
+    console.log('Itch-Game-Library-Check.user.js文件写入成功');
+  });
+});

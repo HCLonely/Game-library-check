@@ -2,7 +2,7 @@
 // @name           游戏库检测-gog
 // @name:en        Gog Game Library Check
 // @namespace      gog-game-library-check
-// @version        1.0.3
+// @version        1.0.4
 // @description    检测gog游戏是否已拥有。
 // @description:en Check if the game of GOG is already owned.
 // @author         HCLonely
@@ -31,35 +31,38 @@
 // ==/UserScript==
 
 (function () {
-  const whiteList = GM_getValue('whiteList') || []
-  const blackList = GM_getValue('blackList') || []
-  const url = window.location.href
-  let enable = true
+  const whiteList = GM_getValue('whiteList') || [];
+  const blackList = GM_getValue('blackList') || [];
+  const url = window.location.href;
+  let enable = true;
 
-  async function checkGogGame (first = true, again = false) {
-    const gogGames = getGogGameLibrary()
-    const gogLink = again ? $('a[href*="www.gog.com/game/"]:not("gog-game-checked")') : $('a[href*="www.gog.com/game/"]:not("gog-game-link-owned")')
-    if (gogLink.length === 0) return
-    if (first) updateGogGameLibrary(false)
+  async function checkGogGame(first = true, again = false) {
+    const gogGames = getGogGameLibrary();
+    const gogLink = again ?
+      $('a[href*="www.gog.com/game/"]:not(".gog-game-checked")') :
+      $('a[href*="www.gog.com/game/"]:not(".gog-game-link-owned")');
+    if (gogLink.length === 0) return;
+    if (first) updateGogGameLibrary(false);
     gogLink.map((i, e) => {
-      const _this = $(e)
-      _this.addClass('gog-game-checked')
-      let href = _this.attr('href')
-      if (!/\/$/.test(href)) href += '/'
-      const gogGameLink = href.match(/https?:\/\/www.gog.com\/game\/([\d\w_]+)/i)?.[1]
+      const $this = $(e);
+      $this.addClass('gog-game-checked');
+      let href = $this.attr('href');
+      if (!/\/$/.test(href)) href += '/';
+      const gogGameLink = href.match(/https?:\/\/www.gog.com\/game\/([\d\w_]+)/i)?.[1];
       if (gogGameLink && gogGames.includes(gogGameLink.toLowerCase())) {
-        _this.addClass('gog-game-link-owned')
+        $this.addClass('gog-game-link-owned');
       }
-    })
+      return e;
+    });
   }
-  function getGogGameLibrary () {
-    return GM_getValue('gogGames') || []
+  function getGogGameLibrary() {
+    return GM_getValue('gogGames') || [];
   }
-  function updateGogGameLibrary (loop = true, i = 1, games = []) {
+  function updateGogGameLibrary(loop = true, i = 1, games = []) {
     if (!loop && i !== 1) {
-      GM_setValue('gogGames', [...new Set([...getGogGameLibrary(), ...games])])
-      checkGogGame(false)
-      return
+      GM_setValue('gogGames', [...new Set([...getGogGameLibrary(), ...games])]);
+      checkGogGame(false);
+      return;
     }
     return new Promise((resolve, reject) => {
       if (loop) {
@@ -67,7 +70,7 @@
           title: '正在更新gog游戏库数据...',
           text: `第 ${i} 页`,
           icon: 'info'
-        })
+        });
       }
       GM_xmlhttpRequest({
         method: 'GET',
@@ -77,11 +80,11 @@
         responseType: 'json',
         onerror: reject,
         ontimeout: reject,
-        onload: response => {
-          response.status === 200 ? resolve(response) : reject(response)
+        onload: (response) => {
+          response.status === 200 ? resolve(response) : reject(response);
         }
-      })
-    }).then(async response => {
+      });
+    }).then(async (response) => {
       if (/openlogin/i.test(response.finalUrl)) {
         if (loop) {
           Swal.fire({
@@ -92,55 +95,53 @@
             confirmButtonText: '登录',
             cancelButtonText: '取消'
           }).then(({ value }) => {
-            if (value) GM_openInTab('https://www.gog.com/#openlogin', { active: true, insert: true, setParent: true })
-          })
+            if (value) GM_openInTab('https://www.gog.com/#openlogin', { active: true, insert: true, setParent: true });
+          });
         } else {
           $('body').overhang({
             type: 'error',
             message: 'GOG登录凭证已过期，请重新登录<a href="https://www.gog.com/#openlogin" target="_blank">https://www.gog.com/#openlogin</a>',
             html: true,
             closeConfirm: true
-          })
+          });
         }
-        return false
-      } else if (response.response?.products?.length) { // eslint-disable-line camelcase
-        games = [...games, ...response.response.products.map(e => {
-          return e?.url?.split('/')?.[2]
-        })]
+        return false;
+      } else if (response.response?.products?.length) {
+        games = [...games, ...response.response.products.map((e) => e?.url?.split('/')?.[2])]; // eslint-disable-line
 
         if (response.response?.totalPages < i) {
-          return await updateGogGameLibrary(loop, ++i, games)
+          return await updateGogGameLibrary(loop, ++i, games); // eslint-disable-line
         } else if (loop) {
-          GM_setValue('gogGames', [...new Set(games)])
+          GM_setValue('gogGames', [...new Set(games)]);
           return Swal.update({
             icon: 'success',
             title: 'gog游戏库数据更新完成',
             text: ''
-          })
-        } else {
-          GM_setValue('gogGames', [...new Set([...getGogGameLibrary(), ...games])])
-          checkGogGame(false)
-          return true
+          });
         }
+        GM_setValue('gogGames', [...new Set([...getGogGameLibrary(), ...games])]);
+        checkGogGame(false);
+        return true;
       } else if (response.response?.products?.length !== 0) {
-        console.error(response)
+        console.error(response);
         return Swal.update({
           icon: 'error',
           title: 'gog游戏库数据更新失败',
           text: '详情请查看控制台'
-        })
+        });
       }
-    }).catch(error => {
-      console.error(error)
-      return Swal.update({
-        icon: 'error',
-        title: 'gog游戏库数据更新失败',
-        text: '详情请查看控制台'
-      })
     })
+      .catch((error) => {
+        console.error(error);
+        return Swal.update({
+          icon: 'error',
+          title: 'gog游戏库数据更新失败',
+          text: '详情请查看控制台'
+        });
+      });
   }
-  function addWhiteList () {
-    const whiteList = GM_getValue('whiteList') || []
+  function addWhiteList() {
+    const whiteList = GM_getValue('whiteList') || [];
     Swal.fire({
       title: '添加白名单网站',
       input: 'textarea',
@@ -149,11 +150,11 @@
       confirmButtonText: '保存',
       cancelButtonText: '取消'
     }).then(({ value }) => {
-      if (value !== undefined) value ? GM_setValue('whiteList', value.split('\n')) : GM_setValue('whiteList', [])
-    })
+      if (value !== undefined) value ? GM_setValue('whiteList', value.split('\n')) : GM_setValue('whiteList', []);
+    });
   }
-  function addBlackList () {
-    const blackList = GM_getValue('blackList') || []
+  function addBlackList() {
+    const blackList = GM_getValue('blackList') || [];
     Swal.fire({
       title: '添加黑名单网站',
       input: 'textarea',
@@ -162,8 +163,8 @@
       confirmButtonText: '保存',
       cancelButtonText: '取消'
     }).then(({ value }) => {
-      if (value !== undefined) value ? GM_setValue('blackList', value.split('\n')) : GM_setValue('blackList', [])
-    })
+      if (value !== undefined) value ? GM_setValue('blackList', value.split('\n')) : GM_setValue('blackList', []);
+    });
   }
   function setting() {
     Swal.fire({
@@ -174,33 +175,34 @@
       cancelButtonText: '关闭'
     }).then(({ isConfirmed, isDenied }) => {
       if (isConfirmed) {
-        addWhiteList()
+        addWhiteList();
       } else if (isDenied) {
-        addBlackList()
+        addBlackList();
       }
-    })
+    });
   }
-  GM_registerMenuCommand('更新gog游戏库', updateGogGameLibrary)
+  GM_registerMenuCommand('更新gog游戏库', updateGogGameLibrary);
+  GM_registerMenuCommand('设置', setting);
 
   if (whiteList.length > 0) {
-    enable = false
+    enable = false;
     for (const e of whiteList) {
       if (url.includes(e)) {
-        enable = true
-        break
+        enable = true;
+        break;
       }
     }
   } else if (blackList.length > 0) {
-    enable = true
+    enable = true;
     for (const e of blackList) {
       if (url.includes(e)) {
-        enable = false
-        break
+        enable = false;
+        break;
       }
     }
   }
 
-  if (!enable) return
+  if (!enable) return;
 
   if (getGogGameLibrary().length === 0) {
     Swal.fire({
@@ -211,20 +213,20 @@
       confirmButtonText: '获取',
       cancelButtonText: '取消'
     }).then(({ value }) => {
-      if (value) updateGogGameLibrary()
-    })
+      if (value) updateGogGameLibrary();
+    });
   } else {
-    checkGogGame()
+    checkGogGame();
   }
 
-  const observer = new MutationObserver(() => { checkGogGame(false, true) })
+  const observer = new MutationObserver(() => { checkGogGame(false, true); });
   observer.observe(document.documentElement, {
     attributes: true,
     characterData: true,
     childList: true,
     subtree: true
-  })
+  });
 
-  GM_addStyle('.gog-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}')
-  GM_addStyle(GM_getResourceText('overhang'))
-})()
+  GM_addStyle('.gog-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}');
+  GM_addStyle(GM_getResourceText('overhang'));
+}());
