@@ -7,7 +7,7 @@
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
 // @license        MIT
-// @iconURL        https://www.epic.com/favicon.ico
+// @iconURL        https://static-assets-prod.epicgames.com/epic-store/static/favicon.ico
 // @homepage       https://github.com/HCLonely/Game-library-check
 // @supportURL     https://github.com/HCLonely/Game-library-check/issues
 // @updateURL      https://github.com/HCLonely/Game-library-check/raw/master/Epic-Game-Library-Check.user.js
