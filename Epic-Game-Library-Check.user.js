@@ -21,7 +21,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.0.0
+// @version        1.0.1
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -31,7 +31,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 // @supportURL     https://github.com/HCLonely/Game-library-check/issues
 // @updateURL      https://github.com/HCLonely/Game-library-check/raw/master/Epic-Game-Library-Check.user.js
 // @include        *
-// @exclude        *://www.epicgames.com/*
+// @exclude        *://*.epicgames.com/*
 // @require        https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js
 // @require        https://cdn.jsdelivr.net/npm/regenerator-runtime@0.13.5/runtime.min.js
 // @require        https://cdn.jsdelivr.net/npm/sweetalert2@9
@@ -46,6 +46,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 // @grant          GM_registerMenuCommand
 // @grant          GM_getResourceText
 // @grant          GM_openInTab
+// @connect        store.epicgames.com
 // @connect        www.epicgames.com
 // @connect        cdn.jsdelivr.net
 // @run-at         document-end
