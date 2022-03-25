@@ -2,7 +2,7 @@
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.0.1
+// @version        1.0.2
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -123,7 +123,7 @@
           await new Promise((resolve, reject) => {
             GM_xmlhttpRequest({
               method: 'GET',
-              url: `https://cdn.jsdelivr.net/gh/hclonely/epic-games-status@1.0.0/data/releasedGames-archived-${i}.json`,
+              url: `https://epic-status.hclonely.com/releasedGames-archived-${i}.json`,
               timeout: 15000,
               responseType: 'json',
               onerror: reject,
@@ -151,7 +151,7 @@
       await new Promise((resolve, reject) => {
         GM_xmlhttpRequest({
           method: 'GET',
-          url: `https://cdn.jsdelivr.net/gh/hclonely/epic-games-status@1.0.0/data/releasedGames-${status.updateTime}.json`,
+          url: `https://epic-status.hclonely.com/releasedGames-${status.updateTime}.json`,
           timeout: 15000,
           nocache: true,
           responseType: 'json',
@@ -181,7 +181,7 @@
     await new Promise((resolve, reject) => {
       GM_xmlhttpRequest({
         method: 'GET',
-        url: `https://cdn.jsdelivr.net/gh/hclonely/epic-games-status@1.0.0/data/${type}Games-${status.updateTime}.json`,
+        url: `https://epic-status.hclonely.com/${type}Games-${status.updateTime}.json`,
         timeout: 15000,
         nocache: true,
         responseType: 'json',
@@ -213,7 +213,7 @@
     const dataStatus = await new Promise((resolve, reject) => {
       GM_xmlhttpRequest({
         method: 'GET',
-        url: `https://cdn.jsdelivr.net/gh/hclonely/epic-games-status@1.0.0/data/status.json?t=${new Date().getTime()}`,
+        url: `https://epic-status.hclonely.com/status.json?t=${new Date().getTime()}`,
         timeout: 15000,
         nocache: true,
         responseType: 'json',

@@ -21,7 +21,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.0.1
+// @version        1.0.2
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -253,7 +253,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                         return new Promise(function (resolve, reject) {
                           GM_xmlhttpRequest({
                             method: 'GET',
-                            url: "https://cdn.jsdelivr.net/gh/hclonely/epic-games-status@1.0.0/data/releasedGames-archived-".concat(i, ".json"),
+                            url: "https://epic-status.hclonely.com/releasedGames-archived-".concat(i, ".json"),
                             timeout: 15000,
                             responseType: 'json',
                             onerror: reject,
@@ -305,7 +305,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               return new Promise(function (resolve, reject) {
                 GM_xmlhttpRequest({
                   method: 'GET',
-                  url: "https://cdn.jsdelivr.net/gh/hclonely/epic-games-status@1.0.0/data/releasedGames-".concat(status.updateTime, ".json"),
+                  url: "https://epic-status.hclonely.com/releasedGames-".concat(status.updateTime, ".json"),
                   timeout: 15000,
                   nocache: true,
                   responseType: 'json',
@@ -340,7 +340,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               return new Promise(function (resolve, reject) {
                 GM_xmlhttpRequest({
                   method: 'GET',
-                  url: "https://cdn.jsdelivr.net/gh/hclonely/epic-games-status@1.0.0/data/".concat(type, "Games-").concat(status.updateTime, ".json"),
+                  url: "https://epic-status.hclonely.com/".concat(type, "Games-").concat(status.updateTime, ".json"),
                   timeout: 15000,
                   nocache: true,
                   responseType: 'json',
@@ -396,7 +396,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
               return new Promise(function (resolve, reject) {
                 GM_xmlhttpRequest({
                   method: 'GET',
-                  url: "https://cdn.jsdelivr.net/gh/hclonely/epic-games-status@1.0.0/data/status.json?t=".concat(new Date().getTime()),
+                  url: "https://epic-status.hclonely.com/status.json?t=".concat(new Date().getTime()),
                   timeout: 15000,
                   nocache: true,
                   responseType: 'json',
