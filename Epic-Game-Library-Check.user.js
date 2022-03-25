@@ -49,6 +49,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 // @connect        store.epicgames.com
 // @connect        www.epicgames.com
 // @connect        cdn.jsdelivr.net
+// @connect        epic-status.hclonely.com
 // @run-at         document-end
 // @noframes
 // ==/UserScript==
