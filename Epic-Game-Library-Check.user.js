@@ -1,27 +1,27 @@
 /* eslint-disable no-void,no-func-assign,no-fallthrough,no-unsafe-finally,no-mixed-operators */
-function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e2) { throw _e2; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e3) { didErr = true; err = _e3; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 
 function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
 
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
-
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
 function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e2) { throw _e2; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e3) { didErr = true; err = _e3; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 // ==UserScript==
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.0.3
+// @version        1.0.4
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -58,6 +58,79 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   var blackList = GM_getValue('blackList') || [];
   var url = window.location.href;
   var enable = true;
+  var loadTimes = 0;
+
+  if (whiteList.length > 0) {
+    enable = false;
+
+    var _iterator = _createForOfIteratorHelper(whiteList),
+        _step;
+
+    try {
+      for (_iterator.s(); !(_step = _iterator.n()).done;) {
+        var e = _step.value;
+
+        if (url.includes(e)) {
+          enable = true;
+          break;
+        }
+      }
+    } catch (err) {
+      _iterator.e(err);
+    } finally {
+      _iterator.f();
+    }
+  } else if (blackList.length > 0) {
+    enable = true;
+
+    var _iterator2 = _createForOfIteratorHelper(blackList),
+        _step2;
+
+    try {
+      for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+        var _e = _step2.value;
+
+        if (url.includes(_e)) {
+          enable = false;
+          break;
+        }
+      }
+    } catch (err) {
+      _iterator2.e(err);
+    } finally {
+      _iterator2.f();
+    }
+  }
+
+  if (!enable) return;
+  checkEpicGamesLibrary();
+  updateEpicWishlist();
+
+  if (getEpicOwnedGames().length === 0) {
+    Swal.fire({
+      title: '游戏库检测脚本提醒',
+      icon: 'warning',
+      text: '没有检测到Epic已拥有游戏数据，是否立即获取？',
+      showCancelButton: true,
+      confirmButtonText: '获取',
+      cancelButtonText: '取消'
+    }).then(function (_ref) {
+      var value = _ref.value;
+      if (value) updateEpicOwnedGames();
+    });
+  } else {
+    checkEpicGame();
+  }
+
+  var observer = new MutationObserver(function () {
+    checkEpicGame(false, true);
+  });
+  observer.observe(document.documentElement, {
+    attributes: true,
+    characterData: true,
+    childList: true,
+    subtree: true
+  });
 
   function checkEpicGame() {
     return _checkEpicGame.apply(this, arguments);
@@ -78,23 +151,34 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
             case 0:
               first = _args3.length > 0 && _args3[0] !== undefined ? _args3[0] : true;
               again = _args3.length > 1 && _args3[1] !== undefined ? _args3[1] : false;
+              loadTimes++;
+
+              if (!(loadTimes > 1000)) {
+                _context3.next = 6;
+                break;
+              }
+
+              observer.disconnect();
+              return _context3.abrupt("return");
+
+            case 6:
               epicGames = getEpicGamesLibrary();
               ownedGames = getEpicOwnedGames();
               wishlistGames = GM_getValue('epicWishist') || [];
-              epicLink = again ? $('a[href*="www.epicgames.com/store/"]:not(".epic-game-checked")') : $('a[href*="www.epicgames.com/store/"]:not(".epic-game-link-owned")');
+              epicLink = again ? $('a[href*="www.epicgames.com/store/"]:not(".epic-game-checked"),a[href*="store.epicgames.com/"]:not(".epic-game-checked")') : $('a[href*="www.epicgames.com/store/"]:not(".epic-game-link-owned"),a[href*="store.epicgames.com/"]:not(".epic-game-link-owned")');
 
               if (!(epicLink.length === 0)) {
-                _context3.next = 8;
+                _context3.next = 12;
                 break;
               }
 
               return _context3.abrupt("return");
 
-            case 8:
+            case 12:
               if (first) updateEpicOwnedGames(false);
               epicLink.map( /*#__PURE__*/function () {
                 var _ref7 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(i, e) {
-                  var _href$match, _href$match$;
+                  var _href$match, _href$match$, _href$match2, _href$match2$;
 
                   var $this, href, epicGameName, released, comingsoon, free, gameData;
                   return regeneratorRuntime.wrap(function _callee2$(_context2) {
@@ -105,7 +189,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                           $this.addClass('epic-game-checked');
                           href = $this.attr('href');
                           if (!/\/$/.test(href)) href += '/';
-                          epicGameName = (_href$match = href.match(/https?:\/\/www\.epicgames\.com\/store\/.*?\/p(roduct)?\/([^?/]+)/i)) === null || _href$match === void 0 ? void 0 : (_href$match$ = _href$match[2]) === null || _href$match$ === void 0 ? void 0 : _href$match$.toLowerCase();
+                          epicGameName = ((_href$match = href.match(/https?:\/\/www\.epicgames\.com\/store\/.*?\/p(roduct)?\/([^?/]+)/i)) === null || _href$match === void 0 ? void 0 : (_href$match$ = _href$match[2]) === null || _href$match$ === void 0 ? void 0 : _href$match$.toLowerCase()) || ((_href$match2 = href.match(/https?:\/\/store\.epicgames\.com\/.*?\/p(roduct)?\/([^?/]+)/i)) === null || _href$match2 === void 0 ? void 0 : (_href$match2$ = _href$match2[2]) === null || _href$match2$ === void 0 ? void 0 : _href$match2$.toLowerCase());
 
                           if (!epicGameName) {
                             _context2.next = 27;
@@ -142,19 +226,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                           if (free) {
                             if (free.promotions) {
                               if (new Date().getTime() > free.promotions.startDate && new Date().getTime() < free.promotions.endDate) {
-                                $this.addClass('iconfont icon-gift-clock');
+                                if ($this.find('font.icon-gift-clock').length === 0) $this.append('<font class="iconfont icon-gift-clock"></font>');
                               }
 
                               if (new Date().getTime() < free.promotions.startDate) {
-                                $this.addClass('iconfont icon-clock-gift');
+                                if ($this.find('font.icon-clock-gift').length === 0) $this.append('<font class="iconfont icon-clock-gift"></font>');
                               }
                             } else {
-                              $this.addClass('iconfont icon-gift');
+                              if ($this.find('font.icon-gift').length === 0) $this.append('<font class="iconfont icon-gift"></font>');
                             }
                           }
 
                           if (comingsoon) {
-                            $this.addClass('iconfont icon-clock');
+                            if ($this.find('font.icon-clock').length === 0) $this.append('<font class="iconfont icon-clock"></font>');
                           }
 
                           _context2.t0 = gameData.type;
@@ -162,19 +246,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                           break;
 
                         case 18:
-                          $this.addClass('iconfont icon-kabao');
+                          if ($this.find('font.icon-kabao').length === 0) $this.append('<font class="iconfont icon-kabao"></font>');
                           return _context2.abrupt("break", 27);
 
                         case 20:
-                          $this.addClass('iconfont icon-3302bianji2');
+                          if ($this.find('font.icon-3302bianji2').length === 0) $this.append('<font class="iconfont icon-3302bianji2"></font>');
                           return _context2.abrupt("break", 27);
 
                         case 22:
-                          $this.addClass('iconfont icon-add-one');
+                          if ($this.find('font.icon-add-one').length === 0) $this.append('<font class="iconfont icon-add-one"></font>');
                           return _context2.abrupt("break", 27);
 
                         case 24:
-                          $this.addClass('iconfont icon-ruanjian');
+                          if ($this.find('font.icon-ruanjian').length === 0) $this.append('<font class="iconfont icon-ruanjian"></font>');
                           return _context2.abrupt("break", 27);
 
                         case 26:
@@ -196,7 +280,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 };
               }());
 
-            case 10:
+            case 14:
             case "end":
               return _context3.stop();
           }
@@ -501,7 +585,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         }
       });
     }).then( /*#__PURE__*/function () {
-      var _ref = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(response) {
+      var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(response) {
         var _response$response, _response$response$or, _response$response3, _response$response3$p;
 
         var _response$response2;
@@ -523,8 +607,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                     showCancelButton: true,
                     confirmButtonText: '登录',
                     cancelButtonText: '取消'
-                  }).then(function (_ref2) {
-                    var value = _ref2.value;
+                  }).then(function (_ref3) {
+                    var value = _ref3.value;
                     if (value) GM_openInTab('https://www.epicgames.com/id/login', {
                       active: true,
                       insert: true,
@@ -607,7 +691,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }));
 
       return function (_x3) {
-        return _ref.apply(this, arguments);
+        return _ref2.apply(this, arguments);
       };
     }())["catch"](function (error) {
       console.error(error);
@@ -691,8 +775,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       showCancelButton: true,
       confirmButtonText: '保存',
       cancelButtonText: '取消'
-    }).then(function (_ref3) {
-      var value = _ref3.value;
+    }).then(function (_ref4) {
+      var value = _ref4.value;
       if (value !== undefined) value ? GM_setValue('whiteList', value.split('\n')) : GM_setValue('whiteList', []);
     });
   }
@@ -706,8 +790,8 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       showCancelButton: true,
       confirmButtonText: '保存',
       cancelButtonText: '取消'
-    }).then(function (_ref4) {
-      var value = _ref4.value;
+    }).then(function (_ref5) {
+      var value = _ref5.value;
       if (value !== undefined) value ? GM_setValue('blackList', value.split('\n')) : GM_setValue('blackList', []);
     });
   }
@@ -719,9 +803,9 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       confirmButtonText: '白名单网站',
       denyButtonText: '黑名单网站',
       cancelButtonText: '关闭'
-    }).then(function (_ref5) {
-      var isConfirmed = _ref5.isConfirmed,
-          isDenied = _ref5.isDenied;
+    }).then(function (_ref6) {
+      var isConfirmed = _ref6.isConfirmed,
+          isDenied = _ref6.isDenied;
 
       if (isConfirmed) {
         addWhiteList();
@@ -733,78 +817,6 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 
   GM_registerMenuCommand('更新Epic已拥有游戏数据', updateEpicOwnedGames);
   GM_registerMenuCommand('设置', setting);
-
-  if (whiteList.length > 0) {
-    enable = false;
-
-    var _iterator = _createForOfIteratorHelper(whiteList),
-        _step;
-
-    try {
-      for (_iterator.s(); !(_step = _iterator.n()).done;) {
-        var e = _step.value;
-
-        if (url.includes(e)) {
-          enable = true;
-          break;
-        }
-      }
-    } catch (err) {
-      _iterator.e(err);
-    } finally {
-      _iterator.f();
-    }
-  } else if (blackList.length > 0) {
-    enable = true;
-
-    var _iterator2 = _createForOfIteratorHelper(blackList),
-        _step2;
-
-    try {
-      for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
-        var _e = _step2.value;
-
-        if (url.includes(_e)) {
-          enable = false;
-          break;
-        }
-      }
-    } catch (err) {
-      _iterator2.e(err);
-    } finally {
-      _iterator2.f();
-    }
-  }
-
-  if (!enable) return;
-  checkEpicGamesLibrary();
-  updateEpicWishlist();
-
-  if (getEpicOwnedGames().length === 0) {
-    Swal.fire({
-      title: '游戏库检测脚本提醒',
-      icon: 'warning',
-      text: '没有检测到Epic已拥有游戏数据，是否立即获取？',
-      showCancelButton: true,
-      confirmButtonText: '获取',
-      cancelButtonText: '取消'
-    }).then(function (_ref6) {
-      var value = _ref6.value;
-      if (value) updateEpicOwnedGames();
-    });
-  } else {
-    checkEpicGame();
-  }
-
-  var observer = new MutationObserver(function () {
-    checkEpicGame(false, true);
-  });
-  observer.observe(document.documentElement, {
-    attributes: true,
-    characterData: true,
-    childList: true,
-    subtree: true
-  });
-  GM_addStyle("\n.epic-game-link-owned {\n  color:#ffffff !important;\n  background:#5c8a00 !important\n}\n.epic-game-link-wishlist {\n  color:#ffffff !important;\n  background:#007399 !important\n}\n\n@font-face {\n  font-family: \"iconfont\";\n  src: url('https://cdn.jsdelivr.net/gh/hclonely/Game-library-check@master/raw/iconfont.ttf') format('truetype');\n}\n\n.iconfont {\n  font-family: \"iconfont\" !important;\n  font-size: 16px;\n  font-style: normal;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n}\n\n.icon-gift:after {\n  content: \"\\e681\";\n  color: red;\n}\n\n.icon-gift-clock:after {\n  content: \"\\e681\\e7e9\";\n  color: red;\n}\n\n.icon-clock-gift:after {\n  content: \"\\e7e9\\e681\";\n  color: red;\n}\n\n.icon-3302bianji2:after {\n  content: \"\\e662\";\n  color: red;\n}\n\n.icon-clock:after {\n  content: \"\\e7e9\";\n  color: red;\n}\n\n.icon-kabao:after {\n  content: \"\\e8b1\";\n  color: red;\n}\n\n.icon-ruanjian:after {\n  content: \"\\e689\";\n  color: red;\n}\n\n.icon-add-one:after {\n  content: \"\\e69d\";\n  color: red;\n}");
+  GM_addStyle("\n.epic-game-link-owned {\n  color:#ffffff !important;\n  background:#5c8a00 !important\n}\n.epic-game-link-wishlist {\n  color:#ffffff !important;\n  background:#007399 !important\n}\n\n@font-face {\n  font-family: \"iconfont\";\n  src: url('https://cdn.jsdelivr.net/gh/hclonely/Game-library-check@master/raw/iconfont.ttf') format('truetype');\n}\n\n.iconfont {\n  font-family: \"iconfont\" !important;\n  font-size: 16px;\n  font-style: normal;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n}\n\n.iconfont:after {\n  background-color: #fff;\n  color: red;\n}\n\n.icon-gift:after {\n  content: \"\\e681\";\n}\n\n.icon-gift-clock:after {\n  content: \"\\e681\\e7e9\";\n}\n\n.icon-clock-gift:after {\n  content: \"\\e7e9\\e681\";\n}\n\n.icon-3302bianji2:after {\n  content: \"\\e662\";\n}\n\n.icon-clock:after {\n  content: \"\\e7e9\";\n}\n\n.icon-kabao:after {\n  content: \"\\e8b1\";\n}\n\n.icon-ruanjian:after {\n  content: \"\\e689\";\n}\n\n.icon-add-one:after {\n  content: \"\\e69d\";\n}");
   GM_addStyle(GM_getResourceText('overhang'));
 })();

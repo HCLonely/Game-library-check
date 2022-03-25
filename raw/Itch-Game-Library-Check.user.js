@@ -2,7 +2,7 @@
 // @name           游戏库检测-itch
 // @name:en        Itch Game Library Check
 // @namespace      itch-game-library-check
-// @version        1.1.4
+// @version        1.1.5
 // @description    检测itch.io游戏是否已拥有。
 // @description:en Check if the game of itch.io is already owned.
 // @author         HCLonely
@@ -41,8 +41,57 @@
   const blackList = GM_getValue('blackList') || [];
   const url = window.location.href;
   let enable = true;
+  let loadTimes = 0;
+
+  if (whiteList.length > 0) {
+    enable = false;
+    for (const e of whiteList) {
+      if (url.includes(e)) {
+        enable = true;
+        break;
+      }
+    }
+  } else if (blackList.length > 0) {
+    enable = true;
+    for (const e of blackList) {
+      if (url.includes(e)) {
+        enable = false;
+        break;
+      }
+    }
+  }
+
+  if (!enable) return;
+
+  if (getItchGameLibrary().length === 0) {
+    Swal.fire({
+      title: '游戏库检测脚本提醒',
+      icon: 'warning',
+      text: '没有检测到itch游戏库数据，是否立即获取？',
+      showCancelButton: true,
+      confirmButtonText: '获取',
+      cancelButtonText: '取消'
+    }).then(({ value }) => {
+      if (value) updateItchGameLibrary();
+    });
+  } else {
+    checkItchGame();
+  }
+
+  const observer = new MutationObserver(() => { checkItchGame(false, true); });
+  observer.observe(document.documentElement, {
+    attributes: true,
+    characterData: true,
+    childList: true,
+    subtree: true
+  });
 
   async function checkItchGame(first = true, again = false) {
+    loadTimes++;
+    if (loadTimes > 1000) {
+      observer.disconnect();
+      return;
+    }
     const itchGames = getItchGameLibrary();
     const itchLink = again ? $('a[href*=".itch.io/"]:not(".itch-io-game-checked")') : $('a[href*=".itch.io/"]:not(".itch-io-game-link-owned")');
     if (itchLink.length === 0) return;
@@ -194,49 +243,6 @@
   }
   GM_registerMenuCommand('更新itch游戏库', updateItchGameLibrary);
   GM_registerMenuCommand('设置', setting);
-
-  if (whiteList.length > 0) {
-    enable = false;
-    for (const e of whiteList) {
-      if (url.includes(e)) {
-        enable = true;
-        break;
-      }
-    }
-  } else if (blackList.length > 0) {
-    enable = true;
-    for (const e of blackList) {
-      if (url.includes(e)) {
-        enable = false;
-        break;
-      }
-    }
-  }
-
-  if (!enable) return;
-
-  if (getItchGameLibrary().length === 0) {
-    Swal.fire({
-      title: '游戏库检测脚本提醒',
-      icon: 'warning',
-      text: '没有检测到itch游戏库数据，是否立即获取？',
-      showCancelButton: true,
-      confirmButtonText: '获取',
-      cancelButtonText: '取消'
-    }).then(({ value }) => {
-      if (value) updateItchGameLibrary();
-    });
-  } else {
-    checkItchGame();
-  }
-
-  const observer = new MutationObserver(() => { checkItchGame(false, true); });
-  observer.observe(document.documentElement, {
-    attributes: true,
-    characterData: true,
-    childList: true,
-    subtree: true
-  });
 
   GM_addStyle('.itch-io-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}');
   GM_addStyle(GM_getResourceText('overhang'));

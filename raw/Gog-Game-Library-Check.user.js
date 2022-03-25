@@ -2,7 +2,7 @@
 // @name           游戏库检测-gog
 // @name:en        Gog Game Library Check
 // @namespace      gog-game-library-check
-// @version        1.0.4
+// @version        1.0.5
 // @description    检测gog游戏是否已拥有。
 // @description:en Check if the game of GOG is already owned.
 // @author         HCLonely
@@ -35,8 +35,57 @@
   const blackList = GM_getValue('blackList') || [];
   const url = window.location.href;
   let enable = true;
+  let loadTimes = 0;
+
+  if (whiteList.length > 0) {
+    enable = false;
+    for (const e of whiteList) {
+      if (url.includes(e)) {
+        enable = true;
+        break;
+      }
+    }
+  } else if (blackList.length > 0) {
+    enable = true;
+    for (const e of blackList) {
+      if (url.includes(e)) {
+        enable = false;
+        break;
+      }
+    }
+  }
+
+  if (!enable) return;
+
+  if (getGogGameLibrary().length === 0) {
+    Swal.fire({
+      title: '游戏库检测脚本提醒',
+      icon: 'warning',
+      text: '没有检测到gog游戏库数据，是否立即获取？',
+      showCancelButton: true,
+      confirmButtonText: '获取',
+      cancelButtonText: '取消'
+    }).then(({ value }) => {
+      if (value) updateGogGameLibrary();
+    });
+  } else {
+    checkGogGame();
+  }
+
+  const observer = new MutationObserver(() => { checkGogGame(false, true); });
+  observer.observe(document.documentElement, {
+    attributes: true,
+    characterData: true,
+    childList: true,
+    subtree: true
+  });
 
   async function checkGogGame(first = true, again = false) {
+    loadTimes++;
+    if (loadTimes > 1000) {
+      observer.disconnect();
+      return;
+    }
     const gogGames = getGogGameLibrary();
     const gogLink = again ?
       $('a[href*="www.gog.com/game/"]:not(".gog-game-checked")') :
@@ -107,19 +156,19 @@
         }
         return false;
       } else if (response.response?.products?.length) {
-        games = [...games, ...response.response.products.map((e) => e?.url?.split('/')?.[2])]; // eslint-disable-line
+        games = [...games, ...response.response.products.map((e) => (e?.slug || e?.url?.split('/')?.[e?.url?.split('/').length - 1]))]; // eslint-disable-line
 
         if (response.response?.totalPages < i) {
           return await updateGogGameLibrary(loop, ++i, games); // eslint-disable-line
         } else if (loop) {
-          GM_setValue('gogGames', [...new Set(games)]);
+          GM_setValue('gogGames', [...new Set(games)].filter((e) => e));
           return Swal.update({
             icon: 'success',
             title: 'gog游戏库数据更新完成',
             text: ''
           });
         }
-        GM_setValue('gogGames', [...new Set([...getGogGameLibrary(), ...games])]);
+        GM_setValue('gogGames', [...new Set([...getGogGameLibrary(), ...games])].filter((e) => e));
         checkGogGame(false);
         return true;
       } else if (response.response?.products?.length !== 0) {
@@ -183,49 +232,6 @@
   }
   GM_registerMenuCommand('更新gog游戏库', updateGogGameLibrary);
   GM_registerMenuCommand('设置', setting);
-
-  if (whiteList.length > 0) {
-    enable = false;
-    for (const e of whiteList) {
-      if (url.includes(e)) {
-        enable = true;
-        break;
-      }
-    }
-  } else if (blackList.length > 0) {
-    enable = true;
-    for (const e of blackList) {
-      if (url.includes(e)) {
-        enable = false;
-        break;
-      }
-    }
-  }
-
-  if (!enable) return;
-
-  if (getGogGameLibrary().length === 0) {
-    Swal.fire({
-      title: '游戏库检测脚本提醒',
-      icon: 'warning',
-      text: '没有检测到gog游戏库数据，是否立即获取？',
-      showCancelButton: true,
-      confirmButtonText: '获取',
-      cancelButtonText: '取消'
-    }).then(({ value }) => {
-      if (value) updateGogGameLibrary();
-    });
-  } else {
-    checkGogGame();
-  }
-
-  const observer = new MutationObserver(() => { checkGogGame(false, true); });
-  observer.observe(document.documentElement, {
-    attributes: true,
-    characterData: true,
-    childList: true,
-    subtree: true
-  });
 
   GM_addStyle('.gog-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}');
   GM_addStyle(GM_getResourceText('overhang'));

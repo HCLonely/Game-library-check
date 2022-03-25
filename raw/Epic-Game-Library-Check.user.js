@@ -2,7 +2,7 @@
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.0.3
+// @version        1.0.4
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -40,13 +40,65 @@
   const blackList = GM_getValue('blackList') || [];
   const url = window.location.href;
   let enable = true;
+  let loadTimes = 0;
+
+  if (whiteList.length > 0) {
+    enable = false;
+    for (const e of whiteList) {
+      if (url.includes(e)) {
+        enable = true;
+        break;
+      }
+    }
+  } else if (blackList.length > 0) {
+    enable = true;
+    for (const e of blackList) {
+      if (url.includes(e)) {
+        enable = false;
+        break;
+      }
+    }
+  }
+
+  if (!enable) return;
+
+  checkEpicGamesLibrary();
+  updateEpicWishlist();
+
+  if (getEpicOwnedGames().length === 0) {
+    Swal.fire({
+      title: '游戏库检测脚本提醒',
+      icon: 'warning',
+      text: '没有检测到Epic已拥有游戏数据，是否立即获取？',
+      showCancelButton: true,
+      confirmButtonText: '获取',
+      cancelButtonText: '取消'
+    }).then(({ value }) => {
+      if (value) updateEpicOwnedGames();
+    });
+  } else {
+    checkEpicGame();
+  }
+
+  const observer = new MutationObserver(() => { checkEpicGame(false, true); });
+  observer.observe(document.documentElement, {
+    attributes: true,
+    characterData: true,
+    childList: true,
+    subtree: true
+  });
 
   async function checkEpicGame(first = true, again = false) {
+    loadTimes++;
+    if (loadTimes > 1000) {
+      observer.disconnect();
+      return;
+    }
     const epicGames = getEpicGamesLibrary();
     const ownedGames = getEpicOwnedGames();
     const wishlistGames = GM_getValue('epicWishist') || [];
-    const epicLink = again ? $('a[href*="www.epicgames.com/store/"]:not(".epic-game-checked")') :
-      $('a[href*="www.epicgames.com/store/"]:not(".epic-game-link-owned")');
+    const epicLink = again ? $('a[href*="www.epicgames.com/store/"]:not(".epic-game-checked"),a[href*="store.epicgames.com/"]:not(".epic-game-checked")') :
+      $('a[href*="www.epicgames.com/store/"]:not(".epic-game-link-owned"),a[href*="store.epicgames.com/"]:not(".epic-game-link-owned")');
     if (epicLink.length === 0) return;
     if (first) updateEpicOwnedGames(false);
     epicLink.map(async (i, e) => {
@@ -54,7 +106,8 @@
       $this.addClass('epic-game-checked');
       let href = $this.attr('href');
       if (!/\/$/.test(href)) href += '/';
-      const epicGameName = href.match(/https?:\/\/www\.epicgames\.com\/store\/.*?\/p(roduct)?\/([^?/]+)/i)?.[2]?.toLowerCase();
+      const epicGameName = href.match(/https?:\/\/www\.epicgames\.com\/store\/.*?\/p(roduct)?\/([^?/]+)/i)?.[2]?.toLowerCase() ||
+        href.match(/https?:\/\/store\.epicgames\.com\/.*?\/p(roduct)?\/([^?/]+)/i)?.[2]?.toLowerCase();
       if (epicGameName) {
         const released = epicGames.releasedGames.find((e) => e.pageSlug.includes(epicGameName));
         const comingsoon = epicGames.comingsoonGames.find((e) => e.pageSlug.includes(epicGameName));
@@ -70,31 +123,31 @@
         if (free) {
           if (free.promotions) {
             if (new Date().getTime() > free.promotions.startDate && new Date().getTime() < free.promotions.endDate) {
-              $this.addClass('iconfont icon-gift-clock');
+              if ($this.find('font.icon-gift-clock').length === 0) $this.append('<font class="iconfont icon-gift-clock"></font>');
             }
             if (new Date().getTime() < free.promotions.startDate) {
-              $this.addClass('iconfont icon-clock-gift');
+              if ($this.find('font.icon-clock-gift').length === 0) $this.append('<font class="iconfont icon-clock-gift"></font>');
             }
           } else {
-            $this.addClass('iconfont icon-gift');
+            if ($this.find('font.icon-gift').length === 0) $this.append('<font class="iconfont icon-gift"></font>');
           }
         }
         if (comingsoon) {
-          $this.addClass('iconfont icon-clock');
+          if ($this.find('font.icon-clock').length === 0) $this.append('<font class="iconfont icon-clock"></font>');
         }
         switch (gameData.type) {
         case 'bundles':
-        case 'bundles/games':
-          $this.addClass('iconfont icon-kabao');
+          case 'bundles/games':
+            if ($this.find('font.icon-kabao').length === 0) $this.append('<font class="iconfont icon-kabao"></font>');
           break;
-        case 'editors':
-          $this.addClass('iconfont icon-3302bianji2');
+          case 'editors':
+            if ($this.find('font.icon-3302bianji2').length === 0) $this.append('<font class="iconfont icon-3302bianji2"></font>');
           break;
-        case 'addons':
-          $this.addClass('iconfont icon-add-one');
+          case 'addons':
+            if ($this.find('font.icon-add-one').length === 0) $this.append('<font class="iconfont icon-add-one"></font>');
           break;
-        case 'software':
-          $this.addClass('iconfont icon-ruanjian');
+          case 'software':
+            if ($this.find('font.icon-ruanjian').length === 0) $this.append('<font class="iconfont icon-ruanjian"></font>');
           break;
         default:
           break;
@@ -409,52 +462,6 @@
   GM_registerMenuCommand('更新Epic已拥有游戏数据', updateEpicOwnedGames);
   GM_registerMenuCommand('设置', setting);
 
-  if (whiteList.length > 0) {
-    enable = false;
-    for (const e of whiteList) {
-      if (url.includes(e)) {
-        enable = true;
-        break;
-      }
-    }
-  } else if (blackList.length > 0) {
-    enable = true;
-    for (const e of blackList) {
-      if (url.includes(e)) {
-        enable = false;
-        break;
-      }
-    }
-  }
-
-  if (!enable) return;
-
-  checkEpicGamesLibrary();
-  updateEpicWishlist();
-
-  if (getEpicOwnedGames().length === 0) {
-    Swal.fire({
-      title: '游戏库检测脚本提醒',
-      icon: 'warning',
-      text: '没有检测到Epic已拥有游戏数据，是否立即获取？',
-      showCancelButton: true,
-      confirmButtonText: '获取',
-      cancelButtonText: '取消'
-    }).then(({ value }) => {
-      if (value) updateEpicOwnedGames();
-    });
-  } else {
-    checkEpicGame();
-  }
-
-  const observer = new MutationObserver(() => { checkEpicGame(false, true); });
-  observer.observe(document.documentElement, {
-    attributes: true,
-    characterData: true,
-    childList: true,
-    subtree: true
-  });
-
   GM_addStyle(`
 .epic-game-link-owned {
   color:#ffffff !important;
@@ -478,44 +485,41 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.iconfont:after {
+  background-color: #fff;
+  color: red;
+}
+
 .icon-gift:after {
   content: "\\e681";
-  color: red;
 }
 
 .icon-gift-clock:after {
   content: "\\e681\\e7e9";
-  color: red;
 }
 
 .icon-clock-gift:after {
   content: "\\e7e9\\e681";
-  color: red;
 }
 
 .icon-3302bianji2:after {
   content: "\\e662";
-  color: red;
 }
 
 .icon-clock:after {
   content: "\\e7e9";
-  color: red;
 }
 
 .icon-kabao:after {
   content: "\\e8b1";
-  color: red;
 }
 
 .icon-ruanjian:after {
   content: "\\e689";
-  color: red;
 }
 
 .icon-add-one:after {
   content: "\\e69d";
-  color: red;
 }`);
   GM_addStyle(GM_getResourceText('overhang'));
 }());
