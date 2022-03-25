@@ -30,6 +30,7 @@
 // @connect        store.epicgames.com
 // @connect        www.epicgames.com
 // @connect        cdn.jsdelivr.net
+// @connect        epic-status.hclonely.com
 // @run-at         document-end
 // @noframes
 // ==/UserScript==
