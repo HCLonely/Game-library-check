@@ -21,7 +21,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.0.4
+// @version        1.0.5
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -162,19 +162,27 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
               return _context3.abrupt("return");
 
             case 6:
+              if (!(loadTimes % 100 !== 0)) {
+                _context3.next = 8;
+                break;
+              }
+
+              return _context3.abrupt("return");
+
+            case 8:
               epicGames = getEpicGamesLibrary();
               ownedGames = getEpicOwnedGames();
               wishlistGames = GM_getValue('epicWishist') || [];
               epicLink = again ? $('a[href*="www.epicgames.com/store/"]:not(".epic-game-checked"),a[href*="store.epicgames.com/"]:not(".epic-game-checked")') : $('a[href*="www.epicgames.com/store/"]:not(".epic-game-link-owned"),a[href*="store.epicgames.com/"]:not(".epic-game-link-owned")');
 
               if (!(epicLink.length === 0)) {
-                _context3.next = 12;
+                _context3.next = 14;
                 break;
               }
 
               return _context3.abrupt("return");
 
-            case 12:
+            case 14:
               if (first) updateEpicOwnedGames(false);
               epicLink.map( /*#__PURE__*/function () {
                 var _ref7 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(i, e) {
@@ -280,7 +288,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                 };
               }());
 
-            case 14:
+            case 16:
             case "end":
               return _context3.stop();
           }

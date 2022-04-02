@@ -21,7 +21,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 // @name           游戏库检测-gog
 // @name:en        Gog Game Library Check
 // @namespace      gog-game-library-check
-// @version        1.0.5
+// @version        1.0.6
 // @description    检测gog游戏是否已拥有。
 // @description:en Check if the game of GOG is already owned.
 // @author         HCLonely
@@ -47,6 +47,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 // @grant          GM_openInTab
 // @connect        www.gog.com
 // @run-at         document-end
+// @noframes
 // ==/UserScript==
 (function () {
   var whiteList = GM_getValue('whiteList') || [];
@@ -153,17 +154,25 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
               return _context2.abrupt("return");
 
             case 6:
-              gogGames = getGogGameLibrary();
-              gogLink = again ? $('a[href*="www.gog.com/game/"]:not(".gog-game-checked")') : $('a[href*="www.gog.com/game/"]:not(".gog-game-link-owned")');
-
-              if (!(gogLink.length === 0)) {
-                _context2.next = 10;
+              if (!(loadTimes % 100 !== 0)) {
+                _context2.next = 8;
                 break;
               }
 
               return _context2.abrupt("return");
 
-            case 10:
+            case 8:
+              gogGames = getGogGameLibrary();
+              gogLink = again ? $('a[href*="www.gog.com/game/"]:not(".gog-game-checked")') : $('a[href*="www.gog.com/game/"]:not(".gog-game-link-owned")');
+
+              if (!(gogLink.length === 0)) {
+                _context2.next = 12;
+                break;
+              }
+
+              return _context2.abrupt("return");
+
+            case 12:
               if (first) updateGogGameLibrary(false);
               gogLink.map(function (i, e) {
                 var _href$match;
@@ -181,7 +190,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                 return e;
               });
 
-            case 12:
+            case 14:
             case "end":
               return _context2.stop();
           }

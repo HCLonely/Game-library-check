@@ -2,7 +2,7 @@
 // @name           游戏库检测-gog
 // @name:en        Gog Game Library Check
 // @namespace      gog-game-library-check
-// @version        1.0.5
+// @version        1.0.6
 // @description    检测gog游戏是否已拥有。
 // @description:en Check if the game of GOG is already owned.
 // @author         HCLonely
@@ -28,6 +28,7 @@
 // @grant          GM_openInTab
 // @connect        www.gog.com
 // @run-at         document-end
+// @noframes
 // ==/UserScript==
 
 (function () {
@@ -84,6 +85,9 @@
     loadTimes++;
     if (loadTimes > 1000) {
       observer.disconnect();
+      return;
+    }
+    if (loadTimes % 100 !== 0) {
       return;
     }
     const gogGames = getGogGameLibrary();

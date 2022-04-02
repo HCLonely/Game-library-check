@@ -2,7 +2,7 @@
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.0.4
+// @version        1.0.5
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -92,6 +92,9 @@
     loadTimes++;
     if (loadTimes > 1000) {
       observer.disconnect();
+      return;
+    }
+    if (loadTimes % 100 !== 0) {
       return;
     }
     const epicGames = getEpicGamesLibrary();

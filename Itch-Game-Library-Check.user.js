@@ -21,7 +21,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 // @name           游戏库检测-itch
 // @name:en        Itch Game Library Check
 // @namespace      itch-game-library-check
-// @version        1.1.5
+// @version        1.1.6
 // @description    检测itch.io游戏是否已拥有。
 // @description:en Check if the game of itch.io is already owned.
 // @author         HCLonely
@@ -53,6 +53,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 // @connect        itch.io
 // @connect        api.github.com
 // @run-at         document-end
+// @noframes
 // ==/UserScript==
 (function () {
   var whiteList = GM_getValue('whiteList') || [];
@@ -159,17 +160,25 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
               return _context2.abrupt("return");
 
             case 6:
-              itchGames = getItchGameLibrary();
-              itchLink = again ? $('a[href*=".itch.io/"]:not(".itch-io-game-checked")') : $('a[href*=".itch.io/"]:not(".itch-io-game-link-owned")');
-
-              if (!(itchLink.length === 0)) {
-                _context2.next = 10;
+              if (!(loadTimes % 100 !== 0)) {
+                _context2.next = 8;
                 break;
               }
 
               return _context2.abrupt("return");
 
-            case 10:
+            case 8:
+              itchGames = getItchGameLibrary();
+              itchLink = again ? $('a[href*=".itch.io/"]:not(".itch-io-game-checked")') : $('a[href*=".itch.io/"]:not(".itch-io-game-link-owned")');
+
+              if (!(itchLink.length === 0)) {
+                _context2.next = 12;
+                break;
+              }
+
+              return _context2.abrupt("return");
+
+            case 12:
               if (first) updateItchGameLibrary(false);
               itchLink.map(function (i, e) {
                 var _href$match;
@@ -187,7 +196,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                 return e;
               });
 
-            case 12:
+            case 14:
             case "end":
               return _context2.stop();
           }
