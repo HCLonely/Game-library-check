@@ -21,7 +21,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.0.5
+// @version        1.0.6
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -34,7 +34,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 // @exclude        *://*.epicgames.com/*
 // @require        https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js
 // @require        https://cdn.jsdelivr.net/npm/regenerator-runtime@0.13.5/runtime.min.js
-// @require        https://cdn.jsdelivr.net/npm/sweetalert2@9
+// @require        https://cdn.jsdelivr.net/npm/sweetalert2@11
 // @require        https://cdn.jsdelivr.net/npm/promise-polyfill@8.1.3/dist/polyfill.min.js
 // @require        https://cdn.jsdelivr.net/npm/overhang@1.0.8/dist/overhang.min.js
 // @require        https://cdn.jsdelivr.net/npm/dayjs@1.10.8/dayjs.min.js
