@@ -21,7 +21,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.0.6
+// @version        1.0.7
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -151,6 +151,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
             case 0:
               first = _args3.length > 0 && _args3[0] !== undefined ? _args3[0] : true;
               again = _args3.length > 1 && _args3[1] !== undefined ? _args3[1] : false;
+              // eslint-disable-next-line no-plusplus
               loadTimes++;
 
               if (!(loadTimes > 1000)) {
@@ -172,7 +173,8 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
             case 8:
               epicGames = getEpicGamesLibrary();
               ownedGames = getEpicOwnedGames();
-              wishlistGames = GM_getValue('epicWishist') || [];
+              wishlistGames = GM_getValue('epicWishist') || []; // eslint-disable-next-line max-len
+
               epicLink = again ? $('a[href*="www.epicgames.com/store/"]:not(".epic-game-checked"),a[href*="store.epicgames.com/"]:not(".epic-game-checked")') : $('a[href*="www.epicgames.com/store/"]:not(".epic-game-link-owned"),a[href*="store.epicgames.com/"]:not(".epic-game-link-owned")');
 
               if (!(epicLink.length === 0)) {
@@ -364,11 +366,13 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                           }
                         })["catch"](function (error) {
                           console.error(error);
+                          /*
                           Swal.fire({
                             icon: 'error',
                             title: '更新Epic游戏库数据失败',
                             text: '详情请查看控制台'
                           });
+                          */
                         });
 
                       case 2:
@@ -418,11 +422,13 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                 }
               })["catch"](function (error) {
                 console.error(error);
+                /*
                 Swal.fire({
                   icon: 'error',
                   title: '更新Epic游戏库数据失败',
                   text: '详情请查看控制台'
                 });
+                */
               });
 
             case 13:
@@ -453,11 +459,13 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                 }
               })["catch"](function (error) {
                 console.error(error);
+                /*
                 Swal.fire({
                   icon: 'error',
                   title: '更新Epic游戏库数据失败',
                   text: '详情请查看控制台'
                 });
+                */
               });
 
             case 16:
@@ -513,11 +521,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                 break;
               }
 
-              return _context6.abrupt("return", Swal.fire({
-                icon: 'error',
-                title: '获取Epic游戏库数据失败',
-                text: '详情请查看控制台'
-              }));
+              return _context6.abrupt("return");
 
             case 6:
               if (!(new Date(epicGamesLibrary.updateTime.releasedGames).getTime() < new Date(dataStatus.releasedGames.updateTime).getTime())) {

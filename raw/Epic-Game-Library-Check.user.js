@@ -2,7 +2,7 @@
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.0.6
+// @version        1.0.7
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -89,6 +89,7 @@
   });
 
   async function checkEpicGame(first = true, again = false) {
+    // eslint-disable-next-line no-plusplus
     loadTimes++;
     if (loadTimes > 1000) {
       observer.disconnect();
@@ -100,6 +101,7 @@
     const epicGames = getEpicGamesLibrary();
     const ownedGames = getEpicOwnedGames();
     const wishlistGames = GM_getValue('epicWishist') || [];
+    // eslint-disable-next-line max-len
     const epicLink = again ? $('a[href*="www.epicgames.com/store/"]:not(".epic-game-checked"),a[href*="store.epicgames.com/"]:not(".epic-game-checked")') :
       $('a[href*="www.epicgames.com/store/"]:not(".epic-game-link-owned"),a[href*="store.epicgames.com/"]:not(".epic-game-link-owned")');
     if (epicLink.length === 0) return;
@@ -140,17 +142,17 @@
         }
         switch (gameData.type) {
         case 'bundles':
-          case 'bundles/games':
-            if ($this.find('font.icon-kabao').length === 0) $this.append('<font class="iconfont icon-kabao"></font>');
+        case 'bundles/games':
+          if ($this.find('font.icon-kabao').length === 0) $this.append('<font class="iconfont icon-kabao"></font>');
           break;
-          case 'editors':
-            if ($this.find('font.icon-3302bianji2').length === 0) $this.append('<font class="iconfont icon-3302bianji2"></font>');
+        case 'editors':
+          if ($this.find('font.icon-3302bianji2').length === 0) $this.append('<font class="iconfont icon-3302bianji2"></font>');
           break;
-          case 'addons':
-            if ($this.find('font.icon-add-one').length === 0) $this.append('<font class="iconfont icon-add-one"></font>');
+        case 'addons':
+          if ($this.find('font.icon-add-one').length === 0) $this.append('<font class="iconfont icon-add-one"></font>');
           break;
-          case 'software':
-            if ($this.find('font.icon-ruanjian').length === 0) $this.append('<font class="iconfont icon-ruanjian"></font>');
+        case 'software':
+          if ($this.find('font.icon-ruanjian').length === 0) $this.append('<font class="iconfont icon-ruanjian"></font>');
           break;
         default:
           break;
@@ -197,11 +199,13 @@
           })
             .catch((error) => {
               console.error(error);
+              /*
               Swal.fire({
                 icon: 'error',
                 title: '更新Epic游戏库数据失败',
                 text: '详情请查看控制台'
               });
+              */
             });
         }
       }
@@ -227,11 +231,13 @@
       })
         .catch((error) => {
           console.error(error);
+          /*
           Swal.fire({
             icon: 'error',
             title: '更新Epic游戏库数据失败',
             text: '详情请查看控制台'
           });
+          */
         });
       return;
     }
@@ -257,11 +263,13 @@
     })
       .catch((error) => {
         console.error(error);
+        /*
         Swal.fire({
           icon: 'error',
           title: '更新Epic游戏库数据失败',
           text: '详情请查看控制台'
         });
+        */
       });
     return;
   }
@@ -285,11 +293,14 @@
         console.error(error);
       });
     if (!dataStatus) {
-      return Swal.fire({
+      return;
+      /*
+      Swal.fire({
         icon: 'error',
         title: '获取Epic游戏库数据失败',
         text: '详情请查看控制台'
       });
+      */
     }
     if (new Date(epicGamesLibrary.updateTime.releasedGames).getTime() < new Date(dataStatus.releasedGames.updateTime).getTime()) {
       await updateEpicGamesLibrary('released', dataStatus.releasedGames);
