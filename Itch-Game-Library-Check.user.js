@@ -1,4 +1,3 @@
-/* eslint-disable no-void,no-func-assign,no-fallthrough,no-unsafe-finally,no-mixed-operators */
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
@@ -293,8 +292,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                   var _$$attr$match;
 
                   return (_$$attr$match = $(e).attr('href') // eslint-disable-line
-                  . // eslint-disable-line
-                  match(/https?:\/\/(.*?\/.*?)\//i)) === null || _$$attr$match === void 0 ? void 0 : _$$attr$match[1];
+                  .match(/https?:\/\/(.*?\/.*?)\//i)) === null || _$$attr$match === void 0 ? void 0 : _$$attr$match[1];
                 })));
 
                 if (!(response.response.num_items === 50)) {

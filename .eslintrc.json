@@ -132,7 +132,7 @@
       "never"
     ],
     "no-multi-assign": "error",
-    "no-plusplus": "error",
+    "no-plusplus": "off",
     "operator-linebreak": [
       "error",
       "after"
