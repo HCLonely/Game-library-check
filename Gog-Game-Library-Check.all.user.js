@@ -41,7 +41,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 // @name           游戏库检测-gog
 // @name:en        Gog Game Library Check
 // @namespace      gog-game-library-check
-// @version        1.0.7
+// @version        1.0.8
 // @description    检测gog游戏是否已拥有。
 // @description:en Check if the game of GOG is already owned.
 // @author         HCLonely
@@ -134,8 +134,8 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
     checkGogGame(false, true);
   });
   observer.observe(document.documentElement, {
-    attributes: true,
-    characterData: true,
+    attributes: false,
+    characterData: false,
     childList: true,
     subtree: true
   });
@@ -168,25 +168,17 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
               return _context2.abrupt("return");
 
             case 6:
-              if (!(loadTimes % 100 !== 0)) {
-                _context2.next = 8;
-                break;
-              }
-
-              return _context2.abrupt("return");
-
-            case 8:
               gogGames = getGogGameLibrary();
               gogLink = again ? $('a[href*="www.gog.com/game/"]:not(".gog-game-checked")') : $('a[href*="www.gog.com/game/"]:not(".gog-game-link-owned")');
 
               if (!(gogLink.length === 0)) {
-                _context2.next = 12;
+                _context2.next = 10;
                 break;
               }
 
               return _context2.abrupt("return");
 
-            case 12:
+            case 10:
               if (first) updateGogGameLibrary(false);
               gogLink.map(function (i, e) {
                 var _href$match;
@@ -204,7 +196,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                 return e;
               });
 
-            case 14:
+            case 12:
             case "end":
               return _context2.stop();
           }

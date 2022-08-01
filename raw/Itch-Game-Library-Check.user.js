@@ -2,7 +2,7 @@
 // @name           游戏库检测-itch
 // @name:en        Itch Game Library Check
 // @namespace      itch-game-library-check
-// @version        1.1.7
+// @version        1.1.8
 // @description    检测itch.io游戏是否已拥有。
 // @description:en Check if the game of itch.io is already owned.
 // @author         HCLonely
@@ -81,8 +81,8 @@
 
   const observer = new MutationObserver(() => { checkItchGame(false, true); });
   observer.observe(document.documentElement, {
-    attributes: true,
-    characterData: true,
+    attributes: false,
+    characterData: false,
     childList: true,
     subtree: true
   });
@@ -91,9 +91,6 @@
     loadTimes++;
     if (loadTimes > 1000) {
       observer.disconnect();
-      return;
-    }
-    if (loadTimes % 100 !== 0) {
       return;
     }
     const itchGames = getItchGameLibrary();

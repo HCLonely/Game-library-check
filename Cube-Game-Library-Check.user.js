@@ -17,20 +17,20 @@ function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o =
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 // ==UserScript==
-// @name           游戏库检测-gog
-// @name:en        Gog Game Library Check
-// @namespace      gog-game-library-check
-// @version        1.0.8
-// @description    检测gog游戏是否已拥有。
-// @description:en Check if the game of GOG is already owned.
+// @name           游戏库检测-方块
+// @name:en        Cube Game Library Check
+// @namespace      cube-game-library-check
+// @version        1.0.0
+// @description    检测方块游戏是否已拥有。
+// @description:en Check if the game of Cube is already owned.
 // @author         HCLonely
 // @license        MIT
-// @iconURL        https://www.gog.com/favicon.ico
+// @iconURL        https://www.cube.com/favicon.ico
 // @homepage       https://github.com/HCLonely/Game-library-check
 // @supportURL     https://github.com/HCLonely/Game-library-check/issues
-// @updateURL      https://github.com/HCLonely/Game-library-check/raw/master/Gog-Game-Library-Check.user.js
+// @updateURL      https://github.com/HCLonely/Game-library-check/raw/master/Cube-Game-Library-Check.user.js
 // @include        *
-// @exclude        *://www.gog.com/*
+// @exclude        *://account.cubejoy.com/html/login.html
 // @require        https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js
 // @require        https://cdn.jsdelivr.net/npm/regenerator-runtime@0.13.5/runtime.min.js
 // @require        https://cdn.jsdelivr.net/npm/sweetalert2@11
@@ -44,7 +44,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 // @grant          GM_registerMenuCommand
 // @grant          GM_getResourceText
 // @grant          GM_openInTab
-// @connect        www.gog.com
+// @connect        account.cubejoy.com
 // @run-at         document-end
 // @noframes
 // ==/UserScript==
@@ -99,24 +99,24 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 
   if (!enable) return;
 
-  if (getGogGameLibrary().length === 0) {
+  if (getCubeGameLibrary().length === 0) {
     Swal.fire({
       title: '游戏库检测脚本提醒',
       icon: 'warning',
-      text: '没有检测到gog游戏库数据，是否立即获取？',
+      text: '没有检测到方块游戏库数据，是否立即获取？',
       showCancelButton: true,
       confirmButtonText: '获取',
       cancelButtonText: '取消'
     }).then(function (_ref) {
       var value = _ref.value;
-      if (value) updateGogGameLibrary();
+      if (value) updateCubeGameLibrary();
     });
   } else {
-    checkGogGame();
+    checkCubeGame();
   }
 
   var observer = new MutationObserver(function () {
-    checkGogGame(false, true);
+    checkCubeGame(false, true);
   });
   observer.observe(document.documentElement, {
     attributes: false,
@@ -125,16 +125,16 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
     subtree: true
   });
 
-  function checkGogGame() {
-    return _checkGogGame.apply(this, arguments);
+  function checkCubeGame() {
+    return _checkCubeGame.apply(this, arguments);
   }
 
-  function _checkGogGame() {
-    _checkGogGame = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
+  function _checkCubeGame() {
+    _checkCubeGame = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2() {
       var first,
           again,
-          gogGames,
-          gogLink,
+          cubeGames,
+          cubeLink,
           _args2 = arguments;
       return regeneratorRuntime.wrap(function _callee2$(_context2) {
         while (1) {
@@ -153,74 +153,81 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
               return _context2.abrupt("return");
 
             case 6:
-              gogGames = getGogGameLibrary();
-              gogLink = again ? $('a[href*="www.gog.com/game/"]:not(".gog-game-checked")') : $('a[href*="www.gog.com/game/"]:not(".gog-game-link-owned")');
+              cubeGames = getCubeGameLibrary();
+              cubeLink = again ? $('a[href*="store.cubejoy.com/html/en/store/goodsdetail/detail"]:not(".cube-game-checked")') : $('a[href*="store.cubejoy.com/html/en/store/goodsdetail/detail"]:not(".cube-game-link-owned")');
+              console.log(cubeLink);
 
-              if (!(gogLink.length === 0)) {
-                _context2.next = 10;
+              if (!(cubeLink.length === 0)) {
+                _context2.next = 11;
                 break;
               }
 
               return _context2.abrupt("return");
 
-            case 10:
-              if (first) updateGogGameLibrary(false);
-              gogLink.map(function (i, e) {
+            case 11:
+              if (first) updateCubeGameLibrary(false);
+              cubeLink.map(function (i, e) {
                 var _href$match;
 
                 var $this = $(e);
-                $this.addClass('gog-game-checked');
+                $this.addClass('cube-game-checked');
                 var href = $this.attr('href');
                 if (!/\/$/.test(href)) href += '/';
-                var gogGameLink = (_href$match = href.match(/https?:\/\/www.gog.com\/game\/([\d\w_]+)/i)) === null || _href$match === void 0 ? void 0 : _href$match[1];
+                var cubeGameId = (_href$match = href.match(/https?:\/\/store\.cubejoy\.com\/html\/en\/store\/goodsdetail\/detail([\d]+).html/i)) === null || _href$match === void 0 ? void 0 : _href$match[1];
 
-                if (gogGameLink && gogGames.includes(gogGameLink.toLowerCase())) {
-                  $this.addClass('gog-game-link-owned');
+                if (cubeGameId && cubeGames.includes(parseInt(cubeGameId, 10))) {
+                  $this.addClass('cube-game-link-owned');
                 }
 
                 return e;
               });
 
-            case 12:
+            case 13:
             case "end":
               return _context2.stop();
           }
         }
       }, _callee2);
     }));
-    return _checkGogGame.apply(this, arguments);
+    return _checkCubeGame.apply(this, arguments);
   }
 
-  function getGogGameLibrary() {
-    return GM_getValue('gogGames') || [];
+  function getCubeGameLibrary() {
+    return GM_getValue('cubeGames') || [];
   }
 
-  function updateGogGameLibrary() {
+  function updateCubeGameLibrary() {
     var loop = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
     var i = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 1;
     var games = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
 
     if (!loop && i !== 1) {
-      GM_setValue('gogGames', _toConsumableArray(new Set([].concat(_toConsumableArray(getGogGameLibrary()), _toConsumableArray(games)))));
-      checkGogGame(false);
+      GM_setValue('cubeGames', _toConsumableArray(new Set([].concat(_toConsumableArray(getCubeGameLibrary()), _toConsumableArray(games)))));
+      checkCubeGame(false);
       return;
     }
 
     return new Promise(function (resolve, reject) {
       if (loop) {
         Swal[i === 1 ? 'fire' : 'update']({
-          title: '正在更新gog游戏库数据...',
+          title: '正在更新方块游戏库数据...',
           text: "\u7B2C ".concat(i, " \u9875"),
           icon: 'info'
         });
       }
 
       GM_xmlhttpRequest({
-        method: 'GET',
-        url: "https://www.gog.com/account/getFilteredProducts?hiddenFlag=0&mediaType=1&page=".concat(i, "&sortBy=date_purchased"),
+        method: 'POST',
+        url: "https://account.cubejoy.com/Comment/MyGameReq?pageIndex=".concat(i, "&pageSize=24"),
         timeout: 15000,
         nocache: true,
         responseType: 'json',
+        headers: {
+          'Accept': 'application/json, text/plain, */*',
+          'Host': 'account.cubejoy.com',
+          'Origin': 'https://account.cubejoy.com',
+          'Referer': 'https://account.cubejoy.com/Comment/MyGame'
+        },
         onerror: reject,
         ontimeout: reject,
         onload: function onload(response) {
@@ -229,22 +236,22 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       });
     }).then( /*#__PURE__*/function () {
       var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(response) {
-        var _response$response, _response$response$pr, _response$response3, _response$response3$p;
+        var _response$response, _response$response2, _response$response2$r, _response$response2$r2, _response$response4, _response$response4$r, _response$response4$r2;
 
-        var _response$response2;
+        var _response$response3;
 
         return regeneratorRuntime.wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                if (!/openlogin/i.test(response.finalUrl)) {
+                if (!(((_response$response = response.response) === null || _response$response === void 0 ? void 0 : _response$response.resultCode) === 0)) {
                   _context.next = 5;
                   break;
                 }
 
                 if (loop) {
                   Swal.fire({
-                    title: '获取gog游戏库数据失败！',
+                    title: '获取方块游戏库数据失败！',
                     text: '请先登录',
                     icon: 'error',
                     showCancelButton: true,
@@ -252,7 +259,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                     cancelButtonText: '取消'
                   }).then(function (_ref3) {
                     var value = _ref3.value;
-                    if (value) GM_openInTab('https://www.gog.com/#openlogin', {
+                    if (value) GM_openInTab('https://account.cubejoy.com/html/login.html', {
                       active: true,
                       insert: true,
                       setParent: true
@@ -261,7 +268,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                 } else {
                   $('body').overhang({
                     type: 'error',
-                    message: 'GOG登录凭证已过期，请重新登录<a href="https://www.gog.com/#openlogin" target="_blank">https://www.gog.com/#openlogin</a>',
+                    message: '方块登录凭证已过期，请重新登录<a href="https://account.cubejoy.com/html/login.html" target="_blank">https://account.cubejoy.com/html/login.html</a>',
                     html: true,
                     closeConfirm: true
                   });
@@ -270,24 +277,22 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                 return _context.abrupt("return", false);
 
               case 5:
-                if (!((_response$response = response.response) !== null && _response$response !== void 0 && (_response$response$pr = _response$response.products) !== null && _response$response$pr !== void 0 && _response$response$pr.length)) {
+                if (!((_response$response2 = response.response) !== null && _response$response2 !== void 0 && (_response$response2$r = _response$response2.result) !== null && _response$response2$r !== void 0 && (_response$response2$r2 = _response$response2$r.list) !== null && _response$response2$r2 !== void 0 && _response$response2$r2.length)) {
                   _context.next = 21;
                   break;
                 }
 
-                games = [].concat(_toConsumableArray(games), _toConsumableArray(response.response.products.map(function (e) {
-                  var _e$url, _e$url$split, _e$url2;
-
-                  return (e === null || e === void 0 ? void 0 : e.slug) || (e === null || e === void 0 ? void 0 : (_e$url = e.url) === null || _e$url === void 0 ? void 0 : (_e$url$split = _e$url.split('/')) === null || _e$url$split === void 0 ? void 0 : _e$url$split[(e === null || e === void 0 ? void 0 : (_e$url2 = e.url) === null || _e$url2 === void 0 ? void 0 : _e$url2.split('/').length) - 1]);
+                games = [].concat(_toConsumableArray(games), _toConsumableArray(response.response.result.list.map(function (e) {
+                  return e.S_Id;
                 }))); // eslint-disable-line
 
-                if (!(((_response$response2 = response.response) === null || _response$response2 === void 0 ? void 0 : _response$response2.totalPages) < i)) {
+                if (!(((_response$response3 = response.response) === null || _response$response3 === void 0 ? void 0 : _response$response3.result.total) > i * 24)) {
                   _context.next = 13;
                   break;
                 }
 
                 _context.next = 10;
-                return updateGogGameLibrary(loop, ++i, games);
+                return updateCubeGameLibrary(loop, ++i, games);
 
               case 10:
                 return _context.abrupt("return", _context.sent);
@@ -298,24 +303,24 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                   break;
                 }
 
-                GM_setValue('gogGames', _toConsumableArray(new Set(games)).filter(function (e) {
+                GM_setValue('cubeGames', _toConsumableArray(new Set(games)).filter(function (e) {
                   return e;
                 }));
                 return _context.abrupt("return", Swal.update({
                   icon: 'success',
-                  title: 'gog游戏库数据更新完成',
+                  title: 'cube游戏库数据更新完成',
                   text: ''
                 }));
 
               case 16:
-                GM_setValue('gogGames', _toConsumableArray(new Set([].concat(_toConsumableArray(getGogGameLibrary()), _toConsumableArray(games)))).filter(function (e) {
+                GM_setValue('cubeGames', _toConsumableArray(new Set([].concat(_toConsumableArray(getCubeGameLibrary()), _toConsumableArray(games)))).filter(function (e) {
                   return e;
                 }));
-                checkGogGame(false);
+                checkCubeGame(false);
                 return _context.abrupt("return", true);
 
               case 21:
-                if (!(((_response$response3 = response.response) === null || _response$response3 === void 0 ? void 0 : (_response$response3$p = _response$response3.products) === null || _response$response3$p === void 0 ? void 0 : _response$response3$p.length) !== 0)) {
+                if (!(((_response$response4 = response.response) === null || _response$response4 === void 0 ? void 0 : (_response$response4$r = _response$response4.result) === null || _response$response4$r === void 0 ? void 0 : (_response$response4$r2 = _response$response4$r.list) === null || _response$response4$r2 === void 0 ? void 0 : _response$response4$r2.length) !== 0)) {
                   _context.next = 24;
                   break;
                 }
@@ -323,7 +328,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                 console.error(response);
                 return _context.abrupt("return", Swal.update({
                   icon: 'error',
-                  title: 'gog游戏库数据更新失败',
+                  title: '方块游戏库数据更新失败',
                   text: '详情请查看控制台'
                 }));
 
@@ -342,7 +347,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       console.error(error);
       return Swal.update({
         icon: 'error',
-        title: 'gog游戏库数据更新失败',
+        title: '方块游戏库数据更新失败',
         text: '详情请查看控制台'
       });
     });
@@ -397,8 +402,8 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
     });
   }
 
-  GM_registerMenuCommand('更新gog游戏库', updateGogGameLibrary);
+  GM_registerMenuCommand('更新cube游戏库', updateCubeGameLibrary);
   GM_registerMenuCommand('设置', setting);
-  GM_addStyle('.gog-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}');
+  GM_addStyle('.cube-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}');
   GM_addStyle(GM_getResourceText('overhang'));
 })();

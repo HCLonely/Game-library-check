@@ -8,7 +8,8 @@
     "itch": "node ./tools/itch.js",
     "gog": "node ./tools/gog.js",
     "epic": "node ./tools/epic.js",
-    "build": "npm run itch && npm run gog && npm run epic"
+    "cube": "node ./tools/cube.js",
+    "build": "npm run itch && npm run gog && npm run epic && npm run cube"
   },
   "repository": {
     "type": "git",
