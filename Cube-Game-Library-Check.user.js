@@ -155,16 +155,15 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
             case 6:
               cubeGames = getCubeGameLibrary();
               cubeLink = again ? $('a[href*="store.cubejoy.com/html/en/store/goodsdetail/detail"]:not(".cube-game-checked")') : $('a[href*="store.cubejoy.com/html/en/store/goodsdetail/detail"]:not(".cube-game-link-owned")');
-              console.log(cubeLink);
 
               if (!(cubeLink.length === 0)) {
-                _context2.next = 11;
+                _context2.next = 10;
                 break;
               }
 
               return _context2.abrupt("return");
 
-            case 11:
+            case 10:
               if (first) updateCubeGameLibrary(false);
               cubeLink.map(function (i, e) {
                 var _href$match;
@@ -182,7 +181,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                 return e;
               });
 
-            case 13:
+            case 12:
             case "end":
               return _context2.stop();
           }

@@ -91,7 +91,6 @@
     const cubeLink = again ?
       $('a[href*="store.cubejoy.com/html/en/store/goodsdetail/detail"]:not(".cube-game-checked")') :
       $('a[href*="store.cubejoy.com/html/en/store/goodsdetail/detail"]:not(".cube-game-link-owned")');
-    console.log(cubeLink);
     if (cubeLink.length === 0) return;
     if (first) updateCubeGameLibrary(false);
     cubeLink.map((i, e) => {
