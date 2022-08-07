@@ -29,7 +29,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.1.0
+// @version        1.1.1
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -45,8 +45,6 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 // @require        https://cdn.jsdelivr.net/npm/sweetalert2@11
 // @require        https://cdn.jsdelivr.net/npm/promise-polyfill@8.1.3/dist/polyfill.min.js
 // @require        https://cdn.jsdelivr.net/npm/overhang@1.0.8/dist/overhang.min.js
-// @require        https://cdn.jsdelivr.net/npm/dayjs@1.11.4/dayjs.min.js
-// @require        https://cdn.jsdelivr.net/npm/dayjs@1.11.4/plugin/utc.js
 // @resource       overhang https://cdn.jsdelivr.net/npm/overhang@1.0.8/dist/overhang.min.css
 // @grant          GM_setValue
 // @grant          GM_getValue
@@ -62,8 +60,6 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 // @run-at         document-end
 // @noframes
 // ==/UserScript==
-dayjs.extend(window.dayjs_plugin_utc);
-
 (function () {
   if (!GM_getValue('version')) {
     GM_deleteValue('epicGamesLibrary');
@@ -267,7 +263,7 @@ dayjs.extend(window.dayjs_plugin_utc);
                 GM_xmlhttpRequest({
                   method: 'GET',
                   url: 'https://store.epicgames.com/store/zh-CN/wishlist',
-                  timeout: 15000,
+                  timeout: 30000,
                   nocache: true,
                   onerror: reject,
                   ontimeout: reject,
@@ -343,7 +339,7 @@ dayjs.extend(window.dayjs_plugin_utc);
                   method: 'GET',
                   // eslint-disable-next-line max-len
                   url: "https://store.epicgames.com/graphql?operationName=getCatalogOffer&variables=%7B%22locale%22:%22zh-CN%22,%22country%22:%22CN%22,%22offerId%22:%22".concat(offerId, "%22,%22sandboxId%22:%22").concat(namespace, "%22%7D&extensions=%7B%22persistedQuery%22:%7B%22version%22:1,%22sha256Hash%22:%22").concat(getCatalogOfferSha256Hash, "%22%7D%7D"),
-                  timeout: 15000,
+                  timeout: 30000,
                   nocache: true,
                   responseType: 'json',
                   onerror: reject,
@@ -428,7 +424,7 @@ dayjs.extend(window.dayjs_plugin_utc);
       GM_xmlhttpRequest({
         method: 'GET',
         url: "https://www.epicgames.com/account/v2/payment/ajaxGetOrderHistory?page=".concat(i, "&locale=").concat(locale).concat(lastCreatedAt ? "&lastCreatedAt=".concat(encodeURIComponent(lastCreatedAt)) : ''),
-        timeout: 15000,
+        timeout: 30000,
         nocache: true,
         responseType: 'json',
         onerror: reject,
@@ -539,7 +535,7 @@ dayjs.extend(window.dayjs_plugin_utc);
                 }()));
 
               case 7:
-                _lastCreatedAt = dayjs(response.response.orders.at(-1).createdAtMillis).utc().format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
+                _lastCreatedAt = new Date(response.response.orders.at(-1).createdAtMillis).toISOString();
 
                 if (!(parseInt(((_response$response2 = response.response) === null || _response$response2 === void 0 ? void 0 : _response$response2.total) / 10, 10) > i)) {
                   _context2.next = 19;
@@ -659,7 +655,7 @@ dayjs.extend(window.dayjs_plugin_utc);
                   method: 'GET',
                   url: "https://store.epicgames.com/graphql?operationName=getWishlist&variables=%7B%22accountId%22:%22".concat(accountId, "%22%7D&extensions=%7B%22persistedQuery%22:%7B%22version%22:1,%22sha256Hash%22:%22").concat(getWishlistSha256Hash, "%22%7D%7D"),
                   // eslint-disable-line
-                  timeout: 15000,
+                  timeout: 30000,
                   nocache: true,
                   responseType: 'json',
                   onload: function () {
