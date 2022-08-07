@@ -20,13 +20,22 @@ var runtime=function(t){"use strict";var r,e=Object.prototype,n=e.hasOwnProperty
  */
 
 $.fn.overhang=function(arguments){var e=$(this),o=$("<div class='overhang'></div>"),a=$("<div class='overhang-overlay'></div>");$(".overhang").remove(),$(".overhang-overlay").remove();var n={success:["#2ECC71","#27AE60"],error:["#E74C3C","#C0392B"],warn:["#E67E22","#D35400"],info:["#3498DB","#2980B9"],prompt:["#9B59B6","#8E44AD"],confirm:["#1ABC9C","#16A085"],default:["#95A5A6","#7F8C8D"]},r=$.extend({type:"success",custom:!1,message:"This is an overhang.js message!",textColor:"#FFFFFF",yesMessage:"Yes",noMessage:"No",yesColor:"#2ECC71",noColor:"#E74C3C",duration:1.5,speed:500,closeConfirm:!1,upper:!1,easing:"easeOutBounce",html:!1,overlay:!1,customClasses:"",callback:function(){}},arguments);function s(n,s){a.fadeOut(100),o.slideUp(r.speed,function(){n&&r.callback(null!==s?e.data(s):"")})}r.type=r.type.toLowerCase();-1===$.inArray(r.type,["success","error","warn","info","prompt","confirm"])&&(r.type="default",console.log("You have entered invalid type name for an overhang message. Overhang resorted to the default theme.")),o.addClass(r.customClasses),r.custom?(r.primary=arguments.primary||n.default[0],r.accent=arguments.accent||n.default[1]):(r.primary=n[r.type][0]||n.default[0],r.accent=n[r.type][1]||n.default[1]),"prompt"!==r.type&&"confirm"!==r.type||(r.primary=arguments.primary||n[r.type][0],r.accent=arguments.accent||n[r.type][1],r.closeConfirm=!0),o.css("background-color",r.primary),o.css("border-bottom","6px solid "+r.accent);var t=$("<span class='overhang-message'></span>");t.css("color",r.textColor),r.html?t.html(r.message):t.text(r.upper?r.message.toUpperCase():r.message),o.append(t);var c=$("<input class='overhang-prompt-field' />"),l=$("<button class='overhang-yes-option'>"+r.yesMessage+"</button>"),p=$("<button class='overhang-no-option'>"+r.noMessage+"</button>");if(l.css("background-color",r.yesColor),p.css("background-color",r.noColor),r.closeConfirm){var i=$("<span class='overhang-close'></span>");i.css("color",r.accent),"confirm"!==r.type&&o.append(i)}if("prompt"===r.type?(o.append(c),e.data("overhangPrompt",null),c.keydown(function(o){13==o.keyCode&&(e.data("overhangPrompt",c.val()),s(!0,"overhangPrompt"))})):"confirm"===r.type&&(o.append(l),o.append(p),o.append(i),e.data("overhangConfirm",null),l.click(function(){e.data("overhangConfirm",!0),s(!0,"overhangConfirm")}),p.click(function(){e.data("overhangConfirm",!1),s(!0,"overhangConfirm")})),e.append(o),o.slideDown(r.speed,r.easing),r.overlay&&(r.overlayColor&&a.css("background-color",r.overlayColor),e.append(a)),r.closeConfirm&&!arguments.duration)i.click(function(){"prompt"!==r.type&&"confirm"!==r.type?s(!0,null):s(!1,null)});else if(r.closeConfirm&&arguments.duration){var u=setTimeout(function(){o.slideUp(r.speed,function(){s(!0,null)})},1e3*r.duration);i.click(function(){clearTimeout(u),"prompt"!==r.type&&"confirm"!==r.type?s(!0,null):s(!1,null)})}else o.delay(1e3*r.duration).slideUp(r.speed,function(){s(!0,null)})};
-!function(t,e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e():"function"==typeof define&&define.amd?define(e):(t="undefined"!=typeof globalThis?globalThis:t||self).dayjs=e()}(this,(function(){"use strict";var t=1e3,e=6e4,n=36e5,r="millisecond",i="second",s="minute",u="hour",a="day",o="week",f="month",h="quarter",c="year",d="date",$="Invalid Date",l=/^(\d{4})[-/]?(\d{1,2})?[-/]?(\d{0,2})[Tt\s]*(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?[.:]?(\d+)?$/,y=/\[([^\]]+)]|Y{1,4}|M{1,4}|D{1,2}|d{1,4}|H{1,2}|h{1,2}|a|A|m{1,2}|s{1,2}|Z{1,2}|SSS/g,M={name:"en",weekdays:"Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split("_"),months:"January_February_March_April_May_June_July_August_September_October_November_December".split("_")},m=function(t,e,n){var r=String(t);return!r||r.length>=e?t:""+Array(e+1-r.length).join(n)+t},g={s:m,z:function(t){var e=-t.utcOffset(),n=Math.abs(e),r=Math.floor(n/60),i=n%60;return(e<=0?"+":"-")+m(r,2,"0")+":"+m(i,2,"0")},m:function t(e,n){if(e.date()<n.date())return-t(n,e);var r=12*(n.year()-e.year())+(n.month()-e.month()),i=e.clone().add(r,f),s=n-i<0,u=e.clone().add(r+(s?-1:1),f);return+(-(r+(n-i)/(s?i-u:u-i))||0)},a:function(t){return t<0?Math.ceil(t)||0:Math.floor(t)},p:function(t){return{M:f,y:c,w:o,d:a,D:d,h:u,m:s,s:i,ms:r,Q:h}[t]||String(t||"").toLowerCase().replace(/s$/,"")},u:function(t){return void 0===t}},D="en",v={};v[D]=M;var p=function(t){return t instanceof _},S=function(t,e,n){var r;if(!t)return D;if("string"==typeof t)v[t]&&(r=t),e&&(v[t]=e,r=t);else{var i=t.name;v[i]=t,r=i}return!n&&r&&(D=r),r||!n&&D},w=function(t,e){if(p(t))return t.clone();var n="object"==typeof e?e:{};return n.date=t,n.args=arguments,new _(n)},O=g;O.l=S,O.i=p,O.w=function(t,e){return w(t,{locale:e.$L,utc:e.$u,x:e.$x,$offset:e.$offset})};var _=function(){function M(t){this.$L=S(t.locale,null,!0),this.parse(t)}var m=M.prototype;return m.parse=function(t){this.$d=function(t){var e=t.date,n=t.utc;if(null===e)return new Date(NaN);if(O.u(e))return new Date;if(e instanceof Date)return new Date(e);if("string"==typeof e&&!/Z$/i.test(e)){var r=e.match(l);if(r){var i=r[2]-1||0,s=(r[7]||"0").substring(0,3);return n?new Date(Date.UTC(r[1],i,r[3]||1,r[4]||0,r[5]||0,r[6]||0,s)):new Date(r[1],i,r[3]||1,r[4]||0,r[5]||0,r[6]||0,s)}}return new Date(e)}(t),this.$x=t.x||{},this.init()},m.init=function(){var t=this.$d;this.$y=t.getFullYear(),this.$M=t.getMonth(),this.$D=t.getDate(),this.$W=t.getDay(),this.$H=t.getHours(),this.$m=t.getMinutes(),this.$s=t.getSeconds(),this.$ms=t.getMilliseconds()},m.$utils=function(){return O},m.isValid=function(){return!(this.$d.toString()===$)},m.isSame=function(t,e){var n=w(t);return this.startOf(e)<=n&&n<=this.endOf(e)},m.isAfter=function(t,e){return w(t)<this.startOf(e)},m.isBefore=function(t,e){return this.endOf(e)<w(t)},m.$g=function(t,e,n){return O.u(t)?this[e]:this.set(n,t)},m.unix=function(){return Math.floor(this.valueOf()/1e3)},m.valueOf=function(){return this.$d.getTime()},m.startOf=function(t,e){var n=this,r=!!O.u(e)||e,h=O.p(t),$=function(t,e){var i=O.w(n.$u?Date.UTC(n.$y,e,t):new Date(n.$y,e,t),n);return r?i:i.endOf(a)},l=function(t,e){return O.w(n.toDate()[t].apply(n.toDate("s"),(r?[0,0,0,0]:[23,59,59,999]).slice(e)),n)},y=this.$W,M=this.$M,m=this.$D,g="set"+(this.$u?"UTC":"");switch(h){case c:return r?$(1,0):$(31,11);case f:return r?$(1,M):$(0,M+1);case o:var D=this.$locale().weekStart||0,v=(y<D?y+7:y)-D;return $(r?m-v:m+(6-v),M);case a:case d:return l(g+"Hours",0);case u:return l(g+"Minutes",1);case s:return l(g+"Seconds",2);case i:return l(g+"Milliseconds",3);default:return this.clone()}},m.endOf=function(t){return this.startOf(t,!1)},m.$set=function(t,e){var n,o=O.p(t),h="set"+(this.$u?"UTC":""),$=(n={},n[a]=h+"Date",n[d]=h+"Date",n[f]=h+"Month",n[c]=h+"FullYear",n[u]=h+"Hours",n[s]=h+"Minutes",n[i]=h+"Seconds",n[r]=h+"Milliseconds",n)[o],l=o===a?this.$D+(e-this.$W):e;if(o===f||o===c){var y=this.clone().set(d,1);y.$d[$](l),y.init(),this.$d=y.set(d,Math.min(this.$D,y.daysInMonth())).$d}else $&&this.$d[$](l);return this.init(),this},m.set=function(t,e){return this.clone().$set(t,e)},m.get=function(t){return this[O.p(t)]()},m.add=function(r,h){var d,$=this;r=Number(r);var l=O.p(h),y=function(t){var e=w($);return O.w(e.date(e.date()+Math.round(t*r)),$)};if(l===f)return this.set(f,this.$M+r);if(l===c)return this.set(c,this.$y+r);if(l===a)return y(1);if(l===o)return y(7);var M=(d={},d[s]=e,d[u]=n,d[i]=t,d)[l]||1,m=this.$d.getTime()+r*M;return O.w(m,this)},m.subtract=function(t,e){return this.add(-1*t,e)},m.format=function(t){var e=this,n=this.$locale();if(!this.isValid())return n.invalidDate||$;var r=t||"YYYY-MM-DDTHH:mm:ssZ",i=O.z(this),s=this.$H,u=this.$m,a=this.$M,o=n.weekdays,f=n.months,h=function(t,n,i,s){return t&&(t[n]||t(e,r))||i[n].substr(0,s)},c=function(t){return O.s(s%12||12,t,"0")},d=n.meridiem||function(t,e,n){var r=t<12?"AM":"PM";return n?r.toLowerCase():r},l={YY:String(this.$y).slice(-2),YYYY:this.$y,M:a+1,MM:O.s(a+1,2,"0"),MMM:h(n.monthsShort,a,f,3),MMMM:h(f,a),D:this.$D,DD:O.s(this.$D,2,"0"),d:String(this.$W),dd:h(n.weekdaysMin,this.$W,o,2),ddd:h(n.weekdaysShort,this.$W,o,3),dddd:o[this.$W],H:String(s),HH:O.s(s,2,"0"),h:c(1),hh:c(2),a:d(s,u,!0),A:d(s,u,!1),m:String(u),mm:O.s(u,2,"0"),s:String(this.$s),ss:O.s(this.$s,2,"0"),SSS:O.s(this.$ms,3,"0"),Z:i};return r.replace(y,(function(t,e){return e||l[t]||i.replace(":","")}))},m.utcOffset=function(){return 15*-Math.round(this.$d.getTimezoneOffset()/15)},m.diff=function(r,d,$){var l,y=O.p(d),M=w(r),m=(M.utcOffset()-this.utcOffset())*e,g=this-M,D=O.m(this,M);return D=(l={},l[c]=D/12,l[f]=D,l[h]=D/3,l[o]=(g-m)/6048e5,l[a]=(g-m)/864e5,l[u]=g/n,l[s]=g/e,l[i]=g/t,l)[y]||g,$?D:O.a(D)},m.daysInMonth=function(){return this.endOf(f).$D},m.$locale=function(){return v[this.$L]},m.locale=function(t,e){if(!t)return this.$L;var n=this.clone(),r=S(t,e,!0);return r&&(n.$L=r),n},m.clone=function(){return O.w(this.$d,this)},m.toDate=function(){return new Date(this.valueOf())},m.toJSON=function(){return this.isValid()?this.toISOString():null},m.toISOString=function(){return this.$d.toISOString()},m.toString=function(){return this.$d.toUTCString()},M}(),b=_.prototype;return w.prototype=b,[["$ms",r],["$s",i],["$m",s],["$H",u],["$W",a],["$M",f],["$y",c],["$D",d]].forEach((function(t){b[t[1]]=function(e){return this.$g(e,t[0],t[1])}})),w.extend=function(t,e){return t.$i||(t(e,_,w),t.$i=!0),w},w.locale=S,w.isDayjs=p,w.unix=function(t){return w(1e3*t)},w.en=v[D],w.Ls=v,w.p={},w}));function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+!function(t,e){"object"==typeof exports&&"undefined"!=typeof module?module.exports=e():"function"==typeof define&&define.amd?define(e):(t="undefined"!=typeof globalThis?globalThis:t||self).dayjs=e()}(this,(function(){"use strict";var t=1e3,e=6e4,n=36e5,r="millisecond",i="second",s="minute",u="hour",a="day",o="week",f="month",h="quarter",c="year",d="date",$="Invalid Date",l=/^(\d{4})[-/]?(\d{1,2})?[-/]?(\d{0,2})[Tt\s]*(\d{1,2})?:?(\d{1,2})?:?(\d{1,2})?[.:]?(\d+)?$/,y=/\[([^\]]+)]|Y{1,4}|M{1,4}|D{1,2}|d{1,4}|H{1,2}|h{1,2}|a|A|m{1,2}|s{1,2}|Z{1,2}|SSS/g,M={name:"en",weekdays:"Sunday_Monday_Tuesday_Wednesday_Thursday_Friday_Saturday".split("_"),months:"January_February_March_April_May_June_July_August_September_October_November_December".split("_")},m=function(t,e,n){var r=String(t);return!r||r.length>=e?t:""+Array(e+1-r.length).join(n)+t},g={s:m,z:function(t){var e=-t.utcOffset(),n=Math.abs(e),r=Math.floor(n/60),i=n%60;return(e<=0?"+":"-")+m(r,2,"0")+":"+m(i,2,"0")},m:function t(e,n){if(e.date()<n.date())return-t(n,e);var r=12*(n.year()-e.year())+(n.month()-e.month()),i=e.clone().add(r,f),s=n-i<0,u=e.clone().add(r+(s?-1:1),f);return+(-(r+(n-i)/(s?i-u:u-i))||0)},a:function(t){return t<0?Math.ceil(t)||0:Math.floor(t)},p:function(t){return{M:f,y:c,w:o,d:a,D:d,h:u,m:s,s:i,ms:r,Q:h}[t]||String(t||"").toLowerCase().replace(/s$/,"")},u:function(t){return void 0===t}},v="en",D={};D[v]=M;var p=function(t){return t instanceof _},S=function t(e,n,r){var i;if(!e)return v;if("string"==typeof e){var s=e.toLowerCase();D[s]&&(i=s),n&&(D[s]=n,i=s);var u=e.split("-");if(!i&&u.length>1)return t(u[0])}else{var a=e.name;D[a]=e,i=a}return!r&&i&&(v=i),i||!r&&v},w=function(t,e){if(p(t))return t.clone();var n="object"==typeof e?e:{};return n.date=t,n.args=arguments,new _(n)},O=g;O.l=S,O.i=p,O.w=function(t,e){return w(t,{locale:e.$L,utc:e.$u,x:e.$x,$offset:e.$offset})};var _=function(){function M(t){this.$L=S(t.locale,null,!0),this.parse(t)}var m=M.prototype;return m.parse=function(t){this.$d=function(t){var e=t.date,n=t.utc;if(null===e)return new Date(NaN);if(O.u(e))return new Date;if(e instanceof Date)return new Date(e);if("string"==typeof e&&!/Z$/i.test(e)){var r=e.match(l);if(r){var i=r[2]-1||0,s=(r[7]||"0").substring(0,3);return n?new Date(Date.UTC(r[1],i,r[3]||1,r[4]||0,r[5]||0,r[6]||0,s)):new Date(r[1],i,r[3]||1,r[4]||0,r[5]||0,r[6]||0,s)}}return new Date(e)}(t),this.$x=t.x||{},this.init()},m.init=function(){var t=this.$d;this.$y=t.getFullYear(),this.$M=t.getMonth(),this.$D=t.getDate(),this.$W=t.getDay(),this.$H=t.getHours(),this.$m=t.getMinutes(),this.$s=t.getSeconds(),this.$ms=t.getMilliseconds()},m.$utils=function(){return O},m.isValid=function(){return!(this.$d.toString()===$)},m.isSame=function(t,e){var n=w(t);return this.startOf(e)<=n&&n<=this.endOf(e)},m.isAfter=function(t,e){return w(t)<this.startOf(e)},m.isBefore=function(t,e){return this.endOf(e)<w(t)},m.$g=function(t,e,n){return O.u(t)?this[e]:this.set(n,t)},m.unix=function(){return Math.floor(this.valueOf()/1e3)},m.valueOf=function(){return this.$d.getTime()},m.startOf=function(t,e){var n=this,r=!!O.u(e)||e,h=O.p(t),$=function(t,e){var i=O.w(n.$u?Date.UTC(n.$y,e,t):new Date(n.$y,e,t),n);return r?i:i.endOf(a)},l=function(t,e){return O.w(n.toDate()[t].apply(n.toDate("s"),(r?[0,0,0,0]:[23,59,59,999]).slice(e)),n)},y=this.$W,M=this.$M,m=this.$D,g="set"+(this.$u?"UTC":"");switch(h){case c:return r?$(1,0):$(31,11);case f:return r?$(1,M):$(0,M+1);case o:var v=this.$locale().weekStart||0,D=(y<v?y+7:y)-v;return $(r?m-D:m+(6-D),M);case a:case d:return l(g+"Hours",0);case u:return l(g+"Minutes",1);case s:return l(g+"Seconds",2);case i:return l(g+"Milliseconds",3);default:return this.clone()}},m.endOf=function(t){return this.startOf(t,!1)},m.$set=function(t,e){var n,o=O.p(t),h="set"+(this.$u?"UTC":""),$=(n={},n[a]=h+"Date",n[d]=h+"Date",n[f]=h+"Month",n[c]=h+"FullYear",n[u]=h+"Hours",n[s]=h+"Minutes",n[i]=h+"Seconds",n[r]=h+"Milliseconds",n)[o],l=o===a?this.$D+(e-this.$W):e;if(o===f||o===c){var y=this.clone().set(d,1);y.$d[$](l),y.init(),this.$d=y.set(d,Math.min(this.$D,y.daysInMonth())).$d}else $&&this.$d[$](l);return this.init(),this},m.set=function(t,e){return this.clone().$set(t,e)},m.get=function(t){return this[O.p(t)]()},m.add=function(r,h){var d,$=this;r=Number(r);var l=O.p(h),y=function(t){var e=w($);return O.w(e.date(e.date()+Math.round(t*r)),$)};if(l===f)return this.set(f,this.$M+r);if(l===c)return this.set(c,this.$y+r);if(l===a)return y(1);if(l===o)return y(7);var M=(d={},d[s]=e,d[u]=n,d[i]=t,d)[l]||1,m=this.$d.getTime()+r*M;return O.w(m,this)},m.subtract=function(t,e){return this.add(-1*t,e)},m.format=function(t){var e=this,n=this.$locale();if(!this.isValid())return n.invalidDate||$;var r=t||"YYYY-MM-DDTHH:mm:ssZ",i=O.z(this),s=this.$H,u=this.$m,a=this.$M,o=n.weekdays,f=n.months,h=function(t,n,i,s){return t&&(t[n]||t(e,r))||i[n].slice(0,s)},c=function(t){return O.s(s%12||12,t,"0")},d=n.meridiem||function(t,e,n){var r=t<12?"AM":"PM";return n?r.toLowerCase():r},l={YY:String(this.$y).slice(-2),YYYY:this.$y,M:a+1,MM:O.s(a+1,2,"0"),MMM:h(n.monthsShort,a,f,3),MMMM:h(f,a),D:this.$D,DD:O.s(this.$D,2,"0"),d:String(this.$W),dd:h(n.weekdaysMin,this.$W,o,2),ddd:h(n.weekdaysShort,this.$W,o,3),dddd:o[this.$W],H:String(s),HH:O.s(s,2,"0"),h:c(1),hh:c(2),a:d(s,u,!0),A:d(s,u,!1),m:String(u),mm:O.s(u,2,"0"),s:String(this.$s),ss:O.s(this.$s,2,"0"),SSS:O.s(this.$ms,3,"0"),Z:i};return r.replace(y,(function(t,e){return e||l[t]||i.replace(":","")}))},m.utcOffset=function(){return 15*-Math.round(this.$d.getTimezoneOffset()/15)},m.diff=function(r,d,$){var l,y=O.p(d),M=w(r),m=(M.utcOffset()-this.utcOffset())*e,g=this-M,v=O.m(this,M);return v=(l={},l[c]=v/12,l[f]=v,l[h]=v/3,l[o]=(g-m)/6048e5,l[a]=(g-m)/864e5,l[u]=g/n,l[s]=g/e,l[i]=g/t,l)[y]||g,$?v:O.a(v)},m.daysInMonth=function(){return this.endOf(f).$D},m.$locale=function(){return D[this.$L]},m.locale=function(t,e){if(!t)return this.$L;var n=this.clone(),r=S(t,e,!0);return r&&(n.$L=r),n},m.clone=function(){return O.w(this.$d,this)},m.toDate=function(){return new Date(this.valueOf())},m.toJSON=function(){return this.isValid()?this.toISOString():null},m.toISOString=function(){return this.$d.toISOString()},m.toString=function(){return this.$d.toUTCString()},M}(),T=_.prototype;return w.prototype=T,[["$ms",r],["$s",i],["$m",s],["$H",u],["$W",a],["$M",f],["$y",c],["$D",d]].forEach((function(t){T[t[1]]=function(e){return this.$g(e,t[0],t[1])}})),w.extend=function(t,e){return t.$i||(t(e,_,w),t.$i=!0),w},w.locale=S,w.isDayjs=p,w.unix=function(t){return w(1e3*t)},w.en=D[v],w.Ls=D,w.p={},w}));
+!function(t,i){"object"==typeof exports&&"undefined"!=typeof module?module.exports=i():"function"==typeof define&&define.amd?define(i):(t="undefined"!=typeof globalThis?globalThis:t||self).dayjs_plugin_utc=i()}(this,(function(){"use strict";var t="minute",i=/[+-]\d\d(?::?\d\d)?/g,e=/([+-]|\d\d)/g;return function(s,f,n){var u=f.prototype;n.utc=function(t){var i={date:t,utc:!0,args:arguments};return new f(i)},u.utc=function(i){var e=n(this.toDate(),{locale:this.$L,utc:!0});return i?e.add(this.utcOffset(),t):e},u.local=function(){return n(this.toDate(),{locale:this.$L,utc:!1})};var o=u.parse;u.parse=function(t){t.utc&&(this.$u=!0),this.$utils().u(t.$offset)||(this.$offset=t.$offset),o.call(this,t)};var r=u.init;u.init=function(){if(this.$u){var t=this.$d;this.$y=t.getUTCFullYear(),this.$M=t.getUTCMonth(),this.$D=t.getUTCDate(),this.$W=t.getUTCDay(),this.$H=t.getUTCHours(),this.$m=t.getUTCMinutes(),this.$s=t.getUTCSeconds(),this.$ms=t.getUTCMilliseconds()}else r.call(this)};var a=u.utcOffset;u.utcOffset=function(s,f){var n=this.$utils().u;if(n(s))return this.$u?0:n(this.$offset)?a.call(this):this.$offset;if("string"==typeof s&&(s=function(t){void 0===t&&(t="");var s=t.match(i);if(!s)return null;var f=(""+s[0]).match(e)||["-",0,0],n=f[0],u=60*+f[1]+ +f[2];return 0===u?0:"+"===n?u:-u}(s),null===s))return this;var u=Math.abs(s)<=16?60*s:s,o=this;if(f)return o.$offset=u,o.$u=0===s,o;if(0!==s){var r=this.$u?this.toDate().getTimezoneOffset():-1*this.utcOffset();(o=this.local().add(u+r,t)).$offset=u,o.$x.$localOffset=r}else o=this.utc();return o};var h=u.format;u.format=function(t){var i=t||(this.$u?"YYYY-MM-DDTHH:mm:ss[Z]":"");return h.call(this,i)},u.valueOf=function(){var t=this.$utils().u(this.$offset)?0:this.$offset+(this.$x.$localOffset||this.$d.getTimezoneOffset());return this.$d.valueOf()-6e4*t},u.isUTC=function(){return!!this.$u},u.toISOString=function(){return this.toDate().toISOString()},u.toString=function(){return this.toDate().toUTCString()};var l=u.toDate;u.toDate=function(t){return"s"===t&&this.$offset?n(this.format("YYYY-MM-DD HH:mm:ss:SSS")).toDate():l.call(this)};var c=u.diff;u.diff=function(t,i,e){if(t&&this.$u===t.$u)return c.call(this,t,i,e);var s=this.local(),f=n(t).local();return c.call(s,f,i,e)}}}));function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
 function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
@@ -42,7 +51,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.0.8
+// @version        1.1.0
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -55,6 +64,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 // @exclude        *://*.epicgames.com/*
 // @grant          GM_setValue
 // @grant          GM_getValue
+// @grant          GM_deleteValue
 // @grant          GM_addStyle
 // @grant          GM_xmlhttpRequest
 // @grant          GM_registerMenuCommand
@@ -63,16 +73,28 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 // @connect        store.epicgames.com
 // @connect        www.epicgames.com
 // @connect        cdn.jsdelivr.net
-// @connect        epic-status.hclonely.com
 // @run-at         document-end
 // @noframes
 // ==/UserScript==
+dayjs.extend(window.dayjs_plugin_utc);
+
 (function () {
+  if (!GM_getValue('version')) {
+    GM_deleteValue('epicGamesLibrary');
+    GM_deleteValue('ownedGames');
+    GM_deleteValue('wishlist');
+    GM_setValue('version', '1.1');
+  }
+
   var whiteList = GM_getValue('whiteList') || [];
   var blackList = GM_getValue('blackList') || [];
   var url = window.location.href;
   var enable = true;
   var loadTimes = 0;
+  var getCatalogOfferSha256Hash = false;
+  var getWishlistSha256Hash = false;
+  var accountId = 0;
+  var locale = 'en-US';
 
   if (whiteList.length > 0) {
     enable = false;
@@ -117,8 +139,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
   }
 
   if (!enable) return;
-  checkEpicGamesLibrary();
-  updateEpicWishlist();
+  updateEpicWishlist(false);
 
   if (getEpicOwnedGames().length === 0) {
     Swal.fire({
@@ -151,55 +172,53 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
   }
 
   function _checkEpicGame() {
-    _checkEpicGame = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3() {
+    _checkEpicGame = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
       var first,
           again,
-          epicGames,
           ownedGames,
           wishlistGames,
           epicLink,
-          _args3 = arguments;
-      return regeneratorRuntime.wrap(function _callee3$(_context3) {
+          _args4 = arguments;
+      return regeneratorRuntime.wrap(function _callee4$(_context4) {
         while (1) {
-          switch (_context3.prev = _context3.next) {
+          switch (_context4.prev = _context4.next) {
             case 0:
-              first = _args3.length > 0 && _args3[0] !== undefined ? _args3[0] : true;
-              again = _args3.length > 1 && _args3[1] !== undefined ? _args3[1] : false;
+              first = _args4.length > 0 && _args4[0] !== undefined ? _args4[0] : true;
+              again = _args4.length > 1 && _args4[1] !== undefined ? _args4[1] : false;
               // eslint-disable-next-line no-plusplus
               loadTimes++;
 
               if (!(loadTimes > 1000)) {
-                _context3.next = 6;
+                _context4.next = 6;
                 break;
               }
 
               observer.disconnect();
-              return _context3.abrupt("return");
+              return _context4.abrupt("return");
 
             case 6:
-              epicGames = getEpicGamesLibrary();
               ownedGames = getEpicOwnedGames();
               wishlistGames = GM_getValue('epicWishist') || []; // eslint-disable-next-line max-len
 
               epicLink = again ? $('a[href*="www.epicgames.com/store/"]:not(".epic-game-checked"),a[href*="store.epicgames.com/"]:not(".epic-game-checked")') : $('a[href*="www.epicgames.com/store/"]:not(".epic-game-link-owned"),a[href*="store.epicgames.com/"]:not(".epic-game-link-owned")');
 
               if (!(epicLink.length === 0)) {
-                _context3.next = 12;
+                _context4.next = 11;
                 break;
               }
 
-              return _context3.abrupt("return");
+              return _context4.abrupt("return");
 
-            case 12:
+            case 11:
               if (first) updateEpicOwnedGames(false);
               epicLink.map( /*#__PURE__*/function () {
-                var _ref7 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(i, e) {
+                var _ref9 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(i, e) {
                   var _href$match, _href$match$, _href$match2, _href$match2$;
 
-                  var $this, href, epicGameName, released, comingsoon, free, gameData;
-                  return regeneratorRuntime.wrap(function _callee2$(_context2) {
+                  var $this, href, epicGameName;
+                  return regeneratorRuntime.wrap(function _callee3$(_context3) {
                     while (1) {
-                      switch (_context2.prev = _context2.next) {
+                      switch (_context3.prev = _context3.next) {
                         case 0:
                           $this = $(e);
                           $this.addClass('epic-game-checked');
@@ -207,376 +226,206 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                           if (!/\/$/.test(href)) href += '/';
                           epicGameName = ((_href$match = href.match(/https?:\/\/www\.epicgames\.com\/store\/.*?\/p(roduct)?\/([^?/]+)/i)) === null || _href$match === void 0 ? void 0 : (_href$match$ = _href$match[2]) === null || _href$match$ === void 0 ? void 0 : _href$match$.toLowerCase()) || ((_href$match2 = href.match(/https?:\/\/store\.epicgames\.com\/.*?\/p(roduct)?\/([^?/]+)/i)) === null || _href$match2 === void 0 ? void 0 : (_href$match2$ = _href$match2[2]) === null || _href$match2$ === void 0 ? void 0 : _href$match2$.toLowerCase());
 
-                          if (!epicGameName) {
-                            _context2.next = 27;
-                            break;
-                          }
-
-                          released = epicGames.releasedGames.find(function (e) {
-                            return e.pageSlug.includes(epicGameName);
-                          });
-                          comingsoon = epicGames.comingsoonGames.find(function (e) {
-                            return e.pageSlug.includes(epicGameName);
-                          });
-                          free = epicGames.freeGames.find(function (e) {
-                            return e.pageSlug.includes(epicGameName) && e.promotions;
-                          }) || epicGames.freeGames.find(function (e) {
-                            return e.pageSlug.includes(epicGameName);
-                          });
-                          gameData = released || comingsoon || free;
-
-                          if (gameData) {
-                            _context2.next = 12;
-                            break;
-                          }
-
-                          return _context2.abrupt("return");
-
-                        case 12:
-                          if (ownedGames.includes(gameData === null || gameData === void 0 ? void 0 : gameData.offerId)) {
-                            $this.addClass('epic-game-link-owned');
-                          } else if (wishlistGames.includes(gameData === null || gameData === void 0 ? void 0 : gameData.offerId)) {
-                            $this.addClass('epic-game-link-wishlist');
-                          }
-
-                          if (free) {
-                            if (free.promotions) {
-                              if (new Date().getTime() > free.promotions.startDate && new Date().getTime() < free.promotions.endDate) {
-                                if ($this.find('font.icon-gift-clock').length === 0) $this.append('<font class="iconfont icon-gift-clock"></font>');
-                              }
-
-                              if (new Date().getTime() < free.promotions.startDate) {
-                                if ($this.find('font.icon-clock-gift').length === 0) $this.append('<font class="iconfont icon-clock-gift"></font>');
-                              }
-                            } else {
-                              if ($this.find('font.icon-gift').length === 0) $this.append('<font class="iconfont icon-gift"></font>');
+                          if (epicGameName) {
+                            if (ownedGames.find(function (game) {
+                              return game.pageSlug.includes(epicGameName);
+                            })) {
+                              $this.addClass('epic-game-link-owned');
+                            } else if (wishlistGames.find(function (game) {
+                              return game.pageSlug.includes(epicGameName);
+                            })) {
+                              $this.addClass('epic-game-link-wishlist');
                             }
                           }
 
-                          if (comingsoon) {
-                            if ($this.find('font.icon-clock').length === 0) $this.append('<font class="iconfont icon-clock"></font>');
-                          }
+                          return _context3.abrupt("return", e);
 
-                          _context2.t0 = gameData.type;
-                          _context2.next = _context2.t0 === 'bundles' ? 18 : _context2.t0 === 'bundles/games' ? 18 : _context2.t0 === 'editors' ? 20 : _context2.t0 === 'addons' ? 22 : _context2.t0 === 'software' ? 24 : 26;
-                          break;
-
-                        case 18:
-                          if ($this.find('font.icon-kabao').length === 0) $this.append('<font class="iconfont icon-kabao"></font>');
-                          return _context2.abrupt("break", 27);
-
-                        case 20:
-                          if ($this.find('font.icon-3302bianji2').length === 0) $this.append('<font class="iconfont icon-3302bianji2"></font>');
-                          return _context2.abrupt("break", 27);
-
-                        case 22:
-                          if ($this.find('font.icon-add-one').length === 0) $this.append('<font class="iconfont icon-add-one"></font>');
-                          return _context2.abrupt("break", 27);
-
-                        case 24:
-                          if ($this.find('font.icon-ruanjian').length === 0) $this.append('<font class="iconfont icon-ruanjian"></font>');
-                          return _context2.abrupt("break", 27);
-
-                        case 26:
-                          return _context2.abrupt("break", 27);
-
-                        case 27:
-                          return _context2.abrupt("return", e);
-
-                        case 28:
+                        case 7:
                         case "end":
-                          return _context2.stop();
+                          return _context3.stop();
                       }
                     }
-                  }, _callee2);
+                  }, _callee3);
                 }));
 
-                return function (_x4, _x5) {
-                  return _ref7.apply(this, arguments);
+                return function (_x5, _x6) {
+                  return _ref9.apply(this, arguments);
                 };
               }());
 
-            case 14:
-            case "end":
-              return _context3.stop();
-          }
-        }
-      }, _callee3);
-    }));
-    return _checkEpicGame.apply(this, arguments);
-  }
-
-  function getEpicGamesLibrary() {
-    return GM_getValue('epicGamesLibrary') || {
-      releasedGames: [],
-      comingsoonGames: [],
-      freeGames: [],
-      updateTime: {
-        releasedGames: 0,
-        comingsoonGames: 0,
-        freeGames: 0
-      }
-    };
-  }
-
-  function updateEpicGamesLibrary(_x, _x2) {
-    return _updateEpicGamesLibrary.apply(this, arguments);
-  }
-
-  function _updateEpicGamesLibrary() {
-    _updateEpicGamesLibrary = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4(type, status) {
-      var epicgamesData, localDataLength, _loop, i;
-
-      return regeneratorRuntime.wrap(function _callee4$(_context5) {
-        while (1) {
-          switch (_context5.prev = _context5.next) {
-            case 0:
-              epicgamesData = getEpicGamesLibrary();
-
-              if (!(type === 'released')) {
-                _context5.next = 14;
-                break;
-              }
-
-              localDataLength = epicgamesData.releasedGames.length || 0;
-
-              if (!(localDataLength < status.archived)) {
-                _context5.next = 11;
-                break;
-              }
-
-              _loop = /*#__PURE__*/regeneratorRuntime.mark(function _loop(i) {
-                return regeneratorRuntime.wrap(function _loop$(_context4) {
-                  while (1) {
-                    switch (_context4.prev = _context4.next) {
-                      case 0:
-                        _context4.next = 2;
-                        return new Promise(function (resolve, reject) {
-                          GM_xmlhttpRequest({
-                            method: 'GET',
-                            url: "https://epic-status.hclonely.com/releasedGames-archived-".concat(i, ".json"),
-                            timeout: 15000,
-                            responseType: 'json',
-                            onerror: reject,
-                            ontimeout: reject,
-                            onload: function onload(response) {
-                              response.status === 200 ? resolve(response) : reject(response);
-                            }
-                          });
-                        }).then(function (response) {
-                          var _response$response4;
-
-                          if (((_response$response4 = response.response) === null || _response$response4 === void 0 ? void 0 : _response$response4.length) > 0) {
-                            epicgamesData.releasedGames = [].concat(_toConsumableArray(epicgamesData.releasedGames), _toConsumableArray(response.response));
-                            GM_setValue('epicGamesLibrary', epicgamesData);
-                          }
-                        })["catch"](function (error) {
-                          console.error(error);
-                          /*
-                          Swal.fire({
-                            icon: 'error',
-                            title: '更新Epic游戏库数据失败',
-                            text: '详情请查看控制台'
-                          });
-                          */
-                        });
-
-                      case 2:
-                      case "end":
-                        return _context4.stop();
-                    }
-                  }
-                }, _loop);
-              });
-              i = localDataLength % 100 === 0 ? localDataLength + 100 : 100;
-
-            case 6:
-              if (!(i <= status.archived)) {
-                _context5.next = 11;
-                break;
-              }
-
-              return _context5.delegateYield(_loop(i), "t0", 8);
-
-            case 8:
-              i += 100;
-              _context5.next = 6;
-              break;
-
-            case 11:
-              _context5.next = 13;
-              return new Promise(function (resolve, reject) {
-                GM_xmlhttpRequest({
-                  method: 'GET',
-                  url: "https://epic-status.hclonely.com/releasedGames-".concat(status.updateTime, ".json"),
-                  timeout: 15000,
-                  nocache: true,
-                  responseType: 'json',
-                  onerror: reject,
-                  ontimeout: reject,
-                  onload: function onload(response) {
-                    response.status === 200 ? resolve(response) : reject(response);
-                  }
-                });
-              }).then(function (response) {
-                var _response$response5;
-
-                if (((_response$response5 = response.response) === null || _response$response5 === void 0 ? void 0 : _response$response5.length) > 0) {
-                  epicgamesData.releasedGames = [].concat(_toConsumableArray(epicgamesData.releasedGames), _toConsumableArray(response.response));
-                  epicgamesData.updateTime.releasedGames = dayjs().format('YYYY-MM-DD');
-                  GM_setValue('epicGamesLibrary', epicgamesData);
-                }
-              })["catch"](function (error) {
-                console.error(error);
-                /*
-                Swal.fire({
-                  icon: 'error',
-                  title: '更新Epic游戏库数据失败',
-                  text: '详情请查看控制台'
-                });
-                */
-              });
-
             case 13:
-              return _context5.abrupt("return");
-
-            case 14:
-              _context5.next = 16;
-              return new Promise(function (resolve, reject) {
-                GM_xmlhttpRequest({
-                  method: 'GET',
-                  url: "https://epic-status.hclonely.com/".concat(type, "Games-").concat(status.updateTime, ".json"),
-                  timeout: 15000,
-                  nocache: true,
-                  responseType: 'json',
-                  onerror: reject,
-                  ontimeout: reject,
-                  onload: function onload(response) {
-                    response.status === 200 ? resolve(response) : reject(response);
-                  }
-                });
-              }).then(function (response) {
-                var _response$response6;
-
-                if (((_response$response6 = response.response) === null || _response$response6 === void 0 ? void 0 : _response$response6.length) > 0) {
-                  epicgamesData["".concat(type, "Games")] = response.response;
-                  epicgamesData.updateTime["".concat(type, "Games")] = dayjs().format('YYYY-MM-DD');
-                  GM_setValue('epicGamesLibrary', epicgamesData);
-                }
-              })["catch"](function (error) {
-                console.error(error);
-                /*
-                Swal.fire({
-                  icon: 'error',
-                  title: '更新Epic游戏库数据失败',
-                  text: '详情请查看控制台'
-                });
-                */
-              });
-
-            case 16:
-              return _context5.abrupt("return");
-
-            case 17:
             case "end":
-              return _context5.stop();
+              return _context4.stop();
           }
         }
       }, _callee4);
     }));
-    return _updateEpicGamesLibrary.apply(this, arguments);
-  }
-
-  function checkEpicGamesLibrary() {
-    return _checkEpicGamesLibrary.apply(this, arguments);
-  }
-
-  function _checkEpicGamesLibrary() {
-    _checkEpicGamesLibrary = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5() {
-      var epicGamesLibrary, dataStatus;
-      return regeneratorRuntime.wrap(function _callee5$(_context6) {
-        while (1) {
-          switch (_context6.prev = _context6.next) {
-            case 0:
-              epicGamesLibrary = getEpicGamesLibrary();
-              _context6.next = 3;
-              return new Promise(function (resolve, reject) {
-                GM_xmlhttpRequest({
-                  method: 'GET',
-                  url: "https://epic-status.hclonely.com/status.json?t=".concat(new Date().getTime()),
-                  timeout: 15000,
-                  nocache: true,
-                  responseType: 'json',
-                  onerror: reject,
-                  ontimeout: reject,
-                  onload: function onload(response) {
-                    response.status === 200 ? resolve(response) : reject(response);
-                  }
-                });
-              }).then(function (response) {
-                return response.response;
-              })["catch"](function (error) {
-                console.error(error);
-              });
-
-            case 3:
-              dataStatus = _context6.sent;
-
-              if (dataStatus) {
-                _context6.next = 6;
-                break;
-              }
-
-              return _context6.abrupt("return");
-
-            case 6:
-              if (!(new Date(epicGamesLibrary.updateTime.releasedGames).getTime() < new Date(dataStatus.releasedGames.updateTime).getTime())) {
-                _context6.next = 9;
-                break;
-              }
-
-              _context6.next = 9;
-              return updateEpicGamesLibrary('released', dataStatus.releasedGames);
-
-            case 9:
-              if (!(new Date(epicGamesLibrary.updateTime.comingsoonGames).getTime() < new Date(dataStatus.comingsoonGames.updateTime).getTime())) {
-                _context6.next = 12;
-                break;
-              }
-
-              _context6.next = 12;
-              return updateEpicGamesLibrary('comingsoon', dataStatus.comingsoonGames);
-
-            case 12:
-              if (!(new Date(epicGamesLibrary.updateTime.freeGames).getTime() < new Date(dataStatus.freeGames.updateTime).getTime())) {
-                _context6.next = 15;
-                break;
-              }
-
-              _context6.next = 15;
-              return updateEpicGamesLibrary('free', dataStatus.freeGames);
-
-            case 15:
-            case "end":
-              return _context6.stop();
-          }
-        }
-      }, _callee5);
-    }));
-    return _checkEpicGamesLibrary.apply(this, arguments);
+    return _checkEpicGame.apply(this, arguments);
   }
 
   function getEpicOwnedGames() {
     return GM_getValue('ownedGames') || [];
   }
 
+  function getSha256Hash() {
+    return _getSha256Hash.apply(this, arguments);
+  }
+
+  function _getSha256Hash() {
+    _getSha256Hash = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5() {
+      return regeneratorRuntime.wrap(function _callee5$(_context5) {
+        while (1) {
+          switch (_context5.prev = _context5.next) {
+            case 0:
+              return _context5.abrupt("return", new Promise(function (resolve, reject) {
+                GM_xmlhttpRequest({
+                  method: 'GET',
+                  url: 'https://store.epicgames.com/store/zh-CN/wishlist',
+                  timeout: 15000,
+                  nocache: true,
+                  onerror: reject,
+                  ontimeout: reject,
+                  onload: function onload(response) {
+                    response.status === 200 ? resolve(response) : reject(response);
+                  }
+                });
+              }).then(function (response) {
+                var _response$responseTex = response.responseText.match(/"queryKey":\["getWishlist",\["accountId","([\w\d]+?)"\],"([\w\d]+?)"\]/i);
+
+                var _response$responseTex2 = _slicedToArray(_response$responseTex, 3);
+
+                accountId = _response$responseTex2[1];
+                getWishlistSha256Hash = _response$responseTex2[2];
+
+                var _response$responseTex3 = response.responseText.match(/"],"([\w\d]+?)"],"queryHash":"\[\\"getCatalogOffer\\"/i);
+
+                var _response$responseTex4 = _slicedToArray(_response$responseTex3, 2);
+
+                getCatalogOfferSha256Hash = _response$responseTex4[1];
+
+                var _response$responseTex5 = response.responseText.match(/"localizationData":{"locale":"(.+?)"/i);
+
+                var _response$responseTex6 = _slicedToArray(_response$responseTex5, 2);
+
+                locale = _response$responseTex6[1];
+              })["catch"](function (error) {
+                console.error(error);
+              }));
+
+            case 1:
+            case "end":
+              return _context5.stop();
+          }
+        }
+      }, _callee5);
+    }));
+    return _getSha256Hash.apply(this, arguments);
+  }
+
+  function getPagePlug(_x, _x2) {
+    return _getPagePlug.apply(this, arguments);
+  }
+
+  function _getPagePlug() {
+    _getPagePlug = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(namespace, offerId) {
+      return regeneratorRuntime.wrap(function _callee7$(_context7) {
+        while (1) {
+          switch (_context7.prev = _context7.next) {
+            case 0:
+              if (!(getCatalogOfferSha256Hash === false)) {
+                _context7.next = 4;
+                break;
+              }
+
+              _context7.next = 3;
+              return getSha256Hash();
+
+            case 3:
+              getCatalogOfferSha256Hash = _context7.sent;
+
+            case 4:
+              if (getCatalogOfferSha256Hash) {
+                _context7.next = 6;
+                break;
+              }
+
+              return _context7.abrupt("return", false);
+
+            case 6:
+              return _context7.abrupt("return", new Promise(function (resolve, reject) {
+                GM_xmlhttpRequest({
+                  method: 'GET',
+                  // eslint-disable-next-line max-len
+                  url: "https://store.epicgames.com/graphql?operationName=getCatalogOffer&variables=%7B%22locale%22:%22zh-CN%22,%22country%22:%22CN%22,%22offerId%22:%22".concat(offerId, "%22,%22sandboxId%22:%22").concat(namespace, "%22%7D&extensions=%7B%22persistedQuery%22:%7B%22version%22:1,%22sha256Hash%22:%22").concat(getCatalogOfferSha256Hash, "%22%7D%7D"),
+                  timeout: 15000,
+                  nocache: true,
+                  responseType: 'json',
+                  onerror: reject,
+                  ontimeout: reject,
+                  onload: function onload(response) {
+                    response.status === 200 ? resolve(response) : reject(response);
+                  }
+                });
+              }).then( /*#__PURE__*/function () {
+                var _ref10 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(response) {
+                  var _response$response4, _response$response4$d, _response$response4$d2;
+
+                  var _offerMappings$, _customAttributes$fin, _customAttributes$fin2, _response$response$da, offerMappings, urlSlug, customAttributes;
+
+                  return regeneratorRuntime.wrap(function _callee6$(_context6) {
+                    while (1) {
+                      switch (_context6.prev = _context6.next) {
+                        case 0:
+                          if (!((_response$response4 = response.response) !== null && _response$response4 !== void 0 && (_response$response4$d = _response$response4.data) !== null && _response$response4$d !== void 0 && (_response$response4$d2 = _response$response4$d.Catalog) !== null && _response$response4$d2 !== void 0 && _response$response4$d2.catalogOffer)) {
+                            _context6.next = 3;
+                            break;
+                          }
+
+                          _response$response$da = response.response.data.Catalog.catalogOffer, offerMappings = _response$response$da.offerMappings, urlSlug = _response$response$da.urlSlug, customAttributes = _response$response$da.customAttributes; // eslint-disable-next-line max-len
+
+                          return _context6.abrupt("return", _toConsumableArray(new Set([offerMappings === null || offerMappings === void 0 ? void 0 : (_offerMappings$ = offerMappings[0]) === null || _offerMappings$ === void 0 ? void 0 : _offerMappings$.pageSlug, urlSlug, (_customAttributes$fin = customAttributes.find(function (e) {
+                            return e.key === 'com.epicgames.app.productSlug';
+                          })) === null || _customAttributes$fin === void 0 ? void 0 : (_customAttributes$fin2 = _customAttributes$fin.value) === null || _customAttributes$fin2 === void 0 ? void 0 : _customAttributes$fin2.replace(/\/home$/, '')].filter(function (e) {
+                            return e;
+                          }))));
+
+                        case 3:
+                          return _context6.abrupt("return", false);
+
+                        case 4:
+                        case "end":
+                          return _context6.stop();
+                      }
+                    }
+                  }, _callee6);
+                }));
+
+                return function (_x7) {
+                  return _ref10.apply(this, arguments);
+                };
+              }())["catch"](function (error) {
+                console.error(error);
+                return false;
+              }));
+
+            case 7:
+            case "end":
+              return _context7.stop();
+          }
+        }
+      }, _callee7);
+    }));
+    return _getPagePlug.apply(this, arguments);
+  }
+
   function updateEpicOwnedGames() {
     var loop = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
     var i = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-    var games = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];
+    var games = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : GM_getValue('ownedGames');
+    var lastCreatedAt = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
 
     if (!loop && i !== 0) {
-      GM_setValue('ownedGames', _toConsumableArray(new Set([].concat(_toConsumableArray(getEpicOwnedGames()), _toConsumableArray(games)))));
+      GM_setValue('ownedGames', games);
       checkEpicGame(false);
       return;
     }
@@ -592,7 +441,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 
       GM_xmlhttpRequest({
         method: 'GET',
-        url: "https://www.epicgames.com/account/v2/payment/ajaxGetOrderHistory?page=".concat(i),
+        url: "https://www.epicgames.com/account/v2/payment/ajaxGetOrderHistory?page=".concat(i, "&locale=").concat(locale).concat(lastCreatedAt ? "&lastCreatedAt=".concat(encodeURIComponent(lastCreatedAt)) : ''),
         timeout: 15000,
         nocache: true,
         responseType: 'json',
@@ -603,17 +452,17 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
         }
       });
     }).then( /*#__PURE__*/function () {
-      var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(response) {
+      var _ref2 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(response) {
         var _response$response, _response$response$or, _response$response3, _response$response3$p;
 
-        var _response$response2;
+        var _response$response2, orderedGames, _lastCreatedAt;
 
-        return regeneratorRuntime.wrap(function _callee$(_context) {
+        return regeneratorRuntime.wrap(function _callee2$(_context2) {
           while (1) {
-            switch (_context.prev = _context.next) {
+            switch (_context2.prev = _context2.next) {
               case 0:
                 if (!/login/i.test(response.finalUrl)) {
-                  _context.next = 3;
+                  _context2.next = 3;
                   break;
                 }
 
@@ -642,70 +491,149 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                   });
                 }
 
-                return _context.abrupt("return", false);
+                return _context2.abrupt("return", false);
 
               case 3:
                 if (!(((_response$response = response.response) === null || _response$response === void 0 ? void 0 : (_response$response$or = _response$response.orders) === null || _response$response$or === void 0 ? void 0 : _response$response$or.length) >= 0)) {
-                  _context.next = 19;
+                  _context2.next = 27;
                   break;
                 }
 
-                games = [].concat(_toConsumableArray(games), _toConsumableArray(response.response.orders.map(function (e) {
-                  var _e$items, _e$items$;
+                orderedGames = response.response.orders.map(function (e) {
+                  var _e$items;
 
-                  return (e === null || e === void 0 ? void 0 : e.orderStatus) === 'COMPLETED' ? e === null || e === void 0 ? void 0 : (_e$items = e.items) === null || _e$items === void 0 ? void 0 : (_e$items$ = _e$items[0]) === null || _e$items$ === void 0 ? void 0 : _e$items$.offerId : null;
+                  return (e === null || e === void 0 ? void 0 : e.orderStatus) === 'COMPLETED' ? e === null || e === void 0 ? void 0 : (_e$items = e.items) === null || _e$items === void 0 ? void 0 : _e$items[0] : null;
                 }).filter(function (e) {
                   return e;
-                }))); // eslint-disable-line
+                });
+                _context2.next = 7;
+                return Promise.all(orderedGames.map( /*#__PURE__*/function () {
+                  var _ref4 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(item) {
+                    var pageSlug;
+                    return regeneratorRuntime.wrap(function _callee$(_context) {
+                      while (1) {
+                        switch (_context.prev = _context.next) {
+                          case 0:
+                            if (!games.find(function (game) {
+                              return game.namespace === item.namespace && game.offerId === item.offerId;
+                            })) {
+                              _context.next = 2;
+                              break;
+                            }
+
+                            return _context.abrupt("return", true);
+
+                          case 2:
+                            _context.next = 4;
+                            return getPagePlug(item.namespace, item.offerId);
+
+                          case 4:
+                            pageSlug = _context.sent;
+
+                            if (pageSlug) {
+                              games.push({
+                                namespace: item.namespace,
+                                offerId: item.offerId,
+                                pageSlug: pageSlug
+                              });
+                              GM_setValue('ownedGames', games);
+                            }
+
+                          case 6:
+                          case "end":
+                            return _context.stop();
+                        }
+                      }
+                    }, _callee);
+                  }));
+
+                  return function (_x4) {
+                    return _ref4.apply(this, arguments);
+                  };
+                }()));
+
+              case 7:
+                _lastCreatedAt = dayjs(response.response.orders.at(-1).createdAtMillis).utc().format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
 
                 if (!(parseInt(((_response$response2 = response.response) === null || _response$response2 === void 0 ? void 0 : _response$response2.total) / 10, 10) > i)) {
-                  _context.next = 11;
+                  _context2.next = 19;
                   break;
                 }
 
-                _context.next = 8;
-                return updateEpicOwnedGames(loop, ++i, games);
+                if (!(response.response.total - games.length > 0 && !loop)) {
+                  _context2.next = 11;
+                  break;
+                }
 
-              case 8:
-                return _context.abrupt("return", _context.sent);
+                return _context2.abrupt("return", Swal.fire({
+                  title: '游戏库检测脚本提醒',
+                  icon: 'warning',
+                  text: '检测到Epic已拥有游戏数据缺失，是否重新获取？',
+                  showCancelButton: true,
+                  confirmButtonText: '获取',
+                  cancelButtonText: '取消'
+                }).then(function (_ref5) {
+                  var value = _ref5.value;
+                  if (value) updateEpicOwnedGames();
+                }));
 
               case 11:
                 if (!loop) {
-                  _context.next = 14;
+                  _context2.next = 14;
                   break;
                 }
 
-                GM_setValue('ownedGames', _toConsumableArray(new Set(games)));
-                return _context.abrupt("return", Swal.update({
+                _context2.next = 14;
+                return new Promise(function (resolve) {
+                  setTimeout(function () {
+                    resolve(true);
+                  }, 1000);
+                });
+
+              case 14:
+                _context2.next = 16;
+                return updateEpicOwnedGames(loop, ++i, games, _lastCreatedAt);
+
+              case 16:
+                return _context2.abrupt("return", _context2.sent);
+
+              case 19:
+                if (!loop) {
+                  _context2.next = 22;
+                  break;
+                }
+
+                GM_setValue('ownedGames', games);
+                return _context2.abrupt("return", Swal.update({
                   icon: 'success',
                   title: 'Epic已拥有游戏数据更新完成',
                   text: ''
                 }));
 
-              case 14:
-                GM_setValue('ownedGames', _toConsumableArray(new Set([].concat(_toConsumableArray(getEpicOwnedGames()), _toConsumableArray(games)))));
+              case 22:
+                GM_setValue('ownedGames', games);
                 checkEpicGame(false);
-                return _context.abrupt("return", true);
+                return _context2.abrupt("return", true);
 
-              case 19:
+              case 27:
                 if (!(((_response$response3 = response.response) === null || _response$response3 === void 0 ? void 0 : (_response$response3$p = _response$response3.products) === null || _response$response3$p === void 0 ? void 0 : _response$response3$p.length) !== 0)) {
-                  _context.next = 22;
+                  _context2.next = 30;
                   break;
                 }
 
                 console.error(response);
-                return _context.abrupt("return", Swal.update({
+                return _context2.abrupt("return", Swal.update({
                   icon: 'error',
                   title: 'Epic已拥有游戏数据更新失败',
                   text: '详情请查看控制台'
                 }));
 
-              case 22:
+              case 30:
               case "end":
-                return _context.stop();
+                return _context2.stop();
             }
           }
-        }, _callee);
+        }, _callee2);
       }));
 
       return function (_x3) {
@@ -726,60 +654,126 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
   }
 
   function _updateEpicWishlist() {
-    _updateEpicWishlist = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6() {
-      var queryKey;
-      return regeneratorRuntime.wrap(function _callee6$(_context7) {
+    _updateEpicWishlist = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10() {
+      return regeneratorRuntime.wrap(function _callee10$(_context10) {
         while (1) {
-          switch (_context7.prev = _context7.next) {
+          switch (_context10.prev = _context10.next) {
             case 0:
-              _context7.next = 2;
-              return new Promise(function (resolve, reject) {
+              if (!(getWishlistSha256Hash === false)) {
+                _context10.next = 3;
+                break;
+              }
+
+              _context10.next = 3;
+              return getSha256Hash();
+
+            case 3:
+              if (accountId && getWishlistSha256Hash) {
                 GM_xmlhttpRequest({
                   method: 'GET',
-                  url: 'https://www.epicgames.com/store/zh-CN/wishlist',
-                  timeout: 15000,
-                  nocache: true,
-                  onerror: reject,
-                  ontimeout: reject,
-                  onload: function onload(response) {
-                    response.status === 200 ? resolve(response) : reject(response);
-                  }
-                });
-              }).then(function (response) {
-                return response.responseText.match(/"queryKey":\["getWishlist",\["accountId","([\w\d]+?)"\],"([\w\d]+?)"\]/i);
-              })["catch"](function (error) {
-                console.error(error);
-              });
-
-            case 2:
-              queryKey = _context7.sent;
-
-              if ((queryKey === null || queryKey === void 0 ? void 0 : queryKey.length) === 3) {
-                GM_xmlhttpRequest({
-                  method: 'GET',
-                  url: "https://www.epicgames.com/graphql?operationName=getWishlist&variables=%7B%22accountId%22:%22".concat(queryKey[1], "%22%7D&extensions=%7B%22persistedQuery%22:%7B%22version%22:1,%22sha256Hash%22:%22").concat(queryKey[2], "%22%7D%7D"),
+                  url: "https://store.epicgames.com/graphql?operationName=getWishlist&variables=%7B%22accountId%22:%22".concat(accountId, "%22%7D&extensions=%7B%22persistedQuery%22:%7B%22version%22:1,%22sha256Hash%22:%22").concat(getWishlistSha256Hash, "%22%7D%7D"),
                   // eslint-disable-line
                   timeout: 15000,
                   nocache: true,
                   responseType: 'json',
-                  onload: function onload(response) {
-                    var _response$response7, _response$response7$d, _response$response7$d2, _response$response7$d3, _response$response7$d4;
+                  onload: function () {
+                    var _onload = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9(response) {
+                      var _response$response5, _response$response5$d, _response$response5$d2, _response$response5$d3, _response$response5$d4;
 
-                    if (response.status === 200 && (_response$response7 = response.response) !== null && _response$response7 !== void 0 && (_response$response7$d = _response$response7.data) !== null && _response$response7$d !== void 0 && (_response$response7$d2 = _response$response7$d.Wishlist) !== null && _response$response7$d2 !== void 0 && (_response$response7$d3 = _response$response7$d2.wishlistItems) !== null && _response$response7$d3 !== void 0 && (_response$response7$d4 = _response$response7$d3.elements) !== null && _response$response7$d4 !== void 0 && _response$response7$d4.length) {
-                      GM_setValue('epicWishist', response.response.data.Wishlist.wishlistItems.elements.map(function (e) {
-                        return e.offerId;
-                      }));
+                      var wishlistGames, savedwishlistGames, wishlist;
+                      return regeneratorRuntime.wrap(function _callee9$(_context9) {
+                        while (1) {
+                          switch (_context9.prev = _context9.next) {
+                            case 0:
+                              if (!(response.status === 200 && (_response$response5 = response.response) !== null && _response$response5 !== void 0 && (_response$response5$d = _response$response5.data) !== null && _response$response5$d !== void 0 && (_response$response5$d2 = _response$response5$d.Wishlist) !== null && _response$response5$d2 !== void 0 && (_response$response5$d3 = _response$response5$d2.wishlistItems) !== null && _response$response5$d3 !== void 0 && (_response$response5$d4 = _response$response5$d3.elements) !== null && _response$response5$d4 !== void 0 && _response$response5$d4.length)) {
+                                _context9.next = 7;
+                                break;
+                              }
+
+                              wishlistGames = response.response.data.Wishlist.wishlistItems.elements;
+                              savedwishlistGames = GM_getValue('epicWishist') || [];
+                              _context9.next = 5;
+                              return Promise.all(wishlistGames.map( /*#__PURE__*/function () {
+                                var _ref11 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8(item) {
+                                  var gameCache, pageSlug;
+                                  return regeneratorRuntime.wrap(function _callee8$(_context8) {
+                                    while (1) {
+                                      switch (_context8.prev = _context8.next) {
+                                        case 0:
+                                          gameCache = savedwishlistGames.find(function (game) {
+                                            return game.namespace === item.namespace && game.offerId === item.offerId;
+                                          });
+
+                                          if (!gameCache) {
+                                            _context8.next = 3;
+                                            break;
+                                          }
+
+                                          return _context8.abrupt("return", gameCache);
+
+                                        case 3:
+                                          _context8.next = 5;
+                                          return getPagePlug(item.namespace, item.offerId);
+
+                                        case 5:
+                                          pageSlug = _context8.sent;
+
+                                          if (!pageSlug) {
+                                            _context8.next = 8;
+                                            break;
+                                          }
+
+                                          return _context8.abrupt("return", {
+                                            namespace: item.namespace,
+                                            offerId: item.offerId,
+                                            pageSlug: pageSlug
+                                          });
+
+                                        case 8:
+                                          return _context8.abrupt("return", null);
+
+                                        case 9:
+                                        case "end":
+                                          return _context8.stop();
+                                      }
+                                    }
+                                  }, _callee8);
+                                }));
+
+                                return function (_x9) {
+                                  return _ref11.apply(this, arguments);
+                                };
+                              }()));
+
+                            case 5:
+                              wishlist = _context9.sent.filter(function (e) {
+                                return e;
+                              });
+                              GM_setValue('epicWishist', wishlist);
+
+                            case 7:
+                            case "end":
+                              return _context9.stop();
+                          }
+                        }
+                      }, _callee9);
+                    }));
+
+                    function onload(_x8) {
+                      return _onload.apply(this, arguments);
                     }
-                  }
+
+                    return onload;
+                  }()
                 });
               }
 
             case 4:
             case "end":
-              return _context7.stop();
+              return _context10.stop();
           }
         }
-      }, _callee6);
+      }, _callee10);
     }));
     return _updateEpicWishlist.apply(this, arguments);
   }
@@ -793,8 +787,8 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       showCancelButton: true,
       confirmButtonText: '保存',
       cancelButtonText: '取消'
-    }).then(function (_ref4) {
-      var value = _ref4.value;
+    }).then(function (_ref6) {
+      var value = _ref6.value;
       if (value !== undefined) value ? GM_setValue('whiteList', value.split('\n')) : GM_setValue('whiteList', []);
     });
   }
@@ -808,8 +802,8 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       showCancelButton: true,
       confirmButtonText: '保存',
       cancelButtonText: '取消'
-    }).then(function (_ref5) {
-      var value = _ref5.value;
+    }).then(function (_ref7) {
+      var value = _ref7.value;
       if (value !== undefined) value ? GM_setValue('blackList', value.split('\n')) : GM_setValue('blackList', []);
     });
   }
@@ -821,9 +815,9 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       confirmButtonText: '白名单网站',
       denyButtonText: '黑名单网站',
       cancelButtonText: '关闭'
-    }).then(function (_ref6) {
-      var isConfirmed = _ref6.isConfirmed,
-          isDenied = _ref6.isDenied;
+    }).then(function (_ref8) {
+      var isConfirmed = _ref8.isConfirmed,
+          isDenied = _ref8.isDenied;
 
       if (isConfirmed) {
         addWhiteList();
@@ -835,6 +829,6 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 
   GM_registerMenuCommand('更新Epic已拥有游戏数据', updateEpicOwnedGames);
   GM_registerMenuCommand('设置', setting);
-  GM_addStyle("\n.epic-game-link-owned {\n  color:#ffffff !important;\n  background:#5c8a00 !important\n}\n.epic-game-link-wishlist {\n  color:#ffffff !important;\n  background:#007399 !important\n}\n\n@font-face {\n  font-family: \"iconfont\";\n  src: url('https://cdn.jsdelivr.net/gh/hclonely/Game-library-check@master/raw/iconfont.ttf') format('truetype');\n}\n\n.iconfont {\n  font-family: \"iconfont\" !important;\n  font-size: 16px;\n  font-style: normal;\n  -webkit-font-smoothing: antialiased;\n  -moz-osx-font-smoothing: grayscale;\n}\n\n.iconfont:after {\n  background-color: #fff;\n  color: red;\n}\n\n.icon-gift:after {\n  content: \"\\e681\";\n}\n\n.icon-gift-clock:after {\n  content: \"\\e681\\e7e9\";\n}\n\n.icon-clock-gift:after {\n  content: \"\\e7e9\\e681\";\n}\n\n.icon-3302bianji2:after {\n  content: \"\\e662\";\n}\n\n.icon-clock:after {\n  content: \"\\e7e9\";\n}\n\n.icon-kabao:after {\n  content: \"\\e8b1\";\n}\n\n.icon-ruanjian:after {\n  content: \"\\e689\";\n}\n\n.icon-add-one:after {\n  content: \"\\e69d\";\n}");
+  GM_addStyle("\n.epic-game-link-owned {\n  color:#ffffff !important;\n  background:#5c8a00 !important\n}\n.epic-game-link-wishlist {\n  color:#ffffff !important;\n  background:#007399 !important\n}");
   GM_addStyle(GM_getResourceText('overhang'));
 })();

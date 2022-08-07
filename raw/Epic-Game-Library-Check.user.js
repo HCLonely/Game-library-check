@@ -2,7 +2,7 @@
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.0.8
+// @version        1.1.0
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -18,10 +18,12 @@
 // @require        https://cdn.jsdelivr.net/npm/sweetalert2@11
 // @require        https://cdn.jsdelivr.net/npm/promise-polyfill@8.1.3/dist/polyfill.min.js
 // @require        https://cdn.jsdelivr.net/npm/overhang@1.0.8/dist/overhang.min.js
-// @require        https://cdn.jsdelivr.net/npm/dayjs@1.10.8/dayjs.min.js
+// @require        https://cdn.jsdelivr.net/npm/dayjs@1.11.4/dayjs.min.js
+// @require        https://cdn.jsdelivr.net/npm/dayjs@1.11.4/plugin/utc.js
 // @resource       overhang https://cdn.jsdelivr.net/npm/overhang@1.0.8/dist/overhang.min.css
 // @grant          GM_setValue
 // @grant          GM_getValue
+// @grant          GM_deleteValue
 // @grant          GM_addStyle
 // @grant          GM_xmlhttpRequest
 // @grant          GM_registerMenuCommand
@@ -30,17 +32,27 @@
 // @connect        store.epicgames.com
 // @connect        www.epicgames.com
 // @connect        cdn.jsdelivr.net
-// @connect        epic-status.hclonely.com
 // @run-at         document-end
 // @noframes
 // ==/UserScript==
 
+dayjs.extend(window.dayjs_plugin_utc);
 (function () {
+  if (!GM_getValue('version')) {
+    GM_deleteValue('epicGamesLibrary');
+    GM_deleteValue('ownedGames');
+    GM_deleteValue('wishlist');
+    GM_setValue('version', '1.1');
+  }
   const whiteList = GM_getValue('whiteList') || [];
   const blackList = GM_getValue('blackList') || [];
   const url = window.location.href;
   let enable = true;
   let loadTimes = 0;
+  let getCatalogOfferSha256Hash = false;
+  let getWishlistSha256Hash = false;
+  let accountId = 0;
+  let locale = 'en-US';
 
   if (whiteList.length > 0) {
     enable = false;
@@ -62,8 +74,7 @@
 
   if (!enable) return;
 
-  checkEpicGamesLibrary();
-  updateEpicWishlist();
+  updateEpicWishlist(false);
 
   if (getEpicOwnedGames().length === 0) {
     Swal.fire({
@@ -95,7 +106,6 @@
       observer.disconnect();
       return;
     }
-    const epicGames = getEpicGamesLibrary();
     const ownedGames = getEpicOwnedGames();
     const wishlistGames = GM_getValue('epicWishist') || [];
     // eslint-disable-next-line max-len
@@ -111,140 +121,25 @@
       const epicGameName = href.match(/https?:\/\/www\.epicgames\.com\/store\/.*?\/p(roduct)?\/([^?/]+)/i)?.[2]?.toLowerCase() ||
         href.match(/https?:\/\/store\.epicgames\.com\/.*?\/p(roduct)?\/([^?/]+)/i)?.[2]?.toLowerCase();
       if (epicGameName) {
-        const released = epicGames.releasedGames.find((e) => e.pageSlug.includes(epicGameName));
-        const comingsoon = epicGames.comingsoonGames.find((e) => e.pageSlug.includes(epicGameName));
-        const free = epicGames.freeGames.find((e) => e.pageSlug.includes(epicGameName) && e.promotions) ||
-          epicGames.freeGames.find((e) => e.pageSlug.includes(epicGameName));
-        const gameData = released || comingsoon || free;
-        if (!gameData) return;
-        if (ownedGames.includes(gameData?.offerId)) {
+        if (ownedGames.find((game) => game.pageSlug.includes(epicGameName))) {
           $this.addClass('epic-game-link-owned');
-        } else if (wishlistGames.includes(gameData?.offerId)) {
+        } else if (wishlistGames.find((game) => game.pageSlug.includes(epicGameName))) {
           $this.addClass('epic-game-link-wishlist');
-        }
-        if (free) {
-          if (free.promotions) {
-            if (new Date().getTime() > free.promotions.startDate && new Date().getTime() < free.promotions.endDate) {
-              if ($this.find('font.icon-gift-clock').length === 0) $this.append('<font class="iconfont icon-gift-clock"></font>');
-            }
-            if (new Date().getTime() < free.promotions.startDate) {
-              if ($this.find('font.icon-clock-gift').length === 0) $this.append('<font class="iconfont icon-clock-gift"></font>');
-            }
-          } else {
-            if ($this.find('font.icon-gift').length === 0) $this.append('<font class="iconfont icon-gift"></font>');
-          }
-        }
-        if (comingsoon) {
-          if ($this.find('font.icon-clock').length === 0) $this.append('<font class="iconfont icon-clock"></font>');
-        }
-        switch (gameData.type) {
-        case 'bundles':
-        case 'bundles/games':
-          if ($this.find('font.icon-kabao').length === 0) $this.append('<font class="iconfont icon-kabao"></font>');
-          break;
-        case 'editors':
-          if ($this.find('font.icon-3302bianji2').length === 0) $this.append('<font class="iconfont icon-3302bianji2"></font>');
-          break;
-        case 'addons':
-          if ($this.find('font.icon-add-one').length === 0) $this.append('<font class="iconfont icon-add-one"></font>');
-          break;
-        case 'software':
-          if ($this.find('font.icon-ruanjian').length === 0) $this.append('<font class="iconfont icon-ruanjian"></font>');
-          break;
-        default:
-          break;
         }
       }
       return e;
     });
   }
-  function getEpicGamesLibrary() {
-    return GM_getValue('epicGamesLibrary') || {
-      releasedGames: [],
-      comingsoonGames: [],
-      freeGames: [],
-      updateTime: {
-        releasedGames: 0,
-        comingsoonGames: 0,
-        freeGames: 0
-      }
-    };
+  function getEpicOwnedGames() {
+    return GM_getValue('ownedGames') || [];
   }
-  async function updateEpicGamesLibrary(type, status) {
-    const epicgamesData = getEpicGamesLibrary();
-    if (type === 'released') {
-      const localDataLength = epicgamesData.releasedGames.length || 0;
-      if (localDataLength < status.archived) {
-        for (let i = localDataLength % 100 === 0 ? (localDataLength + 100) : 100; i <= status.archived; i += 100) {
-          await new Promise((resolve, reject) => {
-            GM_xmlhttpRequest({
-              method: 'GET',
-              url: `https://epic-status.hclonely.com/releasedGames-archived-${i}.json`,
-              timeout: 15000,
-              responseType: 'json',
-              onerror: reject,
-              ontimeout: reject,
-              onload: (response) => {
-                response.status === 200 ? resolve(response) : reject(response);
-              }
-            });
-          }).then((response) => {
-            if (response.response?.length > 0) {
-              epicgamesData.releasedGames = [...epicgamesData.releasedGames, ...response.response];
-              GM_setValue('epicGamesLibrary', epicgamesData);
-            }
-          })
-            .catch((error) => {
-              console.error(error);
-              /*
-              Swal.fire({
-                icon: 'error',
-                title: '更新Epic游戏库数据失败',
-                text: '详情请查看控制台'
-              });
-              */
-            });
-        }
-      }
-      await new Promise((resolve, reject) => {
-        GM_xmlhttpRequest({
-          method: 'GET',
-          url: `https://epic-status.hclonely.com/releasedGames-${status.updateTime}.json`,
-          timeout: 15000,
-          nocache: true,
-          responseType: 'json',
-          onerror: reject,
-          ontimeout: reject,
-          onload: (response) => {
-            response.status === 200 ? resolve(response) : reject(response);
-          }
-        });
-      }).then((response) => {
-        if (response.response?.length > 0) {
-          epicgamesData.releasedGames = [...epicgamesData.releasedGames, ...response.response];
-          epicgamesData.updateTime.releasedGames = dayjs().format('YYYY-MM-DD');
-          GM_setValue('epicGamesLibrary', epicgamesData);
-        }
-      })
-        .catch((error) => {
-          console.error(error);
-          /*
-          Swal.fire({
-            icon: 'error',
-            title: '更新Epic游戏库数据失败',
-            text: '详情请查看控制台'
-          });
-          */
-        });
-      return;
-    }
-    await new Promise((resolve, reject) => {
+  async function getSha256Hash() {
+    return new Promise((resolve, reject) => {
       GM_xmlhttpRequest({
         method: 'GET',
-        url: `https://epic-status.hclonely.com/${type}Games-${status.updateTime}.json`,
+        url: 'https://store.epicgames.com/store/zh-CN/wishlist',
         timeout: 15000,
         nocache: true,
-        responseType: 'json',
         onerror: reject,
         ontimeout: reject,
         onload: (response) => {
@@ -252,30 +147,26 @@
         }
       });
     }).then((response) => {
-      if (response.response?.length > 0) {
-        epicgamesData[`${type}Games`] = response.response;
-        epicgamesData.updateTime[`${type}Games`] = dayjs().format('YYYY-MM-DD');
-        GM_setValue('epicGamesLibrary', epicgamesData);
-      }
+      [, accountId, getWishlistSha256Hash] = response.responseText.match(/"queryKey":\["getWishlist",\["accountId","([\w\d]+?)"\],"([\w\d]+?)"\]/i);
+      [, getCatalogOfferSha256Hash] = response.responseText.match(/"],"([\w\d]+?)"],"queryHash":"\[\\"getCatalogOffer\\"/i);
+      [, locale] = response.responseText.match(/"localizationData":{"locale":"(.+?)"/i);
     })
       .catch((error) => {
         console.error(error);
-        /*
-        Swal.fire({
-          icon: 'error',
-          title: '更新Epic游戏库数据失败',
-          text: '详情请查看控制台'
-        });
-        */
       });
-    return;
   }
-  async function checkEpicGamesLibrary() {
-    const epicGamesLibrary = getEpicGamesLibrary();
-    const dataStatus = await new Promise((resolve, reject) => {
+  async function getPagePlug(namespace, offerId) {
+    if (getCatalogOfferSha256Hash === false) {
+      getCatalogOfferSha256Hash = await getSha256Hash();
+    }
+    if (!getCatalogOfferSha256Hash) {
+      return false;
+    }
+    return new Promise((resolve, reject) => {
       GM_xmlhttpRequest({
         method: 'GET',
-        url: `https://epic-status.hclonely.com/status.json?t=${new Date().getTime()}`,
+        // eslint-disable-next-line max-len
+        url: `https://store.epicgames.com/graphql?operationName=getCatalogOffer&variables=%7B%22locale%22:%22zh-CN%22,%22country%22:%22CN%22,%22offerId%22:%22${offerId}%22,%22sandboxId%22:%22${namespace}%22%7D&extensions=%7B%22persistedQuery%22:%7B%22version%22:1,%22sha256Hash%22:%22${getCatalogOfferSha256Hash}%22%7D%7D`,
         timeout: 15000,
         nocache: true,
         responseType: 'json',
@@ -285,36 +176,22 @@
           response.status === 200 ? resolve(response) : reject(response);
         }
       });
-    }).then((response) => response.response)
+    }).then(async (response) => {
+      if (response.response?.data?.Catalog?.catalogOffer) {
+        const { offerMappings, urlSlug, customAttributes } = response.response.data.Catalog.catalogOffer;
+        // eslint-disable-next-line max-len
+        return [...new Set([offerMappings?.[0]?.pageSlug, urlSlug, customAttributes.find((e) => e.key === 'com.epicgames.app.productSlug')?.value?.replace(/\/home$/, '')].filter((e) => e))];
+      }
+      return false;
+    })
       .catch((error) => {
         console.error(error);
+        return false;
       });
-    if (!dataStatus) {
-      return;
-      /*
-      Swal.fire({
-        icon: 'error',
-        title: '获取Epic游戏库数据失败',
-        text: '详情请查看控制台'
-      });
-      */
-    }
-    if (new Date(epicGamesLibrary.updateTime.releasedGames).getTime() < new Date(dataStatus.releasedGames.updateTime).getTime()) {
-      await updateEpicGamesLibrary('released', dataStatus.releasedGames);
-    }
-    if (new Date(epicGamesLibrary.updateTime.comingsoonGames).getTime() < new Date(dataStatus.comingsoonGames.updateTime).getTime()) {
-      await updateEpicGamesLibrary('comingsoon', dataStatus.comingsoonGames);
-    }
-    if (new Date(epicGamesLibrary.updateTime.freeGames).getTime() < new Date(dataStatus.freeGames.updateTime).getTime()) {
-      await updateEpicGamesLibrary('free', dataStatus.freeGames);
-    }
   }
-  function getEpicOwnedGames() {
-    return GM_getValue('ownedGames') || [];
-  }
-  function updateEpicOwnedGames(loop = true, i = 0, games = []) {
+  function updateEpicOwnedGames(loop = true, i = 0, games = GM_getValue('ownedGames'), lastCreatedAt = '') {
     if (!loop && i !== 0) {
-      GM_setValue('ownedGames', [...new Set([...getEpicOwnedGames(), ...games])]);
+      GM_setValue('ownedGames', games);
       checkEpicGame(false);
       return;
     }
@@ -328,7 +205,7 @@
       }
       GM_xmlhttpRequest({
         method: 'GET',
-        url: `https://www.epicgames.com/account/v2/payment/ajaxGetOrderHistory?page=${i}`,
+        url: `https://www.epicgames.com/account/v2/payment/ajaxGetOrderHistory?page=${i}&locale=${locale}${lastCreatedAt ? `&lastCreatedAt=${encodeURIComponent(lastCreatedAt)}` : ''}`,
         timeout: 15000,
         nocache: true,
         responseType: 'json',
@@ -362,19 +239,54 @@
         return false;
       }
       if (response.response?.orders?.length >= 0) {
-        games = [...games, ...response.response.orders.map((e) => e?.orderStatus === 'COMPLETED' ? e?.items?.[0]?.offerId : null).filter(e => e)]; // eslint-disable-line
+        const orderedGames = response.response.orders.map((e) => (e?.orderStatus === 'COMPLETED' ? e?.items?.[0] : null)).filter((e) => e);
+        await Promise.all(orderedGames.map(async (item) => {
+          if (games.find((game) => game.namespace === item.namespace && game.offerId === item.offerId)) {
+            return true;
+          }
+          const pageSlug = await getPagePlug(item.namespace, item.offerId);
+          if (pageSlug) {
+            games.push({
+              namespace: item.namespace,
+              offerId: item.offerId,
+              pageSlug
+            });
+            GM_setValue('ownedGames', games);
+          }
+        }));
+        const lastCreatedAt = dayjs(response.response.orders.at(-1).createdAtMillis).utc()
+          .format('YYYY-MM-DDTHH:mm:ss.SSS[Z]');
 
         if (parseInt(response.response?.total / 10, 10) > i) {
-          return await updateEpicOwnedGames(loop, ++i, games); // eslint-disable-line
+          if (response.response.total - games.length > 0 && !loop) {
+            return Swal.fire({
+              title: '游戏库检测脚本提醒',
+              icon: 'warning',
+              text: '检测到Epic已拥有游戏数据缺失，是否重新获取？',
+              showCancelButton: true,
+              confirmButtonText: '获取',
+              cancelButtonText: '取消'
+            }).then(({ value }) => {
+              if (value) updateEpicOwnedGames();
+            });
+          }
+          if (loop) {
+            await new Promise((resolve) => {
+              setTimeout(() => {
+                resolve(true);
+              }, 1000);
+            });
+          }
+          return await updateEpicOwnedGames(loop, ++i, games, lastCreatedAt); // eslint-disable-line
         } else if (loop) {
-          GM_setValue('ownedGames', [...new Set(games)]);
+          GM_setValue('ownedGames', games);
           return Swal.update({
             icon: 'success',
             title: 'Epic已拥有游戏数据更新完成',
             text: ''
           });
         }
-        GM_setValue('ownedGames', [...new Set([...getEpicOwnedGames(), ...games])]);
+        GM_setValue('ownedGames', games);
         checkEpicGame(false);
         return true;
       } else if (response.response?.products?.length !== 0) {
@@ -397,32 +309,36 @@
   }
 
   async function updateEpicWishlist() {
-    const queryKey = await new Promise((resolve, reject) => {
+    if (getWishlistSha256Hash === false) {
+      await getSha256Hash();
+    }
+    if (accountId && getWishlistSha256Hash) {
       GM_xmlhttpRequest({
         method: 'GET',
-        url: 'https://www.epicgames.com/store/zh-CN/wishlist',
-        timeout: 15000,
-        nocache: true,
-        onerror: reject,
-        ontimeout: reject,
-        onload: (response) => {
-          response.status === 200 ? resolve(response) : reject(response);
-        }
-      });
-    }).then((response) => response.responseText.match(/"queryKey":\["getWishlist",\["accountId","([\w\d]+?)"\],"([\w\d]+?)"\]/i))
-      .catch((error) => {
-        console.error(error);
-      });
-    if (queryKey?.length === 3) {
-      GM_xmlhttpRequest({
-        method: 'GET',
-        url: `https://www.epicgames.com/graphql?operationName=getWishlist&variables=%7B%22accountId%22:%22${queryKey[1]}%22%7D&extensions=%7B%22persistedQuery%22:%7B%22version%22:1,%22sha256Hash%22:%22${queryKey[2]}%22%7D%7D`, // eslint-disable-line
+        url: `https://store.epicgames.com/graphql?operationName=getWishlist&variables=%7B%22accountId%22:%22${accountId}%22%7D&extensions=%7B%22persistedQuery%22:%7B%22version%22:1,%22sha256Hash%22:%22${getWishlistSha256Hash}%22%7D%7D`, // eslint-disable-line
         timeout: 15000,
         nocache: true,
         responseType: 'json',
-        onload: (response) => {
+        onload: async (response) => {
           if (response.status === 200 && response.response?.data?.Wishlist?.wishlistItems?.elements?.length) {
-            GM_setValue('epicWishist', response.response.data.Wishlist.wishlistItems.elements.map((e) => e.offerId));
+            const wishlistGames = response.response.data.Wishlist.wishlistItems.elements;
+            const savedwishlistGames = GM_getValue('epicWishist') || [];
+            const wishlist = (await Promise.all(wishlistGames.map(async (item) => {
+              const gameCache = savedwishlistGames.find((game) => game.namespace === item.namespace && game.offerId === item.offerId);
+              if (gameCache) {
+                return gameCache;
+              }
+              const pageSlug = await getPagePlug(item.namespace, item.offerId);
+              if (pageSlug) {
+                return {
+                  namespace: item.namespace,
+                  offerId: item.offerId,
+                  pageSlug
+                };
+              }
+              return null;
+            }))).filter((e) => e);
+            GM_setValue('epicWishist', wishlist);
           }
         }
       });
@@ -481,56 +397,6 @@
 .epic-game-link-wishlist {
   color:#ffffff !important;
   background:#007399 !important
-}
-
-@font-face {
-  font-family: "iconfont";
-  src: url('https://cdn.jsdelivr.net/gh/hclonely/Game-library-check@master/raw/iconfont.ttf') format('truetype');
-}
-
-.iconfont {
-  font-family: "iconfont" !important;
-  font-size: 16px;
-  font-style: normal;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-.iconfont:after {
-  background-color: #fff;
-  color: red;
-}
-
-.icon-gift:after {
-  content: "\\e681";
-}
-
-.icon-gift-clock:after {
-  content: "\\e681\\e7e9";
-}
-
-.icon-clock-gift:after {
-  content: "\\e7e9\\e681";
-}
-
-.icon-3302bianji2:after {
-  content: "\\e662";
-}
-
-.icon-clock:after {
-  content: "\\e7e9";
-}
-
-.icon-kabao:after {
-  content: "\\e8b1";
-}
-
-.icon-ruanjian:after {
-  content: "\\e689";
-}
-
-.icon-add-one:after {
-  content: "\\e69d";
 }`);
   GM_addStyle(GM_getResourceText('overhang'));
 }());

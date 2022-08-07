@@ -16,6 +16,7 @@
   "globals": {
     "GM_getValue": "readonly",
     "GM_setValue": "readonly",
+    "GM_deleteValue": "readonly",
     "Cookies": "readonly",
     "Swal": "readonly",
     "unsafeWindow": true,
@@ -190,7 +191,7 @@
     "max-len": [
       "error",
       {
-        "code": 150
+        "code": 200
       }
     ],
     "block-spacing": "error",
