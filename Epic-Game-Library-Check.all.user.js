@@ -49,7 +49,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.1.1
+// @version        1.1.2
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -208,7 +208,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
             case 11:
               if (first) updateEpicOwnedGames(false);
               epicLink.map( /*#__PURE__*/function () {
-                var _ref9 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(i, e) {
+                var _ref8 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(i, e) {
                   var _href$match, _href$match$, _href$match2, _href$match2$;
 
                   var $this, href, epicGameName;
@@ -245,7 +245,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                 }));
 
                 return function (_x5, _x6) {
-                  return _ref9.apply(this, arguments);
+                  return _ref8.apply(this, arguments);
                 };
               }());
 
@@ -363,7 +363,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                   }
                 });
               }).then( /*#__PURE__*/function () {
-                var _ref10 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(response) {
+                var _ref9 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(response) {
                   var _response$response4, _response$response4$d, _response$response4$d2;
 
                   var _offerMappings$, _customAttributes$fin, _customAttributes$fin2, _response$response$da, offerMappings, urlSlug, customAttributes;
@@ -397,7 +397,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                 }));
 
                 return function (_x7) {
-                  return _ref10.apply(this, arguments);
+                  return _ref9.apply(this, arguments);
                 };
               }())["catch"](function (error) {
                 console.error(error);
@@ -491,7 +491,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 
               case 3:
                 if (!(((_response$response = response.response) === null || _response$response === void 0 ? void 0 : (_response$response$or = _response$response.orders) === null || _response$response$or === void 0 ? void 0 : _response$response$or.length) >= 0)) {
-                  _context2.next = 27;
+                  _context2.next = 25;
                   break;
                 }
 
@@ -552,50 +552,32 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                 _lastCreatedAt = new Date(response.response.orders.at(-1).createdAtMillis).toISOString();
 
                 if (!(parseInt(((_response$response2 = response.response) === null || _response$response2 === void 0 ? void 0 : _response$response2.total) / 10, 10) > i)) {
-                  _context2.next = 19;
+                  _context2.next = 17;
                   break;
                 }
 
-                if (!(response.response.total - games.length > 0 && !loop)) {
-                  _context2.next = 11;
-                  break;
-                }
-
-                return _context2.abrupt("return", Swal.fire({
-                  title: '游戏库检测脚本提醒',
-                  icon: 'warning',
-                  text: '检测到Epic已拥有游戏数据缺失，是否重新获取？',
-                  showCancelButton: true,
-                  confirmButtonText: '获取',
-                  cancelButtonText: '取消'
-                }).then(function (_ref5) {
-                  var value = _ref5.value;
-                  if (value) updateEpicOwnedGames();
-                }));
-
-              case 11:
                 if (!loop) {
-                  _context2.next = 14;
+                  _context2.next = 12;
                   break;
                 }
 
-                _context2.next = 14;
+                _context2.next = 12;
                 return new Promise(function (resolve) {
                   setTimeout(function () {
                     resolve(true);
                   }, 1000);
                 });
 
-              case 14:
-                _context2.next = 16;
+              case 12:
+                _context2.next = 14;
                 return updateEpicOwnedGames(loop, ++i, games, _lastCreatedAt);
 
-              case 16:
+              case 14:
                 return _context2.abrupt("return", _context2.sent);
 
-              case 19:
+              case 17:
                 if (!loop) {
-                  _context2.next = 22;
+                  _context2.next = 20;
                   break;
                 }
 
@@ -606,14 +588,14 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                   text: ''
                 }));
 
-              case 22:
+              case 20:
                 GM_setValue('ownedGames', games);
                 checkEpicGame(false);
                 return _context2.abrupt("return", true);
 
-              case 27:
+              case 25:
                 if (!(((_response$response3 = response.response) === null || _response$response3 === void 0 ? void 0 : (_response$response3$p = _response$response3.products) === null || _response$response3$p === void 0 ? void 0 : _response$response3$p.length) !== 0)) {
-                  _context2.next = 30;
+                  _context2.next = 28;
                   break;
                 }
 
@@ -624,7 +606,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                   text: '详情请查看控制台'
                 }));
 
-              case 30:
+              case 28:
               case "end":
                 return _context2.stop();
             }
@@ -690,7 +672,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                               savedwishlistGames = GM_getValue('epicWishist') || [];
                               _context9.next = 5;
                               return Promise.all(wishlistGames.map( /*#__PURE__*/function () {
-                                var _ref11 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8(item) {
+                                var _ref10 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8(item) {
                                   var gameCache, pageSlug;
                                   return regeneratorRuntime.wrap(function _callee8$(_context8) {
                                     while (1) {
@@ -737,7 +719,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                                 }));
 
                                 return function (_x9) {
-                                  return _ref11.apply(this, arguments);
+                                  return _ref10.apply(this, arguments);
                                 };
                               }()));
 
@@ -783,8 +765,8 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       showCancelButton: true,
       confirmButtonText: '保存',
       cancelButtonText: '取消'
-    }).then(function (_ref6) {
-      var value = _ref6.value;
+    }).then(function (_ref5) {
+      var value = _ref5.value;
       if (value !== undefined) value ? GM_setValue('whiteList', value.split('\n')) : GM_setValue('whiteList', []);
     });
   }
@@ -798,8 +780,8 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       showCancelButton: true,
       confirmButtonText: '保存',
       cancelButtonText: '取消'
-    }).then(function (_ref7) {
-      var value = _ref7.value;
+    }).then(function (_ref6) {
+      var value = _ref6.value;
       if (value !== undefined) value ? GM_setValue('blackList', value.split('\n')) : GM_setValue('blackList', []);
     });
   }
@@ -811,9 +793,9 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
       confirmButtonText: '白名单网站',
       denyButtonText: '黑名单网站',
       cancelButtonText: '关闭'
-    }).then(function (_ref8) {
-      var isConfirmed = _ref8.isConfirmed,
-          isDenied = _ref8.isDenied;
+    }).then(function (_ref7) {
+      var isConfirmed = _ref7.isConfirmed,
+          isDenied = _ref7.isDenied;
 
       if (isConfirmed) {
         addWhiteList();

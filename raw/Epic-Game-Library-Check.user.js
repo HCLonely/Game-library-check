@@ -2,7 +2,7 @@
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.1.1
+// @version        1.1.2
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -254,6 +254,7 @@
         const lastCreatedAt = new Date(response.response.orders.at(-1).createdAtMillis).toISOString();
 
         if (parseInt(response.response?.total / 10, 10) > i) {
+          /*
           if (response.response.total - games.length > 0 && !loop) {
             return Swal.fire({
               title: '游戏库检测脚本提醒',
@@ -266,6 +267,7 @@
               if (value) updateEpicOwnedGames();
             });
           }
+          */
           if (loop) {
             await new Promise((resolve) => {
               setTimeout(() => {
