@@ -2,7 +2,7 @@
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.1.2
+// @version        1.1.3
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -46,8 +46,8 @@
   const url = window.location.href;
   let enable = true;
   let loadTimes = 0;
-  let getCatalogOfferSha256Hash = false;
-  let getWishlistSha256Hash = false;
+  let catalogOfferSha256Hash = false;
+  let wishlistSha256Hash = false;
   let accountId = 0;
   let locale = 'en-US';
 
@@ -144,8 +144,8 @@
         }
       });
     }).then((response) => {
-      [, accountId, getWishlistSha256Hash] = response.responseText.match(/"queryKey":\["getWishlist",\["accountId","([\w\d]+?)"\],"([\w\d]+?)"\]/i);
-      [, getCatalogOfferSha256Hash] = response.responseText.match(/"],"([\w\d]+?)"],"queryHash":"\[\\"getCatalogOffer\\"/i);
+      [, accountId, wishlistSha256Hash] = response.responseText.match(/"queryKey":\["getWishlist",\["accountId","([\w\d]+?)"\],"([\w\d]+?)"\]/i);
+      [, catalogOfferSha256Hash] = response.responseText.match(/"],"([\w\d]+?)"],"queryHash":"\[\\"getCatalogOffer\\"/i);
       [, locale] = response.responseText.match(/"localizationData":{"locale":"(.+?)"/i);
     })
       .catch((error) => {
@@ -153,17 +153,17 @@
       });
   }
   async function getPagePlug(namespace, offerId) {
-    if (getCatalogOfferSha256Hash === false) {
-      getCatalogOfferSha256Hash = await getSha256Hash();
+    if (catalogOfferSha256Hash === false) {
+      await getSha256Hash();
     }
-    if (!getCatalogOfferSha256Hash) {
+    if (!catalogOfferSha256Hash) {
       return false;
     }
     return new Promise((resolve, reject) => {
       GM_xmlhttpRequest({
         method: 'GET',
         // eslint-disable-next-line max-len
-        url: `https://store.epicgames.com/graphql?operationName=getCatalogOffer&variables=%7B%22locale%22:%22zh-CN%22,%22country%22:%22CN%22,%22offerId%22:%22${offerId}%22,%22sandboxId%22:%22${namespace}%22%7D&extensions=%7B%22persistedQuery%22:%7B%22version%22:1,%22sha256Hash%22:%22${getCatalogOfferSha256Hash}%22%7D%7D`,
+        url: `https://store.epicgames.com/graphql?operationName=getCatalogOffer&variables=%7B%22locale%22:%22zh-CN%22,%22country%22:%22CN%22,%22offerId%22:%22${offerId}%22,%22sandboxId%22:%22${namespace}%22%7D&extensions=%7B%22persistedQuery%22:%7B%22version%22:1,%22sha256Hash%22:%22${catalogOfferSha256Hash}%22%7D%7D`,
         timeout: 30000,
         nocache: true,
         responseType: 'json',
@@ -307,13 +307,13 @@
   }
 
   async function updateEpicWishlist() {
-    if (getWishlistSha256Hash === false) {
+    if (wishlistSha256Hash === false) {
       await getSha256Hash();
     }
-    if (accountId && getWishlistSha256Hash) {
+    if (accountId && wishlistSha256Hash) {
       GM_xmlhttpRequest({
         method: 'GET',
-        url: `https://store.epicgames.com/graphql?operationName=getWishlist&variables=%7B%22accountId%22:%22${accountId}%22%7D&extensions=%7B%22persistedQuery%22:%7B%22version%22:1,%22sha256Hash%22:%22${getWishlistSha256Hash}%22%7D%7D`, // eslint-disable-line
+        url: `https://store.epicgames.com/graphql?operationName=getWishlist&variables=%7B%22accountId%22:%22${accountId}%22%7D&extensions=%7B%22persistedQuery%22:%7B%22version%22:1,%22sha256Hash%22:%22${wishlistSha256Hash}%22%7D%7D`, // eslint-disable-line
         timeout: 30000,
         nocache: true,
         responseType: 'json',

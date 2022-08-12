@@ -49,7 +49,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.1.2
+// @version        1.1.3
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -87,8 +87,8 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
   var url = window.location.href;
   var enable = true;
   var loadTimes = 0;
-  var getCatalogOfferSha256Hash = false;
-  var getWishlistSha256Hash = false;
+  var catalogOfferSha256Hash = false;
+  var wishlistSha256Hash = false;
   var accountId = 0;
   var locale = 'en-US';
 
@@ -291,13 +291,13 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                 var _response$responseTex2 = _slicedToArray(_response$responseTex, 3);
 
                 accountId = _response$responseTex2[1];
-                getWishlistSha256Hash = _response$responseTex2[2];
+                wishlistSha256Hash = _response$responseTex2[2];
 
                 var _response$responseTex3 = response.responseText.match(/"],"([\w\d]+?)"],"queryHash":"\[\\"getCatalogOffer\\"/i);
 
                 var _response$responseTex4 = _slicedToArray(_response$responseTex3, 2);
 
-                getCatalogOfferSha256Hash = _response$responseTex4[1];
+                catalogOfferSha256Hash = _response$responseTex4[1];
 
                 var _response$responseTex5 = response.responseText.match(/"localizationData":{"locale":"(.+?)"/i);
 
@@ -328,8 +328,8 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
         while (1) {
           switch (_context7.prev = _context7.next) {
             case 0:
-              if (!(getCatalogOfferSha256Hash === false)) {
-                _context7.next = 4;
+              if (!(catalogOfferSha256Hash === false)) {
+                _context7.next = 3;
                 break;
               }
 
@@ -337,22 +337,19 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
               return getSha256Hash();
 
             case 3:
-              getCatalogOfferSha256Hash = _context7.sent;
-
-            case 4:
-              if (getCatalogOfferSha256Hash) {
-                _context7.next = 6;
+              if (catalogOfferSha256Hash) {
+                _context7.next = 5;
                 break;
               }
 
               return _context7.abrupt("return", false);
 
-            case 6:
+            case 5:
               return _context7.abrupt("return", new Promise(function (resolve, reject) {
                 GM_xmlhttpRequest({
                   method: 'GET',
                   // eslint-disable-next-line max-len
-                  url: "https://store.epicgames.com/graphql?operationName=getCatalogOffer&variables=%7B%22locale%22:%22zh-CN%22,%22country%22:%22CN%22,%22offerId%22:%22".concat(offerId, "%22,%22sandboxId%22:%22").concat(namespace, "%22%7D&extensions=%7B%22persistedQuery%22:%7B%22version%22:1,%22sha256Hash%22:%22").concat(getCatalogOfferSha256Hash, "%22%7D%7D"),
+                  url: "https://store.epicgames.com/graphql?operationName=getCatalogOffer&variables=%7B%22locale%22:%22zh-CN%22,%22country%22:%22CN%22,%22offerId%22:%22".concat(offerId, "%22,%22sandboxId%22:%22").concat(namespace, "%22%7D&extensions=%7B%22persistedQuery%22:%7B%22version%22:1,%22sha256Hash%22:%22").concat(catalogOfferSha256Hash, "%22%7D%7D"),
                   timeout: 30000,
                   nocache: true,
                   responseType: 'json',
@@ -404,7 +401,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                 return false;
               }));
 
-            case 7:
+            case 6:
             case "end":
               return _context7.stop();
           }
@@ -637,7 +634,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
         while (1) {
           switch (_context10.prev = _context10.next) {
             case 0:
-              if (!(getWishlistSha256Hash === false)) {
+              if (!(wishlistSha256Hash === false)) {
                 _context10.next = 3;
                 break;
               }
@@ -646,10 +643,10 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
               return getSha256Hash();
 
             case 3:
-              if (accountId && getWishlistSha256Hash) {
+              if (accountId && wishlistSha256Hash) {
                 GM_xmlhttpRequest({
                   method: 'GET',
-                  url: "https://store.epicgames.com/graphql?operationName=getWishlist&variables=%7B%22accountId%22:%22".concat(accountId, "%22%7D&extensions=%7B%22persistedQuery%22:%7B%22version%22:1,%22sha256Hash%22:%22").concat(getWishlistSha256Hash, "%22%7D%7D"),
+                  url: "https://store.epicgames.com/graphql?operationName=getWishlist&variables=%7B%22accountId%22:%22".concat(accountId, "%22%7D&extensions=%7B%22persistedQuery%22:%7B%22version%22:1,%22sha256Hash%22:%22").concat(wishlistSha256Hash, "%22%7D%7D"),
                   // eslint-disable-line
                   timeout: 30000,
                   nocache: true,
