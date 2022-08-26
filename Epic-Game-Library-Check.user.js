@@ -29,7 +29,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.1.3
+// @version        1.1.4
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -41,6 +41,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 // @include        *
 // @exclude        *://*.epicgames.com/*
 // @require        https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js
+// @require        https://cdn.jsdelivr.net/npm/jquery-ui@1.13.2/dist/jquery-ui.min.js
 // @require        https://cdn.jsdelivr.net/npm/regenerator-runtime@0.13.5/runtime.min.js
 // @require        https://cdn.jsdelivr.net/npm/sweetalert2@11
 // @require        https://cdn.jsdelivr.net/npm/promise-polyfill@8.1.3/dist/polyfill.min.js
@@ -262,7 +263,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
               return _context5.abrupt("return", new Promise(function (resolve, reject) {
                 GM_xmlhttpRequest({
                   method: 'GET',
-                  url: 'https://store.epicgames.com/store/zh-CN/wishlist',
+                  url: 'https://store.epicgames.com/zh-CN/wishlist',
                   timeout: 30000,
                   nocache: true,
                   onerror: reject,
