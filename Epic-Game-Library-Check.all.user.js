@@ -55,7 +55,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.1.4
+// @version        1.1.5
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -420,7 +420,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
   function updateEpicOwnedGames() {
     var loop = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
     var i = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-    var games = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : GM_getValue('ownedGames');
+    var games = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : GM_getValue('ownedGames') || [];
     var lastCreatedAt = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
 
     if (!loop && i !== 0) {

@@ -2,7 +2,7 @@
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.1.4
+// @version        1.1.5
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -187,7 +187,7 @@
         return false;
       });
   }
-  function updateEpicOwnedGames(loop = true, i = 0, games = GM_getValue('ownedGames'), lastCreatedAt = '') {
+  function updateEpicOwnedGames(loop = true, i = 0, games = GM_getValue('ownedGames') || [], lastCreatedAt = '') {
     if (!loop && i !== 0) {
       GM_setValue('ownedGames', games);
       checkEpicGame(false);
