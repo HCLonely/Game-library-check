@@ -2,7 +2,7 @@
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.1.4
+// @version        1.1.5
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -178,7 +178,7 @@
       if (response.response?.data?.Catalog?.catalogOffer) {
         const { offerMappings, urlSlug, customAttributes } = response.response.data.Catalog.catalogOffer;
         // eslint-disable-next-line max-len
-        return [...new Set([offerMappings?.[0]?.pageSlug, urlSlug, customAttributes.find((e) => e.key === 'com.epicgames.app.productSlug')?.value?.replace(/\/home$/, '')].filter((e) => e))];
+        return [...new Set([offerMappings?.[0]?.pageSlug || [], urlSlug || [], customAttributes?.find((e) => e.key === 'com.epicgames.app.productSlug')?.value?.replace(/\/home$/, '')].filter((e) => e)) || []];
       }
       return false;
     })

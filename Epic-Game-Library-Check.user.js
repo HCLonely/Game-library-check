@@ -29,7 +29,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.1.4
+// @version        1.1.5
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -363,11 +363,11 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 
                           _response$response$da = response.response.data.Catalog.catalogOffer, offerMappings = _response$response$da.offerMappings, urlSlug = _response$response$da.urlSlug, customAttributes = _response$response$da.customAttributes; // eslint-disable-next-line max-len
 
-                          return _context6.abrupt("return", _toConsumableArray(new Set([offerMappings === null || offerMappings === void 0 ? void 0 : (_offerMappings$ = offerMappings[0]) === null || _offerMappings$ === void 0 ? void 0 : _offerMappings$.pageSlug, urlSlug, (_customAttributes$fin = customAttributes.find(function (e) {
+                          return _context6.abrupt("return", _toConsumableArray(new Set([(offerMappings === null || offerMappings === void 0 ? void 0 : (_offerMappings$ = offerMappings[0]) === null || _offerMappings$ === void 0 ? void 0 : _offerMappings$.pageSlug) || [], urlSlug || [], customAttributes === null || customAttributes === void 0 ? void 0 : (_customAttributes$fin = customAttributes.find(function (e) {
                             return e.key === 'com.epicgames.app.productSlug';
                           })) === null || _customAttributes$fin === void 0 ? void 0 : (_customAttributes$fin2 = _customAttributes$fin.value) === null || _customAttributes$fin2 === void 0 ? void 0 : _customAttributes$fin2.replace(/\/home$/, '')].filter(function (e) {
                             return e;
-                          }))));
+                          })) || []));
 
                         case 3:
                           return _context6.abrupt("return", false);
