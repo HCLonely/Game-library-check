@@ -420,7 +420,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
   function updateEpicOwnedGames() {
     var loop = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
     var i = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
-    var games = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : GM_getValue('ownedGames');
+    var games = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : GM_getValue('ownedGames') || [];
     var lastCreatedAt = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
 
     if (!loop && i !== 0) {

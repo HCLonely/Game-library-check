@@ -187,7 +187,7 @@
         return false;
       });
   }
-  function updateEpicOwnedGames(loop = true, i = 0, games = GM_getValue('ownedGames'), lastCreatedAt = '') {
+  function updateEpicOwnedGames(loop = true, i = 0, games = GM_getValue('ownedGames') || [], lastCreatedAt = '') {
     if (!loop && i !== 0) {
       GM_setValue('ownedGames', games);
       checkEpicGame(false);
