@@ -2,7 +2,7 @@
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.1.6
+// @version        1.1.7
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -145,9 +145,9 @@
         }
       });
     }).then((response) => {
-      [, accountId, wishlistSha256Hash] = response.responseText.match(/"queryKey":\["getWishlist",\["accountId","([\w\d]+?)"\],"([\w\d]+?)"\]/i);
-      [, catalogOfferSha256Hash] = response.responseText.match(/"],"([\w\d]+?)"],"queryHash":"\[\\"getCatalogOffer\\"/i);
-      [, locale] = response.responseText.match(/"localizationData":{"locale":"(.+?)"/i);
+      [, accountId, wishlistSha256Hash] = response.responseText.match(/"queryKey":\["getWishlist",\["accountId","([\w\d]+?)"\],"([\w\d]+?)"\]/i) || [];
+      [, catalogOfferSha256Hash] = response.responseText.match(/"],"([\w\d]+?)"],"queryHash":"\[\\"getCatalogOffer\\"/i) || [];
+      [, locale] = response.responseText.match(/"localizationData":{"locale":"(.+?)"/i) || [];
     })
       .catch((error) => {
         console.error(error);
@@ -177,8 +177,11 @@
     }).then(async (response) => {
       if (response.response?.data?.Catalog?.catalogOffer) {
         const { offerMappings, urlSlug, customAttributes } = response.response.data.Catalog.catalogOffer;
-        // eslint-disable-next-line max-len
-        return [...new Set([offerMappings?.[0]?.pageSlug || [], urlSlug || [], customAttributes?.find((e) => e.key === 'com.epicgames.app.productSlug')?.value?.replace(/\/home$/, '')].filter((e) => e)) || []];
+        return [
+          ...new Set([
+            offerMappings?.[0]?.pageSlug, urlSlug, customAttributes?.find((e) => e.key === 'com.epicgames.app.productSlug')?.value?.replace(/\/home$/, '')
+          ].filter((e) => e)) || []
+        ];
       }
       return false;
     })
@@ -236,7 +239,8 @@
         }
         return false;
       }
-      if (response.response?.orders?.length >= 0) {
+      const ordersLength = response.response?.orders?.length || 0;
+      if (ordersLength >= 0) {
         const orderedGames = response.response.orders.map((e) => (e?.orderStatus === 'COMPLETED' ? e?.items?.[0] : null)).filter((e) => e);
         await Promise.all(orderedGames.map(async (item) => {
           if (games.find((game) => game.namespace === item.namespace && game.offerId === item.offerId)) {
@@ -252,7 +256,7 @@
             GM_setValue('ownedGames', games);
           }
         }));
-        const lastCreatedAt = new Date(response.response.orders.at(-1).createdAtMillis).toISOString();
+        const lastCreatedAt = new Date(response.response.orders[ordersLength - 1]?.createdAtMillis || null).toISOString();
 
         if (parseInt(response.response?.total / 10, 10) > i) {
           /*
