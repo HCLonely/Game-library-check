@@ -33,7 +33,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.1.7
+// @version        1.1.8
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -264,6 +264,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
         while (1) {
           switch (_context5.prev = _context5.next) {
             case 0:
+              console.log('[EGLC] getSha256Hash...');
               return _context5.abrupt("return", new Promise(function (resolve, reject) {
                 GM_xmlhttpRequest({
                   method: 'GET',
@@ -295,11 +296,17 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                 var _ref14 = _slicedToArray(_ref13, 2);
 
                 locale = _ref14[1];
+                console.log('[EGLC] ', JSON.stringify({
+                  accountId: accountId,
+                  wishlistSha256Hash: wishlistSha256Hash,
+                  catalogOfferSha256Hash: catalogOfferSha256Hash,
+                  locale: locale
+                }));
               })["catch"](function (error) {
                 console.error(error);
               }));
 
-            case 1:
+            case 2:
             case "end":
               return _context5.stop();
           }
@@ -319,23 +326,26 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
         while (1) {
           switch (_context7.prev = _context7.next) {
             case 0:
+              console.log('[EGLC] getPagePlug...');
+
               if (!(catalogOfferSha256Hash === false)) {
-                _context7.next = 3;
+                _context7.next = 4;
                 break;
               }
 
-              _context7.next = 3;
+              _context7.next = 4;
               return getSha256Hash();
 
-            case 3:
+            case 4:
               if (catalogOfferSha256Hash) {
-                _context7.next = 5;
+                _context7.next = 7;
                 break;
               }
 
+              console.log('[EGLC] No catalogOfferSha256Hash');
               return _context7.abrupt("return", false);
 
-            case 5:
+            case 7:
               return _context7.abrupt("return", new Promise(function (resolve, reject) {
                 GM_xmlhttpRequest({
                   method: 'GET',
@@ -370,7 +380,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                             return e.key === 'com.epicgames.app.productSlug';
                           })) === null || _customAttributes$fin === void 0 ? void 0 : (_customAttributes$fin2 = _customAttributes$fin.value) === null || _customAttributes$fin2 === void 0 ? void 0 : _customAttributes$fin2.replace(/\/home$/, '')].filter(function (e) {
                             return e;
-                          })) || []));
+                          }))));
 
                         case 3:
                           return _context6.abrupt("return", false);
@@ -391,7 +401,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                 return false;
               }));
 
-            case 6:
+            case 8:
             case "end":
               return _context7.stop();
           }
@@ -406,6 +416,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
     var i = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
     var games = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : GM_getValue('ownedGames') || [];
     var lastCreatedAt = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : '';
+    console.log('[EGLC] updateEpicOwnedGames...');
 
     if (!loop && i !== 0) {
       GM_setValue('ownedGames', games);
@@ -514,6 +525,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 
                           case 4:
                             pageSlug = _context.sent;
+                            console.log("[EGLC] pageSlug: ".concat(pageSlug));
 
                             if (pageSlug) {
                               games.push({
@@ -524,7 +536,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                               GM_setValue('ownedGames', games);
                             }
 
-                          case 6:
+                          case 7:
                           case "end":
                             return _context.stop();
                         }
@@ -626,15 +638,17 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
         while (1) {
           switch (_context10.prev = _context10.next) {
             case 0:
+              console.log('[EGLC] updateEpicWishlist...');
+
               if (!(wishlistSha256Hash === false)) {
-                _context10.next = 3;
+                _context10.next = 4;
                 break;
               }
 
-              _context10.next = 3;
+              _context10.next = 4;
               return getSha256Hash();
 
-            case 3:
+            case 4:
               if (accountId && wishlistSha256Hash) {
                 GM_xmlhttpRequest({
                   method: 'GET',
@@ -735,7 +749,7 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
                 });
               }
 
-            case 4:
+            case 5:
             case "end":
               return _context10.stop();
           }

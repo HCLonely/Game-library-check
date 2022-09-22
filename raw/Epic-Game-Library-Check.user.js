@@ -2,7 +2,7 @@
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.1.7
+// @version        1.1.8
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -132,6 +132,7 @@
     return GM_getValue('ownedGames') || [];
   }
   async function getSha256Hash() {
+    console.log('[EGLC] getSha256Hash...');
     return new Promise((resolve, reject) => {
       GM_xmlhttpRequest({
         method: 'GET',
@@ -148,16 +149,19 @@
       [, accountId, wishlistSha256Hash] = response.responseText.match(/"queryKey":\["getWishlist",\["accountId","([\w\d]+?)"\],"([\w\d]+?)"\]/i) || [];
       [, catalogOfferSha256Hash] = response.responseText.match(/"],"([\w\d]+?)"],"queryHash":"\[\\"getCatalogOffer\\"/i) || [];
       [, locale] = response.responseText.match(/"localizationData":{"locale":"(.+?)"/i) || [];
+      console.log('[EGLC] ', JSON.stringify({ accountId, wishlistSha256Hash, catalogOfferSha256Hash, locale }));
     })
       .catch((error) => {
         console.error(error);
       });
   }
   async function getPagePlug(namespace, offerId) {
+    console.log('[EGLC] getPagePlug...');
     if (catalogOfferSha256Hash === false) {
       await getSha256Hash();
     }
     if (!catalogOfferSha256Hash) {
+      console.log('[EGLC] No catalogOfferSha256Hash');
       return false;
     }
     return new Promise((resolve, reject) => {
@@ -180,7 +184,7 @@
         return [
           ...new Set([
             offerMappings?.[0]?.pageSlug, urlSlug, customAttributes?.find((e) => e.key === 'com.epicgames.app.productSlug')?.value?.replace(/\/home$/, '')
-          ].filter((e) => e)) || []
+          ].filter((e) => e))
         ];
       }
       return false;
@@ -191,6 +195,7 @@
       });
   }
   function updateEpicOwnedGames(loop = true, i = 0, games = GM_getValue('ownedGames') || [], lastCreatedAt = '') {
+    console.log('[EGLC] updateEpicOwnedGames...');
     if (!loop && i !== 0) {
       GM_setValue('ownedGames', games);
       checkEpicGame(false);
@@ -247,6 +252,7 @@
             return true;
           }
           const pageSlug = await getPagePlug(item.namespace, item.offerId);
+          console.log(`[EGLC] pageSlug: ${pageSlug}`);
           if (pageSlug) {
             games.push({
               namespace: item.namespace,
@@ -312,6 +318,7 @@
   }
 
   async function updateEpicWishlist() {
+    console.log('[EGLC] updateEpicWishlist...');
     if (wishlistSha256Hash === false) {
       await getSha256Hash();
     }
