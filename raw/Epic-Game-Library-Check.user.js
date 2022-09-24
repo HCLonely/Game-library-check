@@ -2,7 +2,7 @@
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.1.9
+// @version        1.1.10
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -220,6 +220,7 @@
         return false;
       });
   }
+  // eslint-disable-next-line no-unused-vars
   async function updateEpicAuth(loop) {
     console.log('[EGLC] updateEpicAuth...');
     if (loop) {
@@ -234,7 +235,8 @@
         url: 'https://www.epicgames.com/id/api/reputation',
         headers: {
           accept: 'application/json, text/plain, */*',
-          referer: 'https://www.epicgames.com/id/login'
+          referer: 'https://www.epicgames.com/id/login',
+          'sec-fetch-site': 'same-origin'
         },
         timeout: 30000,
         nocache: true,
@@ -245,7 +247,11 @@
           response.status === 200 ? resolve(response) : reject(response);
         }
       });
-    }).then(async (response) => response.status === 200);
+    }).then(async (response) => response.status === 200)
+      .catch((error) => {
+        console.error(error);
+        return false;
+      });
     if (!reputationResult) {
       return false;
     }
@@ -274,7 +280,11 @@
           response.status === 200 ? resolve(response) : reject(response);
         }
       });
-    }).then(async (response) => response.status === 200);
+    }).then(async (response) => response.status === 200)
+      .catch((error) => {
+        console.error(error);
+        return false;
+      });
     if (!authenticateResult) {
       return false;
     }
@@ -296,7 +306,11 @@
           response.status === 200 ? resolve(response) : reject(response);
         }
       });
-    }).then(async (response) => response.response.success === true);
+    }).then(async (response) => response.response?.success === true)
+      .catch((error) => {
+        console.error(error);
+        return false;
+      });
     if (!refreshCsrfResult) {
       return false;
     }
@@ -331,11 +345,13 @@
       });
     }).then(async (response) => {
       if (/login/i.test(response.finalUrl)) {
+        /*
         const result = await updateEpicAuth(loop);
         console.log('[EGLC] updateEpicAuthResult:', result);
         if (result) {
           return updateEpicOwnedGames(loop, i, games, lastCreatedAt);
         }
+        */
         if (loop) {
           Swal.fire({
             title: '更新Epic凭证失败！',

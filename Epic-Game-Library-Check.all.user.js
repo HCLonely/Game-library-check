@@ -25,9 +25,7 @@ var runtime=function(t){"use strict";var r,e=Object.prototype,n=e.hasOwnProperty
  * paul@paulkr.com
  */
 
-$.fn.overhang=function(arguments){var e=$(this),o=$("<div class='overhang'></div>"),a=$("<div class='overhang-overlay'></div>");$(".overhang").remove(),$(".overhang-overlay").remove();var n={success:["#2ECC71","#27AE60"],error:["#E74C3C","#C0392B"],warn:["#E67E22","#D35400"],info:["#3498DB","#2980B9"],prompt:["#9B59B6","#8E44AD"],confirm:["#1ABC9C","#16A085"],default:["#95A5A6","#7F8C8D"]},r=$.extend({type:"success",custom:!1,message:"This is an overhang.js message!",textColor:"#FFFFFF",yesMessage:"Yes",noMessage:"No",yesColor:"#2ECC71",noColor:"#E74C3C",duration:1.5,speed:500,closeConfirm:!1,upper:!1,easing:"easeOutBounce",html:!1,overlay:!1,customClasses:"",callback:function(){}},arguments);function s(n,s){a.fadeOut(100),o.slideUp(r.speed,function(){n&&r.callback(null!==s?e.data(s):"")})}r.type=r.type.toLowerCase();-1===$.inArray(r.type,["success","error","warn","info","prompt","confirm"])&&(r.type="default",console.log("You have entered invalid type name for an overhang message. Overhang resorted to the default theme.")),o.addClass(r.customClasses),r.custom?(r.primary=arguments.primary||n.default[0],r.accent=arguments.accent||n.default[1]):(r.primary=n[r.type][0]||n.default[0],r.accent=n[r.type][1]||n.default[1]),"prompt"!==r.type&&"confirm"!==r.type||(r.primary=arguments.primary||n[r.type][0],r.accent=arguments.accent||n[r.type][1],r.closeConfirm=!0),o.css("background-color",r.primary),o.css("border-bottom","6px solid "+r.accent);var t=$("<span class='overhang-message'></span>");t.css("color",r.textColor),r.html?t.html(r.message):t.text(r.upper?r.message.toUpperCase():r.message),o.append(t);var c=$("<input class='overhang-prompt-field' />"),l=$("<button class='overhang-yes-option'>"+r.yesMessage+"</button>"),p=$("<button class='overhang-no-option'>"+r.noMessage+"</button>");if(l.css("background-color",r.yesColor),p.css("background-color",r.noColor),r.closeConfirm){var i=$("<span class='overhang-close'></span>");i.css("color",r.accent),"confirm"!==r.type&&o.append(i)}if("prompt"===r.type?(o.append(c),e.data("overhangPrompt",null),c.keydown(function(o){13==o.keyCode&&(e.data("overhangPrompt",c.val()),s(!0,"overhangPrompt"))})):"confirm"===r.type&&(o.append(l),o.append(p),o.append(i),e.data("overhangConfirm",null),l.click(function(){e.data("overhangConfirm",!0),s(!0,"overhangConfirm")}),p.click(function(){e.data("overhangConfirm",!1),s(!0,"overhangConfirm")})),e.append(o),o.slideDown(r.speed,r.easing),r.overlay&&(r.overlayColor&&a.css("background-color",r.overlayColor),e.append(a)),r.closeConfirm&&!arguments.duration)i.click(function(){"prompt"!==r.type&&"confirm"!==r.type?s(!0,null):s(!1,null)});else if(r.closeConfirm&&arguments.duration){var u=setTimeout(function(){o.slideUp(r.speed,function(){s(!0,null)})},1e3*r.duration);i.click(function(){clearTimeout(u),"prompt"!==r.type&&"confirm"!==r.type?s(!0,null):s(!1,null)})}else o.delay(1e3*r.duration).slideUp(r.speed,function(){s(!0,null)})};function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
-
-function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+$.fn.overhang=function(arguments){var e=$(this),o=$("<div class='overhang'></div>"),a=$("<div class='overhang-overlay'></div>");$(".overhang").remove(),$(".overhang-overlay").remove();var n={success:["#2ECC71","#27AE60"],error:["#E74C3C","#C0392B"],warn:["#E67E22","#D35400"],info:["#3498DB","#2980B9"],prompt:["#9B59B6","#8E44AD"],confirm:["#1ABC9C","#16A085"],default:["#95A5A6","#7F8C8D"]},r=$.extend({type:"success",custom:!1,message:"This is an overhang.js message!",textColor:"#FFFFFF",yesMessage:"Yes",noMessage:"No",yesColor:"#2ECC71",noColor:"#E74C3C",duration:1.5,speed:500,closeConfirm:!1,upper:!1,easing:"easeOutBounce",html:!1,overlay:!1,customClasses:"",callback:function(){}},arguments);function s(n,s){a.fadeOut(100),o.slideUp(r.speed,function(){n&&r.callback(null!==s?e.data(s):"")})}r.type=r.type.toLowerCase();-1===$.inArray(r.type,["success","error","warn","info","prompt","confirm"])&&(r.type="default",console.log("You have entered invalid type name for an overhang message. Overhang resorted to the default theme.")),o.addClass(r.customClasses),r.custom?(r.primary=arguments.primary||n.default[0],r.accent=arguments.accent||n.default[1]):(r.primary=n[r.type][0]||n.default[0],r.accent=n[r.type][1]||n.default[1]),"prompt"!==r.type&&"confirm"!==r.type||(r.primary=arguments.primary||n[r.type][0],r.accent=arguments.accent||n[r.type][1],r.closeConfirm=!0),o.css("background-color",r.primary),o.css("border-bottom","6px solid "+r.accent);var t=$("<span class='overhang-message'></span>");t.css("color",r.textColor),r.html?t.html(r.message):t.text(r.upper?r.message.toUpperCase():r.message),o.append(t);var c=$("<input class='overhang-prompt-field' />"),l=$("<button class='overhang-yes-option'>"+r.yesMessage+"</button>"),p=$("<button class='overhang-no-option'>"+r.noMessage+"</button>");if(l.css("background-color",r.yesColor),p.css("background-color",r.noColor),r.closeConfirm){var i=$("<span class='overhang-close'></span>");i.css("color",r.accent),"confirm"!==r.type&&o.append(i)}if("prompt"===r.type?(o.append(c),e.data("overhangPrompt",null),c.keydown(function(o){13==o.keyCode&&(e.data("overhangPrompt",c.val()),s(!0,"overhangPrompt"))})):"confirm"===r.type&&(o.append(l),o.append(p),o.append(i),e.data("overhangConfirm",null),l.click(function(){e.data("overhangConfirm",!0),s(!0,"overhangConfirm")}),p.click(function(){e.data("overhangConfirm",!1),s(!0,"overhangConfirm")})),e.append(o),o.slideDown(r.speed,r.easing),r.overlay&&(r.overlayColor&&a.css("background-color",r.overlayColor),e.append(a)),r.closeConfirm&&!arguments.duration)i.click(function(){"prompt"!==r.type&&"confirm"!==r.type?s(!0,null):s(!1,null)});else if(r.closeConfirm&&arguments.duration){var u=setTimeout(function(){o.slideUp(r.speed,function(){s(!0,null)})},1e3*r.duration);i.click(function(){clearTimeout(u),"prompt"!==r.type&&"confirm"!==r.type?s(!0,null):s(!1,null)})}else o.delay(1e3*r.duration).slideUp(r.speed,function(){s(!0,null)})};function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
@@ -43,8 +41,6 @@ function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Sy
 
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
-function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return generator._invoke = function (innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; }(innerFn, self, context), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; this._invoke = function (method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); }; } function maybeInvokeDelegate(delegate, context) { var method = delegate.iterator[context.method]; if (undefined === method) { if (context.delegate = null, "throw" === context.method) { if (delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method)) return ContinueSentinel; context.method = "throw", context.arg = new TypeError("The iterator does not provide a 'throw' method"); } return ContinueSentinel; } var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) { if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; } return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, define(Gp, "constructor", GeneratorFunctionPrototype), define(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (object) { var keys = []; for (var key in object) { keys.push(key); } return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) { "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); } }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
-
 function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e2) { throw _e2; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e3) { didErr = true; err = _e3; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
@@ -59,7 +55,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.1.9
+// @version        1.1.10
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -84,10 +80,10 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 // @run-at         document-end
 // @noframes
 // ==/UserScript==
-_asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() {
+_asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee12() {
   var whiteList, blackList, url, enable, loadTimes, catalogOfferSha256Hash, locale, _iterator, _step, e, _iterator2, _step2, _e, observer, checkEpicGame, _checkEpicGame, getEpicOwnedGames, getSha256Hash, _getSha256Hash, getPagePlug, _getPagePlug, updateEpicAuth, _updateEpicAuth, updateEpicOwnedGames, addWhiteList, addBlackList, setting;
 
-  return _regeneratorRuntime().wrap(function _callee12$(_context12) {
+  return regeneratorRuntime.wrap(function _callee12$(_context12) {
     while (1) {
       switch (_context12.prev = _context12.next) {
         case 0:
@@ -175,35 +171,27 @@ _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() 
                 }
               });
             }).then( /*#__PURE__*/function () {
-              var _ref3 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(response) {
+              var _ref3 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee2(response) {
                 var _response$response, _response$response$or, _response$response3, _response$response3$p;
 
-                var result, ordersLength, _response$response$or2, _response$response2, orderedGames, _lastCreatedAt;
+                var ordersLength, _response$response$or2, _response$response2, orderedGames, _lastCreatedAt;
 
-                return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+                return regeneratorRuntime.wrap(function _callee2$(_context2) {
                   while (1) {
                     switch (_context2.prev = _context2.next) {
                       case 0:
                         if (!/login/i.test(response.finalUrl)) {
-                          _context2.next = 9;
+                          _context2.next = 3;
                           break;
                         }
 
-                        _context2.next = 3;
-                        return updateEpicAuth(loop);
-
-                      case 3:
-                        result = _context2.sent;
+                        /*
+                        const result = await updateEpicAuth(loop);
                         console.log('[EGLC] updateEpicAuthResult:', result);
-
-                        if (!result) {
-                          _context2.next = 7;
-                          break;
+                        if (result) {
+                          return updateEpicOwnedGames(loop, i, games, lastCreatedAt);
                         }
-
-                        return _context2.abrupt("return", updateEpicOwnedGames(loop, i, games, lastCreatedAt));
-
-                      case 7:
+                        */
                         if (loop) {
                           Swal.fire({
                             title: '更新Epic凭证失败！',
@@ -231,11 +219,11 @@ _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() 
 
                         return _context2.abrupt("return", false);
 
-                      case 9:
+                      case 3:
                         ordersLength = ((_response$response = response.response) === null || _response$response === void 0 ? void 0 : (_response$response$or = _response$response.orders) === null || _response$response$or === void 0 ? void 0 : _response$response$or.length) || 0;
 
                         if (!(ordersLength >= 0)) {
-                          _context2.next = 33;
+                          _context2.next = 27;
                           break;
                         }
 
@@ -246,11 +234,11 @@ _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() 
                         }).filter(function (e) {
                           return e;
                         });
-                        _context2.next = 14;
+                        _context2.next = 8;
                         return Promise.all(orderedGames.map( /*#__PURE__*/function () {
-                          var _ref5 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(item) {
+                          var _ref5 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee(item) {
                             var pageSlug;
-                            return _regeneratorRuntime().wrap(function _callee$(_context) {
+                            return regeneratorRuntime.wrap(function _callee$(_context) {
                               while (1) {
                                 switch (_context.prev = _context.next) {
                                   case 0:
@@ -293,36 +281,36 @@ _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() 
                           };
                         }()));
 
-                      case 14:
+                      case 8:
                         _lastCreatedAt = new Date(((_response$response$or2 = response.response.orders[ordersLength - 1]) === null || _response$response$or2 === void 0 ? void 0 : _response$response$or2.createdAtMillis) || null).toISOString();
 
                         if (!(parseInt(((_response$response2 = response.response) === null || _response$response2 === void 0 ? void 0 : _response$response2.total) / 10, 10) > i)) {
-                          _context2.next = 24;
+                          _context2.next = 18;
                           break;
                         }
 
                         if (!loop) {
-                          _context2.next = 19;
+                          _context2.next = 13;
                           break;
                         }
 
-                        _context2.next = 19;
+                        _context2.next = 13;
                         return new Promise(function (resolve) {
                           setTimeout(function () {
                             resolve(true);
                           }, 1000);
                         });
 
-                      case 19:
-                        _context2.next = 21;
+                      case 13:
+                        _context2.next = 15;
                         return updateEpicOwnedGames(loop, ++i, games, _lastCreatedAt);
 
-                      case 21:
+                      case 15:
                         return _context2.abrupt("return", _context2.sent);
 
-                      case 24:
+                      case 18:
                         if (!loop) {
-                          _context2.next = 27;
+                          _context2.next = 21;
                           break;
                         }
 
@@ -333,15 +321,15 @@ _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() 
                           text: ''
                         }));
 
-                      case 27:
+                      case 21:
                         GM_setValue('ownedGames', games);
                         checkEpicGame(false);
                         console.log('[EGLC] updateEpicOwnedGames: Finish!');
                         return _context2.abrupt("return", true);
 
-                      case 33:
+                      case 27:
                         if (!(((_response$response3 = response.response) === null || _response$response3 === void 0 ? void 0 : (_response$response3$p = _response$response3.products) === null || _response$response3$p === void 0 ? void 0 : _response$response3$p.length) !== 0)) {
-                          _context2.next = 36;
+                          _context2.next = 30;
                           break;
                         }
 
@@ -352,7 +340,7 @@ _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() 
                           text: '详情请查看控制台'
                         }));
 
-                      case 36:
+                      case 30:
                       case "end":
                         return _context2.stop();
                     }
@@ -374,9 +362,9 @@ _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() 
           };
 
           _updateEpicAuth = function _updateEpicAuth3() {
-            _updateEpicAuth = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee11(loop) {
+            _updateEpicAuth = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee11(loop) {
               var reputationResult, authenticateResult, refreshCsrfResult;
-              return _regeneratorRuntime().wrap(function _callee11$(_context11) {
+              return regeneratorRuntime.wrap(function _callee11$(_context11) {
                 while (1) {
                   switch (_context11.prev = _context11.next) {
                     case 0:
@@ -396,7 +384,8 @@ _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() 
                           url: 'https://www.epicgames.com/id/api/reputation',
                           headers: {
                             accept: 'application/json, text/plain, */*',
-                            referer: 'https://www.epicgames.com/id/login'
+                            referer: 'https://www.epicgames.com/id/login',
+                            'sec-fetch-site': 'same-origin'
                           },
                           timeout: 30000,
                           nocache: true,
@@ -408,8 +397,8 @@ _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() 
                           }
                         });
                       }).then( /*#__PURE__*/function () {
-                        var _ref15 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee8(response) {
-                          return _regeneratorRuntime().wrap(function _callee8$(_context8) {
+                        var _ref15 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee8(response) {
+                          return regeneratorRuntime.wrap(function _callee8$(_context8) {
                             while (1) {
                               switch (_context8.prev = _context8.next) {
                                 case 0:
@@ -426,7 +415,10 @@ _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() 
                         return function (_x9) {
                           return _ref15.apply(this, arguments);
                         };
-                      }());
+                      }())["catch"](function (error) {
+                        console.error(error);
+                        return false;
+                      });
 
                     case 4:
                       reputationResult = _context11.sent;
@@ -466,8 +458,8 @@ _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() 
                           }
                         });
                       }).then( /*#__PURE__*/function () {
-                        var _ref16 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee9(response) {
-                          return _regeneratorRuntime().wrap(function _callee9$(_context9) {
+                        var _ref16 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee9(response) {
+                          return regeneratorRuntime.wrap(function _callee9$(_context9) {
                             while (1) {
                               switch (_context9.prev = _context9.next) {
                                 case 0:
@@ -484,7 +476,10 @@ _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() 
                         return function (_x10) {
                           return _ref16.apply(this, arguments);
                         };
-                      }());
+                      }())["catch"](function (error) {
+                        console.error(error);
+                        return false;
+                      });
 
                     case 9:
                       authenticateResult = _context11.sent;
@@ -517,12 +512,14 @@ _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() 
                           }
                         });
                       }).then( /*#__PURE__*/function () {
-                        var _ref17 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee10(response) {
-                          return _regeneratorRuntime().wrap(function _callee10$(_context10) {
+                        var _ref17 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee10(response) {
+                          var _response$response5;
+
+                          return regeneratorRuntime.wrap(function _callee10$(_context10) {
                             while (1) {
                               switch (_context10.prev = _context10.next) {
                                 case 0:
-                                  return _context10.abrupt("return", response.response.success === true);
+                                  return _context10.abrupt("return", ((_response$response5 = response.response) === null || _response$response5 === void 0 ? void 0 : _response$response5.success) === true);
 
                                 case 1:
                                 case "end":
@@ -535,7 +532,10 @@ _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() 
                         return function (_x11) {
                           return _ref17.apply(this, arguments);
                         };
-                      }());
+                      }())["catch"](function (error) {
+                        console.error(error);
+                        return false;
+                      });
 
                     case 14:
                       refreshCsrfResult = _context11.sent;
@@ -565,8 +565,8 @@ _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() 
           };
 
           _getPagePlug = function _getPagePlug3() {
-            _getPagePlug = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee7(namespace, offerId) {
-              return _regeneratorRuntime().wrap(function _callee7$(_context7) {
+            _getPagePlug = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee7(namespace, offerId) {
+              return regeneratorRuntime.wrap(function _callee7$(_context7) {
                 while (1) {
                   switch (_context7.prev = _context7.next) {
                     case 0:
@@ -605,12 +605,12 @@ _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() 
                           }
                         });
                       }).then( /*#__PURE__*/function () {
-                        var _ref14 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee6(response) {
+                        var _ref14 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee6(response) {
                           var _response$response4, _response$response4$d, _response$response4$d2;
 
                           var _offerMappings$, _customAttributes$fin, _customAttributes$fin2, _response$response$da, offerMappings, urlSlug, customAttributes;
 
-                          return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+                          return regeneratorRuntime.wrap(function _callee6$(_context6) {
                             while (1) {
                               switch (_context6.prev = _context6.next) {
                                 case 0:
@@ -660,8 +660,8 @@ _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() 
           };
 
           _getSha256Hash = function _getSha256Hash3() {
-            _getSha256Hash = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
-              return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+            _getSha256Hash = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee5() {
+              return regeneratorRuntime.wrap(function _callee5$(_context5) {
                 while (1) {
                   switch (_context5.prev = _context5.next) {
                     case 0:
@@ -719,14 +719,14 @@ _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() 
           };
 
           _checkEpicGame = function _checkEpicGame3() {
-            _checkEpicGame = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
+            _checkEpicGame = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee4() {
               var first,
                   again,
                   ownedGames,
                   wishlistGames,
                   epicLink,
                   _args4 = arguments;
-              return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+              return regeneratorRuntime.wrap(function _callee4$(_context4) {
                 while (1) {
                   switch (_context4.prev = _context4.next) {
                     case 0:
@@ -759,11 +759,11 @@ _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee12() 
                     case 11:
                       if (first) updateEpicOwnedGames(false);
                       epicLink.map( /*#__PURE__*/function () {
-                        var _ref9 = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee3(i, e) {
+                        var _ref9 = _asyncToGenerator( /*#__PURE__*/regeneratorRuntime.mark(function _callee3(i, e) {
                           var _href$match, _href$match$, _href$match2, _href$match2$;
 
                           var $this, href, epicGameName;
-                          return _regeneratorRuntime().wrap(function _callee3$(_context3) {
+                          return regeneratorRuntime.wrap(function _callee3$(_context3) {
                             while (1) {
                               switch (_context3.prev = _context3.next) {
                                 case 0:
