@@ -89,8 +89,8 @@
     }
     const gogGames = getGogGameLibrary();
     const gogLink = again ?
-      $('a[href*="www.gog.com/game/"]:not(".gog-game-checked")') :
-      $('a[href*="www.gog.com/game/"]:not(".gog-game-link-owned")');
+      $('a[href*="www.gog.com/"]:not(".gog-game-checked")') :
+      $('a[href*="www.gog.com/"]:not(".gog-game-link-owned")');
     if (gogLink.length === 0) return;
     if (first) updateGogGameLibrary(false);
     gogLink.map((i, e) => {
@@ -98,7 +98,7 @@
       $this.addClass('gog-game-checked');
       let href = $this.attr('href');
       if (!/\/$/.test(href)) href += '/';
-      const gogGameLink = href.match(/https?:\/\/www.gog.com\/game\/([\d\w_]+)/i)?.[1];
+      const gogGameLink = href.match(/https?:\/\/www.gog.com\/([\w]+?\/)game\/([\d\w_]+)/i)?.[2];
       if (gogGameLink && gogGames.includes(gogGameLink.toLowerCase())) {
         $this.addClass('gog-game-link-owned');
       }
@@ -159,7 +159,7 @@
       } else if (response.response?.products?.length) {
         games = [...games, ...response.response.products.map((e) => (e?.slug || e?.url?.split('/')?.[e?.url?.split('/').length - 1]))]; // eslint-disable-line
 
-        if (response.response?.totalPages < i) {
+        if (response.response?.totalPages > i) {
           return await updateGogGameLibrary(loop, ++i, games); // eslint-disable-line
         } else if (loop) {
           GM_setValue('gogGames', [...new Set(games)].filter((e) => e));
