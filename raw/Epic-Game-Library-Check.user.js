@@ -2,7 +2,7 @@
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.1.10
+// @version        1.1.11
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -174,7 +174,7 @@
     }).then((response) => {
       // [, accountId, wishlistSha256Hash] = response.responseText.match(/"queryKey":\["getWishlist",\["accountId","([\w\d]+?)"\],"([\w\d]+?)"\]/i) || [];
       [, catalogOfferSha256Hash] = response.responseText.match(/"],"([\w\d]+?)"],"queryHash":"\[\\"getCatalogOffer\\"/i) || [];
-      [, locale] = response.responseText.match(/"localizationData":{"locale":"(.+?)"/i) || [];
+      [, locale] = response.responseText.match(/"localizationData":{"locale":"(.+?)"/i) || ['en-US'];
       console.log('[EGLC] ', JSON.stringify({ /* accountId, wishlistSha256Hash, */ catalogOfferSha256Hash, locale }));
     })
       .catch((error) => {
@@ -316,7 +316,7 @@
     }
     return true;
   }
-  function updateEpicOwnedGames(loop = true, i = 0, games = GM_getValue('ownedGames') || [], lastCreatedAt = '') {
+  function updateEpicOwnedGames(loop = true, i = 0, games = GM_getValue('ownedGames') || [], nextPageToken = '') {
     console.log('[EGLC] updateEpicOwnedGames...');
     if (!loop && i !== 0) {
       GM_setValue('ownedGames', games);
@@ -333,7 +333,7 @@
       }
       GM_xmlhttpRequest({
         method: 'GET',
-        url: `https://www.epicgames.com/account/v2/payment/ajaxGetOrderHistory?page=${i}&locale=${locale}${lastCreatedAt ? `&lastCreatedAt=${encodeURIComponent(lastCreatedAt)}` : ''}`,
+        url: `https://www.epicgames.com/account/v2/payment/ajaxGetOrderHistory?sortDir=DESC&sortBy=DATE&locale=${locale}${nextPageToken ? `&nextPageToken=${encodeURIComponent(nextPageToken)}` : ''}`,
         timeout: 30000,
         nocache: true,
         responseType: 'json',
@@ -375,7 +375,7 @@
       }
       const ordersLength = response.response?.orders?.length || 0;
       if (ordersLength >= 0) {
-        const orderedGames = response.response.orders.map((e) => (e?.orderStatus === 'COMPLETED' ? e?.items?.[0] : null)).filter((e) => e);
+        const orderedGames = response.response.orders.map((e) => e?.items?.[0] || null).filter((e) => e);
         await Promise.all(orderedGames.map(async (item) => {
           if (games.find((game) => game.namespace === item.namespace && game.offerId === item.offerId)) {
             return true;
@@ -391,9 +391,10 @@
             GM_setValue('ownedGames', games);
           }
         }));
-        const lastCreatedAt = new Date(response.response.orders[ordersLength - 1]?.createdAtMillis || null).toISOString();
+        // const lastCreatedAt = new Date(response.response.orders[ordersLength - 1]?.createdAtMillis || null).toISOString();
+        const nextPageToken = response.response.nextPageToken;
 
-        if (parseInt(response.response?.total / 10, 10) > i) {
+        if (nextPageToken) {
           /*
           if (response.response.total - games.length > 0 && !loop) {
             return Swal.fire({
@@ -415,7 +416,7 @@
               }, 1000);
             });
           }
-          return await updateEpicOwnedGames(loop, ++i, games, lastCreatedAt); // eslint-disable-line
+          return await updateEpicOwnedGames(loop, ++i, games, nextPageToken); // eslint-disable-line
         } else if (loop) {
           GM_setValue('ownedGames', games);
           return Swal.update({
