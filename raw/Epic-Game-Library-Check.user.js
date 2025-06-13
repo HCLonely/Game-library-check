@@ -2,7 +2,7 @@
 // @name           游戏库检测-Epic
 // @name:en        Epic Game Library Check
 // @namespace      epic-game-library-check
-// @version        1.1.11
+// @version        1.1.12
 // @description    检测Epic游戏是否已拥有。
 // @description:en Check if the game of Epic is already owned.
 // @author         HCLonely
@@ -164,7 +164,10 @@
         method: 'GET',
         url: 'https://store.epicgames.com/zh-CN/p/grand-theft-auto-v',
         timeout: 30000,
-        nocache: true,
+        fetch: true,
+        headers: {
+          accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7'
+        },
         onerror: reject,
         ontimeout: reject,
         onload: (response) => {
@@ -196,7 +199,10 @@
         // eslint-disable-next-line max-len
         url: `https://store.epicgames.com/graphql?operationName=getCatalogOffer&variables=%7B%22locale%22:%22zh-CN%22,%22country%22:%22CN%22,%22offerId%22:%22${offerId}%22,%22sandboxId%22:%22${namespace}%22%7D&extensions=%7B%22persistedQuery%22:%7B%22version%22:1,%22sha256Hash%22:%22${catalogOfferSha256Hash}%22%7D%7D`,
         timeout: 30000,
-        nocache: true,
+        fetch: true,
+        headers: {
+          accept: 'application/json, text/plain, */*'
+        },
         responseType: 'json',
         onerror: reject,
         ontimeout: reject,
@@ -392,7 +398,7 @@
           }
         }));
         // const lastCreatedAt = new Date(response.response.orders[ordersLength - 1]?.createdAtMillis || null).toISOString();
-        const nextPageToken = response.response.nextPageToken;
+        const { nextPageToken } = response.response;
 
         if (nextPageToken) {
           /*
