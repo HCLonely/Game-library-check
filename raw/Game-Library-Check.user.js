@@ -165,6 +165,17 @@
     }
   }
 
+  function clearProgressPanel() {
+    const root = createModalRoot();
+    if (root.querySelector('.glc-progress-dialog')) root.innerHTML = '';
+  }
+
+  const UPDATE_STATUS = {
+    SUCCESS: 'success',
+    ERROR: 'error',
+    AUTH_EXPIRED: 'auth_expired'
+  };
+
   function queryLinks(selector) {
     return Array.from(document.querySelectorAll(selector));
   }
@@ -216,6 +227,7 @@
 
   async function batchUpdateSelectedModules(enabledModules, selectedKeys) {
     const state = Object.fromEntries(selectedKeys.map((key) => [key, 'waiting']));
+    let interruptedByAuthExpired = false;
     showProgressPanel(state);
     for (const key of selectedKeys) {
       const module = enabledModules.find((item) => item.key === key);
@@ -226,6 +238,12 @@
         const updateResult = await module.updateLibrary();
         if (updateResult === true) {
           state[key] = 'success';
+        } else if (updateResult?.status === UPDATE_STATUS.AUTH_EXPIRED) {
+          interruptedByAuthExpired = true;
+          state[key] = UPDATE_STATUS.AUTH_EXPIRED;
+          clearProgressPanel();
+          showLoginExpiredDialog(updateResult.platformName, updateResult.loginUrl);
+          break;
         } else {
           state[key] = 'error';
           showToast(`${key.toUpperCase()} 更新失败`, 'error');
@@ -235,8 +253,9 @@
         state[key] = 'error';
         showToast(`${key.toUpperCase()} 更新失败`, 'error');
       }
-      showProgressPanel(state);
+      if (!interruptedByAuthExpired) showProgressPanel(state);
     }
+    if (!interruptedByAuthExpired) clearProgressPanel();
   }
 
   async function runInitialFlow() {
@@ -263,6 +282,7 @@
   }
 
   function showUpdateResult(title, type) {
+    clearProgressPanel();
     showToast(title, type);
     return Promise.resolve(true);
   }
@@ -604,8 +624,11 @@
                 return updateEpicOwnedGames(loop, i, games, lastCreatedAt);
               }
               */
-              showLoginExpiredDialog('Epic', 'https://www.epicgames.com/id/login');
-              return false;
+              return {
+                status: UPDATE_STATUS.AUTH_EXPIRED,
+                platformName: 'Epic',
+                loginUrl: 'https://www.epicgames.com/id/login'
+              };
             }
             const ordersLength = response.response?.orders?.length || 0;
             if (ordersLength >= 0) {
@@ -702,7 +725,12 @@
         */
 
         updateLibrary = updateEpicOwnedGames;
-        GM_registerMenuCommand('更新Epic已拥有游戏数据', updateEpicOwnedGames);
+        GM_registerMenuCommand('更新Epic已拥有游戏数据', async () => {
+          const result = await updateEpicOwnedGames();
+          if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
+            showLoginExpiredDialog(result.platformName, result.loginUrl);
+          }
+        });
 
         GM_addStyle(`
 .epic-game-link-owned {
@@ -793,8 +821,11 @@
             });
           }).then(async (response) => {
             if (/openlogin/i.test(response.finalUrl)) {
-              showLoginExpiredDialog('GOG', 'https://www.gog.com/#openlogin');
-              return false;
+              return {
+                status: UPDATE_STATUS.AUTH_EXPIRED,
+                platformName: 'GOG',
+                loginUrl: 'https://www.gog.com/#openlogin'
+              };
             } else if (response.response?.products?.length) {
               games = [...games, ...response.response.products.map((e) => (e?.slug || e?.url?.split('/')?.[e?.url?.split('/').length - 1]))]; // eslint-disable-line
 
@@ -823,7 +854,12 @@
         }
 
         updateLibrary = updateGogGameLibrary;
-        GM_registerMenuCommand('更新gog游戏库', updateGogGameLibrary);
+        GM_registerMenuCommand('更新gog游戏库', async () => {
+          const result = await updateGogGameLibrary();
+          if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
+            showLoginExpiredDialog(result.platformName, result.loginUrl);
+          }
+        });
 
         GM_addStyle('.gog-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}');
       }
@@ -906,8 +942,11 @@
             });
           }).then(async (response) => {
             if (/https?:\/\/itch.io\/login/i.test(response.finalUrl)) {
-              showLoginExpiredDialog('itch.io', 'https://itch.io/login');
-              return false;
+              return {
+                status: UPDATE_STATUS.AUTH_EXPIRED,
+                platformName: 'itch.io',
+                loginUrl: 'https://itch.io/login'
+              };
             } else if (response.response?.num_items) { // eslint-disable-line camelcase
               const itchDoc = parseHtml(`<div>${response.response.content}</div>`);
               const purchaseLinks = Array.from(itchDoc.querySelectorAll('a.thumb_link.game_link'));
@@ -941,7 +980,12 @@
         }
 
         updateLibrary = updateItchGameLibrary;
-        GM_registerMenuCommand('更新itch游戏库', updateItchGameLibrary);
+        GM_registerMenuCommand('更新itch游戏库', async () => {
+          const result = await updateItchGameLibrary();
+          if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
+            showLoginExpiredDialog(result.platformName, result.loginUrl);
+          }
+        });
 
         GM_addStyle('.itch-io-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}');
         unsafeWindow.checkItchGame = checkItchGame;
@@ -1031,8 +1075,11 @@
             });
           }).then(async (response) => {
             if (response.response?.resultCode === 0) {
-              showLoginExpiredDialog('方块', 'https://account.cubejoy.com/html/login.html');
-              return false;
+              return {
+                status: UPDATE_STATUS.AUTH_EXPIRED,
+                platformName: '方块',
+                loginUrl: 'https://account.cubejoy.com/html/login.html'
+              };
             } else if (response.response?.result?.list?.length) {
               games = [...games, ...response.response.result.list.map((e) => e.S_Id)]; // eslint-disable-line
 
@@ -1061,7 +1108,12 @@
         }
 
         updateLibrary = updateCubeGameLibrary;
-        GM_registerMenuCommand('更新cube游戏库', updateCubeGameLibrary);
+        GM_registerMenuCommand('更新cube游戏库', async () => {
+          const result = await updateCubeGameLibrary();
+          if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
+            showLoginExpiredDialog(result.platformName, result.loginUrl);
+          }
+        });
 
         GM_addStyle('.cube-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}');
       }
