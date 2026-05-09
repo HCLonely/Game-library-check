@@ -1,35 +1,64 @@
 const fs = require('fs');
+const path = require('path');
 const assert = require('assert');
-const { describe, it } = require('node:test');
+const { describe, it, before } = require('node:test');
 
-const rawMergedPath = './raw/Game-Library-Check.user.js';
-const mergedBuildPath = './Game-Library-Check.user.js';
+const rawMergedPath = path.resolve(__dirname, '../../raw/Game-Library-Check.user.js');
+const mergedBuildPath = path.resolve(__dirname, '../../Game-Library-Check.user.js');
 
-function readIfExists(file) {
-  return fs.existsSync(file) ? fs.readFileSync(file, 'utf8') : '';
+function readRequiredFile(filePath, missingMessage) {
+  assert.ok(fs.existsSync(filePath), `${missingMessage} (path: ${filePath})`);
+  return fs.readFileSync(filePath, 'utf8');
+}
+
+function extractPlatformEnabledBlock(text) {
+  const match = text.match(/platformEnabled\s*:\s*\{([\s\S]*?)\}/);
+  assert.ok(match, 'missing platformEnabled object in userscript settings');
+  return match[1];
 }
 
 describe('merged userscript contract', () => {
+  let rawMergedText = '';
+  let builtMergedText = '';
+
   it('raw merged script exists', () => {
-    assert.ok(fs.existsSync(rawMergedPath), 'missing raw/Game-Library-Check.user.js');
+    assert.ok(
+      fs.existsSync(rawMergedPath),
+      `missing raw/Game-Library-Check.user.js (path: ${rawMergedPath})`,
+    );
   });
 
-  it('contains platform toggle keys', () => {
-    const text = readIfExists(rawMergedPath);
-    assert.ok(text.includes('platformEnabled'), 'missing platformEnabled settings');
-    assert.ok(text.includes('epic'), 'missing epic toggle');
-    assert.ok(text.includes('gog'), 'missing gog toggle');
-    assert.ok(text.includes('itch'), 'missing itch toggle');
-    assert.ok(text.includes('cube'), 'missing cube toggle');
+  describe('raw merged userscript content', () => {
+    before(() => {
+      rawMergedText = readRequiredFile(
+        rawMergedPath,
+        'missing raw/Game-Library-Check.user.js',
+      );
+    });
+
+    it('contains platform toggle keys in platformEnabled settings object', () => {
+      const platformEnabledBlock = extractPlatformEnabledBlock(rawMergedText);
+      assert.match(platformEnabledBlock, /\bepic\s*:/, 'missing epic key in platformEnabled settings');
+      assert.match(platformEnabledBlock, /\bgog\s*:/, 'missing gog key in platformEnabled settings');
+      assert.match(platformEnabledBlock, /\bitch\s*:/, 'missing itch key in platformEnabled settings');
+      assert.match(platformEnabledBlock, /\bcube\s*:/, 'missing cube key in platformEnabled settings');
+    });
+
+    it('contains platform switch menu command', () => {
+      assert.ok(rawMergedText.includes('平台开关'), 'missing 平台开关 menu');
+    });
   });
 
-  it('contains platform switch menu command', () => {
-    const text = readIfExists(rawMergedPath);
-    assert.ok(text.includes('平台开关'), 'missing 平台开关 menu');
-  });
+  describe('merged build output content', () => {
+    before(() => {
+      builtMergedText = readRequiredFile(
+        mergedBuildPath,
+        'missing built Game-Library-Check.user.js',
+      );
+    });
 
-  it('build output contains merged userscript header', () => {
-    const built = readIfExists(mergedBuildPath);
-    assert.ok(built.includes('@name'), 'missing @name in build output');
+    it('contains merged userscript header', () => {
+      assert.ok(builtMergedText.includes('@name'), 'missing @name in build output');
+    });
   });
 });
