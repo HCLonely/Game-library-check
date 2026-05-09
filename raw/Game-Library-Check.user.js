@@ -258,89 +258,24 @@
     enabledModules.forEach((module) => module.start());
   }
 
-  function showNativeOverhang(options = {}) {
-    const type = options.type === 'error' ? 'error' : 'info';
-    if (options.html) {
-      showDialog({
-        title: type === 'error' ? '错误' : '提示',
-        bodyHtml: options.message || '',
-        trustedBodyHtml: true,
-        confirmText: options.closeConfirm ? '关闭' : '确定',
-        hideCancel: true
-      });
-      return;
-    }
-    showToast(options.message || '', type);
+  function showUpdateStep(platform, text) {
+    showProgressPanel({ [platform]: text });
   }
 
-  const swalCompatState = { config: null, panelMap: {} };
+  function showUpdateResult(title, type) {
+    showToast(title, type);
+    return Promise.resolve(true);
+  }
 
-  const Swal = {
-    fire(config = {}) {
-      swalCompatState.config = { ...config };
-      return new Promise((resolve) => {
-        const settle = (result) => resolve({ value: undefined, isConfirmed: false, isDenied: false, ...result });
-        if (config.input === 'textarea') {
-          showDialog({
-            title: config.title || '',
-            bodyHtml: '<textarea id="glc-swal-input" class="glc-textarea"></textarea>',
-            trustedBodyHtml: true,
-            confirmText: config.confirmButtonText || '确定',
-            cancelText: config.cancelButtonText || '取消',
-            onConfirm: () => {
-              const value = document.getElementById('glc-swal-input')?.value;
-              settle({ value, isConfirmed: true });
-            },
-            onCancel: () => settle({ value: undefined })
-          });
-          const inputEl = document.getElementById('glc-swal-input');
-          if (inputEl) inputEl.value = config.inputValue || '';
-          return;
-        }
-
-        if (config.showCancelButton || config.showDenyButton || typeof config.preConfirm === 'function') {
-          showDialog({
-            title: config.title || '',
-            bodyNode: config.bodyNode,
-            bodyHtml: config.trustedHtml === true ? (config.html || '') : '',
-            trustedBodyHtml: config.trustedHtml === true,
-            bodyText: config.text || '',
-            confirmText: config.confirmButtonText || '确定',
-            cancelText: config.cancelButtonText || '取消',
-            denyText: config.showDenyButton ? (config.denyButtonText || '拒绝') : '',
-            hideCancel: !config.showCancelButton && !config.showDenyButton,
-            onConfirm: () => {
-              const value = typeof config.preConfirm === 'function' ? config.preConfirm() : true;
-              settle({ value, isConfirmed: true });
-            },
-            onCancel: () => settle({ value: undefined }),
-            onDeny: () => settle({ isDenied: true })
-          });
-          return;
-        }
-
-        if (config.title && config.text && /第\s*\d+\s*页/.test(config.text)) {
-          swalCompatState.panelMap.default = config.text;
-          showProgressPanel(swalCompatState.panelMap);
-          settle({ value: true, isConfirmed: true });
-          return;
-        }
-
-        showToast(config.title || config.text || '', config.icon || 'info');
-        settle({ value: true, isConfirmed: true });
-      });
-    },
-    update(config = {}) {
-      swalCompatState.config = { ...(swalCompatState.config || {}), ...config };
-      if (config.title && config.text && /第\s*\d+\s*页/.test(config.text)) {
-        swalCompatState.panelMap.default = config.text;
-        showProgressPanel(swalCompatState.panelMap);
-      } else if (config.icon === 'success' || config.icon === 'error') {
-        showToast(config.title || '', config.icon);
-      }
-      return Promise.resolve({ value: true, isConfirmed: true, isDenied: false });
-    }
-  };
+  function showLoginExpiredDialog(platformName, loginUrl) {
+    showDialog({
+      title: '登录状态已失效',
+      bodyText: `${platformName} 登录凭证已过期，需要重新登录。`,
+      confirmText: '去登录',
+      cancelText: '稍后',
+      onConfirm: () => GM_openInTab(loginUrl, { active: true, insert: true, setParent: true })
+    });
+  }
 
   function openPlatformSwitchDialog() {
     const settings = getGlobalSettings();
@@ -362,22 +297,20 @@
       bodyNode.appendChild(label);
       if (index < 3) bodyNode.appendChild(document.createElement('br'));
     });
-    Swal.fire({
+    showDialog({
       title: '平台开关',
       bodyNode,
-      showCancelButton: true,
-      confirmButtonText: '保存',
-      cancelButtonText: '取消',
-      preConfirm: () => ({
-        epic: document.getElementById('glc-epic').checked,
-        gog: document.getElementById('glc-gog').checked,
-        itch: document.getElementById('glc-itch').checked,
-        cube: document.getElementById('glc-cube').checked
-      })
-    }).then(({ value }) => {
-      if (!value) return;
-      settings.platformEnabled = value;
-      setGlobalSettings(settings);
+      confirmText: '保存',
+      cancelText: '取消',
+      onConfirm: (root) => {
+        settings.platformEnabled = {
+          epic: root.querySelector('#glc-epic').checked,
+          gog: root.querySelector('#glc-gog').checked,
+          itch: root.querySelector('#glc-itch').checked,
+          cube: root.querySelector('#glc-cube').checked
+        };
+        setGlobalSettings(settings);
+      }
     });
   }
 
@@ -550,10 +483,7 @@
         async function updateEpicAuth(loop) {
           console.log('[EGLC] updateEpicAuth...');
           if (loop) {
-            Swal.fire({
-              title: '正在更新Epic凭证...',
-              icon: 'info'
-            });
+            showToast('正在更新Epic凭证...', 'info');
           }
           const reputationResult = await new Promise((resolve, reject) => {
             GM_xmlhttpRequest({
@@ -651,11 +581,7 @@
           }
           return new Promise((resolve, reject) => {
             if (loop) {
-              Swal[i === 0 ? 'fire' : 'update']({
-                title: '正在更新Epic已拥有游戏数据...',
-                text: `第 ${i + 1} 页`,
-                icon: 'info'
-              });
+              showUpdateStep('epic', `第 ${i + 1} 页`);
             }
             GM_xmlhttpRequest({
               method: 'GET',
@@ -678,25 +604,7 @@
                 return updateEpicOwnedGames(loop, i, games, lastCreatedAt);
               }
               */
-              if (loop) {
-                Swal.fire({
-                  title: '更新Epic凭证失败！',
-                  text: '请先登录',
-                  icon: 'error',
-                  showCancelButton: true,
-                  confirmButtonText: '登录',
-                  cancelButtonText: '取消'
-                }).then(({ value }) => {
-                  if (value) GM_openInTab('https://www.epicgames.com/id/login', { active: true, insert: true, setParent: true });
-                });
-              } else {
-                showNativeOverhang({
-                  type: 'error',
-                  message: 'Epic登录凭证已过期，请重新登录<a href="https://www.epicgames.com/id/login" target="_blank">https://www.epicgames.com/id/login</a>',
-                  html: true,
-                  closeConfirm: true
-                });
-              }
+              showLoginExpiredDialog('Epic', 'https://www.epicgames.com/id/login');
               return false;
             }
             const ordersLength = response.response?.orders?.length || 0;
@@ -721,20 +629,6 @@
               const { nextPageToken } = response.response;
 
               if (nextPageToken) {
-                /*
-                if (response.response.total - games.length > 0 && !loop) {
-                  return Swal.fire({
-                    title: '游戏库检测脚本提醒',
-                    icon: 'warning',
-                    text: '检测到Epic已拥有游戏数据缺失，是否重新获取？',
-                    showCancelButton: true,
-                    confirmButtonText: '获取',
-                    cancelButtonText: '取消'
-                  }).then(({ value }) => {
-                    if (value) updateEpicOwnedGames();
-                  });
-                }
-                */
                 if (loop) {
                   await new Promise((resolve) => {
                     setTimeout(() => {
@@ -745,11 +639,7 @@
                 return await updateEpicOwnedGames(loop, ++i, games, nextPageToken); // eslint-disable-line
               } else if (loop) {
                 GM_setValue('ownedGames', games);
-                await Swal.update({
-                  icon: 'success',
-                  title: 'Epic已拥有游戏数据更新完成',
-                  text: ''
-                });
+                await showUpdateResult('Epic已拥有游戏数据更新完成', 'success');
                 return true;
               }
               GM_setValue('ownedGames', games);
@@ -758,22 +648,14 @@
               return true;
             } else if (response.response?.products?.length !== 0) {
               console.error(response);
-              await Swal.update({
-                icon: 'error',
-                title: 'Epic已拥有游戏数据更新失败',
-                text: '详情请查看控制台'
-              });
+              await showUpdateResult('Epic已拥有游戏数据更新失败', 'error');
               return false;
             }
             return false;
           })
             .catch(async (error) => {
               console.error(error);
-              await Swal.update({
-                icon: 'error',
-                title: 'Epic已拥有游戏数据更新失败',
-                text: '详情请查看控制台'
-              });
+              await showUpdateResult('Epic已拥有游戏数据更新失败', 'error');
               return false;
             });
         }
@@ -895,11 +777,7 @@
           }
           return new Promise((resolve, reject) => {
             if (loop) {
-              Swal[i === 1 ? 'fire' : 'update']({
-                title: '正在更新gog游戏库数据...',
-                text: `第 ${i} 页`,
-                icon: 'info'
-              });
+              showUpdateStep('gog', `第 ${i} 页`);
             }
             GM_xmlhttpRequest({
               method: 'GET',
@@ -915,25 +793,7 @@
             });
           }).then(async (response) => {
             if (/openlogin/i.test(response.finalUrl)) {
-              if (loop) {
-                Swal.fire({
-                  title: '获取gog游戏库数据失败！',
-                  text: '请先登录',
-                  icon: 'error',
-                  showCancelButton: true,
-                  confirmButtonText: '登录',
-                  cancelButtonText: '取消'
-                }).then(({ value }) => {
-                  if (value) GM_openInTab('https://www.gog.com/#openlogin', { active: true, insert: true, setParent: true });
-                });
-              } else {
-                showNativeOverhang({
-                  type: 'error',
-                  message: 'GOG登录凭证已过期，请重新登录<a href="https://www.gog.com/#openlogin" target="_blank">https://www.gog.com/#openlogin</a>',
-                  html: true,
-                  closeConfirm: true
-                });
-              }
+              showLoginExpiredDialog('GOG', 'https://www.gog.com/#openlogin');
               return false;
             } else if (response.response?.products?.length) {
               games = [...games, ...response.response.products.map((e) => (e?.slug || e?.url?.split('/')?.[e?.url?.split('/').length - 1]))]; // eslint-disable-line
@@ -942,11 +802,7 @@
                 return await updateGogGameLibrary(loop, ++i, games); // eslint-disable-line
               } else if (loop) {
                 GM_setValue('gogGames', [...new Set(games)].filter((e) => e));
-                await Swal.update({
-                  icon: 'success',
-                  title: 'gog游戏库数据更新完成',
-                  text: ''
-                });
+                await showUpdateResult('gog游戏库数据更新完成', 'success');
                 return true;
               }
               GM_setValue('gogGames', [...new Set([...getGogGameLibrary(), ...games])].filter((e) => e));
@@ -954,22 +810,14 @@
               return true;
             } else if (response.response?.products?.length !== 0) {
               console.error(response);
-              await Swal.update({
-                icon: 'error',
-                title: 'gog游戏库数据更新失败',
-                text: '详情请查看控制台'
-              });
+              await showUpdateResult('gog游戏库数据更新失败', 'error');
               return false;
             }
             return false;
           })
             .catch(async (error) => {
               console.error(error);
-              await Swal.update({
-                icon: 'error',
-                title: 'gog游戏库数据更新失败',
-                text: '详情请查看控制台'
-              });
+              await showUpdateResult('gog游戏库数据更新失败', 'error');
               return false;
             });
         }
@@ -1042,11 +890,7 @@
           }
           return new Promise((resolve, reject) => {
             if (loop) {
-              Swal[i === 1 ? 'fire' : 'update']({
-                title: '正在更新itch游戏库数据...',
-                text: `第 ${i} 页`,
-                icon: 'info'
-              });
+              showUpdateStep('itch', `第 ${i} 页`);
             }
             GM_xmlhttpRequest({
               method: 'GET',
@@ -1062,25 +906,7 @@
             });
           }).then(async (response) => {
             if (/https?:\/\/itch.io\/login/i.test(response.finalUrl)) {
-              if (loop) {
-                Swal.fire({
-                  title: '获取itch游戏库数据失败！',
-                  text: '请先登录',
-                  icon: 'error',
-                  showCancelButton: true,
-                  confirmButtonText: '登录',
-                  cancelButtonText: '取消'
-                }).then(({ value }) => {
-                  if (value) GM_openInTab('https://itch.io/login', { active: true, insert: true, setParent: true });
-                });
-              } else {
-                showNativeOverhang({
-                  type: 'error',
-                  message: 'itch.io登录凭证已过期，请重新登录<a href="https://itch.io/login" target="_blank">https://itch.io/login</a>',
-                  html: true,
-                  closeConfirm: true
-                });
-              }
+              showLoginExpiredDialog('itch.io', 'https://itch.io/login');
               return false;
             } else if (response.response?.num_items) { // eslint-disable-line camelcase
               const itchDoc = parseHtml(`<div>${response.response.content}</div>`);
@@ -1092,11 +918,7 @@
                 return await updateItchGameLibrary(loop, ++i, games); // eslint-disable-line
               } else if (loop) {
                 GM_setValue('itchGames', [...new Set(games)]);
-                await Swal.update({
-                  icon: 'success',
-                  title: 'itch游戏库数据更新完成',
-                  text: ''
-                });
+                await showUpdateResult('itch游戏库数据更新完成', 'success');
                 return true;
               }
               GM_setValue('itchGames', [...new Set([...getItchGameLibrary(), ...games])]);
@@ -1104,28 +926,16 @@
               return true;
             } else if (response.response?.num_items === 0) { // eslint-disable-line camelcase
               GM_setValue('itchGames', [...new Set(games)]);
-              await Swal.update({
-                icon: 'success',
-                title: 'itch游戏库数据更新完成',
-                text: ''
-              });
+              await showUpdateResult('itch游戏库数据更新完成', 'success');
               return true;
             }
             console.error(response);
-            await Swal.update({
-              icon: 'error',
-              title: 'itch游戏库数据更新失败',
-              text: '详情请查看控制台'
-            });
+            await showUpdateResult('itch游戏库数据更新失败', 'error');
             return false;
           })
             .catch(async (error) => {
               console.error(error);
-              await Swal.update({
-                icon: 'error',
-                title: 'itch游戏库数据更新失败',
-                text: '详情请查看控制台'
-              });
+              await showUpdateResult('itch游戏库数据更新失败', 'error');
               return false;
             });
         }
@@ -1199,11 +1009,7 @@
           }
           return new Promise((resolve, reject) => {
             if (loop) {
-              Swal[i === 1 ? 'fire' : 'update']({
-                title: '正在更新方块游戏库数据...',
-                text: `第 ${i} 页`,
-                icon: 'info'
-              });
+              showUpdateStep('cube', `第 ${i} 页`);
             }
             GM_xmlhttpRequest({
               method: 'POST',
@@ -1225,25 +1031,7 @@
             });
           }).then(async (response) => {
             if (response.response?.resultCode === 0) {
-              if (loop) {
-                Swal.fire({
-                  title: '获取方块游戏库数据失败！',
-                  text: '请先登录',
-                  icon: 'error',
-                  showCancelButton: true,
-                  confirmButtonText: '登录',
-                  cancelButtonText: '取消'
-                }).then(({ value }) => {
-                  if (value) GM_openInTab('https://account.cubejoy.com/html/login.html', { active: true, insert: true, setParent: true });
-                });
-              } else {
-                showNativeOverhang({
-                  type: 'error',
-                  message: '方块登录凭证已过期，请重新登录<a href="https://account.cubejoy.com/html/login.html" target="_blank">https://account.cubejoy.com/html/login.html</a>',
-                  html: true,
-                  closeConfirm: true
-                });
-              }
+              showLoginExpiredDialog('方块', 'https://account.cubejoy.com/html/login.html');
               return false;
             } else if (response.response?.result?.list?.length) {
               games = [...games, ...response.response.result.list.map((e) => e.S_Id)]; // eslint-disable-line
@@ -1252,11 +1040,7 @@
                 return await updateCubeGameLibrary(loop, ++i, games); // eslint-disable-line
               } else if (loop) {
                 GM_setValue('cubeGames', [...new Set(games)].filter((e) => e));
-                await Swal.update({
-                  icon: 'success',
-                  title: 'cube游戏库数据更新完成',
-                  text: ''
-                });
+                await showUpdateResult('cube游戏库数据更新完成', 'success');
                 return true;
               }
               GM_setValue('cubeGames', [...new Set([...getCubeGameLibrary(), ...games])].filter((e) => e));
@@ -1264,22 +1048,14 @@
               return true;
             } else if (response.response?.result?.list?.length !== 0) {
               console.error(response);
-              await Swal.update({
-                icon: 'error',
-                title: '方块游戏库数据更新失败',
-                text: '详情请查看控制台'
-              });
+              await showUpdateResult('方块游戏库数据更新失败', 'error');
               return false;
             }
             return false;
           })
             .catch(async (error) => {
               console.error(error);
-              await Swal.update({
-                icon: 'error',
-                title: '方块游戏库数据更新失败',
-                text: '详情请查看控制台'
-              });
+              await showUpdateResult('方块游戏库数据更新失败', 'error');
               return false;
             });
         }
@@ -1293,56 +1069,58 @@
     return moduleApi;
   }
 
-  function addWhiteList() {
-    const whiteList = settings.whiteList || [];
-    Swal.fire({
-      title: '添加白名单网站',
-      input: 'textarea',
-      inputValue: whiteList.join('\n'),
-      showCancelButton: true,
-      confirmButtonText: '保存',
-      cancelButtonText: '取消'
-    }).then(({ value }) => {
-      if (value !== undefined) {
-        settings.whiteList = value ? value.split('\n') : [];
-        settings.blackList = settings.blackList || [];
-        setGlobalSettings(settings);
+  function showListEditor(title, initialValue, onSave) {
+    const bodyNode = document.createElement('textarea');
+    bodyNode.className = 'glc-textarea';
+    bodyNode.value = initialValue.join('\n');
+    showDialog({
+      title,
+      bodyNode,
+      confirmText: '保存',
+      cancelText: '取消',
+      onConfirm: (root) => {
+        const value = root.querySelector('.glc-textarea')?.value || '';
+        onSave(value ? value.split('\n') : []);
       }
+    });
+  }
+
+  function addWhiteList() {
+    showListEditor('添加白名单网站', settings.whiteList || [], (value) => {
+      settings.whiteList = value;
+      settings.blackList = settings.blackList || [];
+      setGlobalSettings(settings);
     });
   }
 
   function addBlackList() {
-    const blackList = settings.blackList || [];
-    Swal.fire({
-      title: '添加黑名单网站',
-      input: 'textarea',
-      inputValue: blackList.join('\n'),
-      showCancelButton: true,
-      confirmButtonText: '保存',
-      cancelButtonText: '取消'
-    }).then(({ value }) => {
-      if (value !== undefined) {
-        settings.blackList = value ? value.split('\n') : [];
-        settings.whiteList = settings.whiteList || [];
-        setGlobalSettings(settings);
-      }
+    showListEditor('添加黑名单网站', settings.blackList || [], (value) => {
+      settings.blackList = value;
+      settings.whiteList = settings.whiteList || [];
+      setGlobalSettings(settings);
     });
   }
 
   function setting() {
-    Swal.fire({
-      showDenyButton: true,
-      showCancelButton: true,
-      confirmButtonText: '白名单网站',
-      denyButtonText: '黑名单网站',
-      cancelButtonText: '关闭'
-    }).then(({ isConfirmed, isDenied }) => {
-      if (isConfirmed) {
-        addWhiteList();
-      } else if (isDenied) {
-        addBlackList();
-      }
+    const bodyNode = document.createElement('div');
+    const whiteButton = document.createElement('button');
+    const blackButton = document.createElement('button');
+    whiteButton.type = 'button';
+    whiteButton.id = 'glc-open-whitelist';
+    whiteButton.textContent = '白名单网站';
+    blackButton.type = 'button';
+    blackButton.id = 'glc-open-blacklist';
+    blackButton.textContent = '黑名单网站';
+    bodyNode.appendChild(whiteButton);
+    bodyNode.appendChild(blackButton);
+    showDialog({
+      title: '设置',
+      bodyNode,
+      confirmText: '关闭',
+      hideCancel: true
     });
+    document.getElementById('glc-open-whitelist')?.addEventListener('click', addWhiteList);
+    document.getElementById('glc-open-blacklist')?.addEventListener('click', addBlackList);
   }
 
   const settings = getGlobalSettings();
