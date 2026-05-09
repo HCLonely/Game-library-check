@@ -49,6 +49,20 @@ describe('merged userscript contract', () => {
     it('contains platform switch menu command', () => {
       assert.ok(rawMergedText.includes('平台开关'), 'missing 平台开关 menu');
     });
+
+    it('does not include deprecated UI/polyfill dependencies in merged raw metadata', () => {
+      assert.doesNotMatch(rawMergedText, /@require\s+.*jquery/i, 'should remove jquery requires');
+      assert.doesNotMatch(rawMergedText, /@require\s+.*sweetalert2/i, 'should remove sweetalert2 require');
+      assert.doesNotMatch(rawMergedText, /@require\s+.*overhang/i, 'should remove overhang require');
+      assert.doesNotMatch(rawMergedText, /@require\s+.*promise-polyfill/i, 'should remove promise-polyfill require');
+      assert.doesNotMatch(rawMergedText, /@resource\s+overhang/i, 'should remove overhang resource');
+    });
+
+    it('contains aggregated startup orchestration markers', () => {
+      assert.match(rawMergedText, /collectEmptyCaches\s*\(/, 'missing collectEmptyCaches orchestrator');
+      assert.match(rawMergedText, /showEmptyCacheAggregationDialog\s*\(/, 'missing aggregated empty-cache dialog');
+      assert.match(rawMergedText, /runInitialFlow\s*\(/, 'missing startup flow orchestrator');
+    });
   });
 
   describe('merged build output content', () => {
