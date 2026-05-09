@@ -75,22 +75,46 @@
     return root;
   }
 
-  function showDialog({ title, bodyHtml, confirmText = '确定', cancelText = '取消', onConfirm }) {
+  function showDialog({ title, bodyHtml, confirmText = '确定', cancelText = '取消', onConfirm, onCancel, denyText, onDeny, hideCancel = false }) {
     const root = createModalRoot();
     root.innerHTML = `
       <div class="glc-mask">
         <div class="glc-dialog" role="dialog" aria-modal="true">
-          <h3 class="glc-dialog-title">${title}</h3>
-          <div class="glc-dialog-body">${bodyHtml}</div>
+          <h3 class="glc-dialog-title"></h3>
+          <div class="glc-dialog-body"></div>
           <div class="glc-dialog-actions">
-            <button type="button" data-glc-cancel>${cancelText}</button>
-            <button type="button" data-glc-confirm>${confirmText}</button>
+            <button type="button" data-glc-cancel></button>
+            <button type="button" data-glc-deny></button>
+            <button type="button" data-glc-confirm></button>
           </div>
         </div>
       </div>`;
+    const titleEl = root.querySelector('.glc-dialog-title');
+    const bodyEl = root.querySelector('.glc-dialog-body');
+    const cancelBtn = root.querySelector('[data-glc-cancel]');
+    const denyBtn = root.querySelector('[data-glc-deny]');
+    const confirmBtn = root.querySelector('[data-glc-confirm]');
+    if (titleEl) titleEl.textContent = title || '';
+    if (bodyEl) bodyEl.innerHTML = bodyHtml || '';
+    if (cancelBtn) {
+      cancelBtn.textContent = cancelText;
+      cancelBtn.style.display = hideCancel ? 'none' : '';
+    }
+    if (denyBtn) {
+      denyBtn.textContent = denyText || '';
+      denyBtn.style.display = denyText ? '' : 'none';
+    }
+    if (confirmBtn) confirmBtn.textContent = confirmText;
     const close = () => { root.innerHTML = ''; };
-    root.querySelector('[data-glc-cancel]')?.addEventListener('click', close);
-    root.querySelector('[data-glc-confirm]')?.addEventListener('click', () => {
+    cancelBtn?.addEventListener('click', () => {
+      if (typeof onCancel === 'function') onCancel(root);
+      close();
+    });
+    denyBtn?.addEventListener('click', () => {
+      if (typeof onDeny === 'function') onDeny(root);
+      close();
+    });
+    confirmBtn?.addEventListener('click', () => {
       if (typeof onConfirm === 'function') onConfirm(root);
       close();
     });
@@ -106,17 +130,158 @@
 
   function showProgressPanel(stateMap) {
     const root = createModalRoot();
-    const rows = Object.entries(stateMap)
-      .map(([platform, state]) => `<li><span class="glc-progress-platform">${platform.toUpperCase()}</span><span class="glc-progress-state">${state}</span></li>`)
-      .join('');
     root.innerHTML = `
       <div class="glc-mask">
         <div class="glc-dialog glc-progress-dialog" role="dialog" aria-modal="true">
-          <h3 class="glc-dialog-title">正在更新缓存</h3>
-          <ul class="glc-progress-list">${rows}</ul>
+          <h3 class="glc-dialog-title"></h3>
+          <ul class="glc-progress-list"></ul>
         </div>
       </div>`;
+    const titleEl = root.querySelector('.glc-dialog-title');
+    const listEl = root.querySelector('.glc-progress-list');
+    if (titleEl) titleEl.textContent = '正在更新缓存';
+    if (listEl) {
+      Object.entries(stateMap || {}).forEach(([platform, state]) => {
+        const li = document.createElement('li');
+        const platformEl = document.createElement('span');
+        platformEl.className = 'glc-progress-platform';
+        platformEl.textContent = String(platform).toUpperCase();
+        const stateEl = document.createElement('span');
+        stateEl.className = 'glc-progress-state';
+        stateEl.textContent = String(state);
+        li.appendChild(platformEl);
+        li.appendChild(stateEl);
+        listEl.appendChild(li);
+      });
+    }
   }
+
+  const swalCompatState = { config: null, panelMap: {} };
+
+  function createCompatCollection(elements) {
+    const list = Array.isArray(elements) ? elements.filter(Boolean) : [];
+    return {
+      length: list.length,
+      map(callback) {
+        return list.map((el, index) => callback(index, el));
+      },
+      addClass(className) {
+        list.forEach((el) => el.classList?.add(className));
+        return this;
+      },
+      attr(name, value) {
+        if (value !== undefined) {
+          list.forEach((el) => el.setAttribute?.(name, value));
+          return this;
+        }
+        return list[0]?.getAttribute?.(name);
+      },
+      find(selector) {
+        const found = [];
+        list.forEach((el) => {
+          found.push(...el.querySelectorAll(selector));
+        });
+        return createCompatCollection(found);
+      },
+      overhang(options = {}) {
+        const type = options.type === 'error' ? 'error' : 'info';
+        if (options.html) {
+          showDialog({
+            title: type === 'error' ? '错误' : '提示',
+            bodyHtml: options.message || '',
+            confirmText: options.closeConfirm ? '关闭' : '确定',
+            hideCancel: true
+          });
+          return this;
+        }
+        showToast(options.message || '', type);
+        return this;
+      }
+    };
+  }
+
+  function $(input) {
+    if (typeof input === 'string') {
+      if (input.trim().startsWith('<')) {
+        const template = document.createElement('template');
+        template.innerHTML = input.trim();
+        return createCompatCollection([template.content.firstElementChild]);
+      }
+      return createCompatCollection(Array.from(document.querySelectorAll(input)));
+    }
+    if (input instanceof Element || input === document.body) {
+      return createCompatCollection([input]);
+    }
+    if (input && typeof input.length === 'number') {
+      return createCompatCollection(Array.from(input));
+    }
+    return createCompatCollection([]);
+  }
+
+  $.makeArray = (value) => Array.from(value || []);
+
+  const Swal = {
+    fire(config = {}) {
+      swalCompatState.config = { ...config };
+      return new Promise((resolve) => {
+        const settle = (result) => resolve({ value: undefined, isConfirmed: false, isDenied: false, ...result });
+        if (config.input === 'textarea') {
+          showDialog({
+            title: config.title || '',
+            bodyHtml: '<textarea id="glc-swal-input" class="glc-textarea"></textarea>',
+            confirmText: config.confirmButtonText || '确定',
+            cancelText: config.cancelButtonText || '取消',
+            onConfirm: () => {
+              const value = document.getElementById('glc-swal-input')?.value;
+              settle({ value, isConfirmed: true });
+            },
+            onCancel: () => settle({ value: undefined })
+          });
+          const inputEl = document.getElementById('glc-swal-input');
+          if (inputEl) inputEl.value = config.inputValue || '';
+          return;
+        }
+
+        if (config.showCancelButton || config.showDenyButton || typeof config.preConfirm === 'function') {
+          showDialog({
+            title: config.title || '',
+            bodyHtml: config.html || (config.text ? `<div>${config.text}</div>` : ''),
+            confirmText: config.confirmButtonText || '确定',
+            cancelText: config.cancelButtonText || '取消',
+            denyText: config.showDenyButton ? (config.denyButtonText || '拒绝') : '',
+            hideCancel: !config.showCancelButton && !config.showDenyButton,
+            onConfirm: () => {
+              const value = typeof config.preConfirm === 'function' ? config.preConfirm() : true;
+              settle({ value, isConfirmed: true });
+            },
+            onCancel: () => settle({ value: undefined }),
+            onDeny: () => settle({ isDenied: true })
+          });
+          return;
+        }
+
+        if (config.title && config.text && /第\s*\d+\s*页/.test(config.text)) {
+          swalCompatState.panelMap.default = config.text;
+          showProgressPanel(swalCompatState.panelMap);
+          settle({ value: true, isConfirmed: true });
+          return;
+        }
+
+        showToast(config.title || config.text || '', config.icon || 'info');
+        settle({ value: true, isConfirmed: true });
+      });
+    },
+    update(config = {}) {
+      swalCompatState.config = { ...(swalCompatState.config || {}), ...config };
+      if (config.title && config.text && /第\s*\d+\s*页/.test(config.text)) {
+        swalCompatState.panelMap.default = config.text;
+        showProgressPanel(swalCompatState.panelMap);
+      } else if (config.icon === 'success' || config.icon === 'error') {
+        showToast(config.title || '', config.icon);
+      }
+      return Promise.resolve({ value: true, isConfirmed: true, isDenied: false });
+    }
+  };
 
   function openPlatformSwitchDialog() {
     const settings = getGlobalSettings();
@@ -1117,6 +1282,7 @@
 .glc-dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
 .glc-dialog-actions button{border:1px solid #d1d5db;border-radius:6px;background:#fff;color:#111;padding:6px 12px;cursor:pointer}
 .glc-dialog-actions [data-glc-confirm]{border-color:#2563eb;background:#2563eb;color:#fff}
+.glc-textarea{width:100%;min-height:160px;box-sizing:border-box}
 .glc-toast{position:fixed;right:16px;bottom:16px;z-index:2147483647;background:#1f2937;color:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 10px 25px rgba(0,0,0,.2)}
 .glc-toast-error{background:#b91c1c}
 .glc-toast-success{background:#15803d}
