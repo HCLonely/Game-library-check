@@ -9,6 +9,7 @@
 // @license        MIT
 // @homepage       https://github.com/HCLonely/Game-library-check
 // @supportURL     https://github.com/HCLonely/Game-library-check/issues
+// @updateURL      https://github.com/HCLonely/Game-library-check/raw/master/Game-Library-Check.user.js
 // @include        *
 // @exclude        *://*.epicgames.com/*
 // @exclude        *://www.gog.com/*
