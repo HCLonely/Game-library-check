@@ -75,7 +75,7 @@
     return root;
   }
 
-  function showDialog({ title, bodyHtml, confirmText = '确定', cancelText = '取消', onConfirm, onCancel, denyText, onDeny, hideCancel = false }) {
+  function showDialog({ title, bodyHtml, trustedBodyHtml = false, bodyText = '', bodyNode, confirmText = '确定', cancelText = '取消', onConfirm, onCancel, denyText, onDeny, hideCancel = false }) {
     const root = createModalRoot();
     root.innerHTML = `
       <div class="glc-mask">
@@ -95,7 +95,16 @@
     const denyBtn = root.querySelector('[data-glc-deny]');
     const confirmBtn = root.querySelector('[data-glc-confirm]');
     if (titleEl) titleEl.textContent = title || '';
-    if (bodyEl) bodyEl.innerHTML = bodyHtml || '';
+    if (bodyEl) {
+      bodyEl.textContent = '';
+      if (bodyNode instanceof Node) {
+        bodyEl.replaceChildren(bodyNode);
+      } else if (trustedBodyHtml && typeof bodyHtml === 'string') {
+        bodyEl.innerHTML = bodyHtml;
+      } else {
+        bodyEl.textContent = bodyText || '';
+      }
+    }
     if (cancelBtn) {
       cancelBtn.textContent = cancelText;
       cancelBtn.style.display = hideCancel ? 'none' : '';
@@ -160,10 +169,14 @@
 
   function createCompatCollection(elements) {
     const list = Array.isArray(elements) ? elements.filter(Boolean) : [];
-    return {
+    const collection = {
       length: list.length,
+      _elements: list,
       map(callback) {
         return list.map((el, index) => callback(index, el));
+      },
+      [Symbol.iterator]() {
+        return list[Symbol.iterator]();
       },
       addClass(className) {
         list.forEach((el) => el.classList?.add(className));
@@ -188,7 +201,7 @@
         if (options.html) {
           showDialog({
             title: type === 'error' ? '错误' : '提示',
-            bodyHtml: options.message || '',
+            bodyText: options.message || '',
             confirmText: options.closeConfirm ? '关闭' : '确定',
             hideCancel: true
           });
@@ -198,6 +211,10 @@
         return this;
       }
     };
+    list.forEach((el, index) => {
+      collection[index] = el;
+    });
+    return collection;
   }
 
   function $(input) {
@@ -218,7 +235,12 @@
     return createCompatCollection([]);
   }
 
-  $.makeArray = (value) => Array.from(value || []);
+  $.makeArray = (value) => {
+    if (!value) return [];
+    if (Array.isArray(value)) return value.slice();
+    if (Array.isArray(value._elements)) return value._elements.slice();
+    return Array.from(value);
+  };
 
   const Swal = {
     fire(config = {}) {
@@ -229,6 +251,7 @@
           showDialog({
             title: config.title || '',
             bodyHtml: '<textarea id="glc-swal-input" class="glc-textarea"></textarea>',
+            trustedBodyHtml: true,
             confirmText: config.confirmButtonText || '确定',
             cancelText: config.cancelButtonText || '取消',
             onConfirm: () => {
@@ -245,7 +268,10 @@
         if (config.showCancelButton || config.showDenyButton || typeof config.preConfirm === 'function') {
           showDialog({
             title: config.title || '',
-            bodyHtml: config.html || (config.text ? `<div>${config.text}</div>` : ''),
+            bodyNode: config.bodyNode,
+            bodyHtml: config.trustedHtml === true ? (config.html || '') : '',
+            trustedBodyHtml: config.trustedHtml === true,
+            bodyText: config.text || '',
             confirmText: config.confirmButtonText || '确定',
             cancelText: config.cancelButtonText || '取消',
             denyText: config.showDenyButton ? (config.denyButtonText || '拒绝') : '',
@@ -286,14 +312,26 @@
   function openPlatformSwitchDialog() {
     const settings = getGlobalSettings();
     const current = settings.platformEnabled;
+    const bodyNode = document.createElement('div');
+    [
+      ['glc-epic', 'Epic', current.epic],
+      ['glc-gog', 'GOG', current.gog],
+      ['glc-itch', 'Itch', current.itch],
+      ['glc-cube', 'Cube', current.cube]
+    ].forEach(([id, labelText, checked], index) => {
+      const label = document.createElement('label');
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.id = id;
+      input.checked = Boolean(checked);
+      label.appendChild(input);
+      label.appendChild(document.createTextNode(` ${labelText}`));
+      bodyNode.appendChild(label);
+      if (index < 3) bodyNode.appendChild(document.createElement('br'));
+    });
     Swal.fire({
       title: '平台开关',
-      html: `
-        <label><input type="checkbox" id="glc-epic" ${current.epic ? 'checked' : ''}/> Epic</label><br/>
-        <label><input type="checkbox" id="glc-gog" ${current.gog ? 'checked' : ''}/> GOG</label><br/>
-        <label><input type="checkbox" id="glc-itch" ${current.itch ? 'checked' : ''}/> Itch</label><br/>
-        <label><input type="checkbox" id="glc-cube" ${current.cube ? 'checked' : ''}/> Cube</label>
-      `,
+      bodyNode,
       showCancelButton: true,
       confirmButtonText: '保存',
       cancelButtonText: '取消',
