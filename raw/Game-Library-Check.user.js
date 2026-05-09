@@ -556,14 +556,525 @@
     };
   }
 
+  function createGogModule() {
+    return {
+      key: 'gog',
+      enabled: () => settings.platformEnabled.gog,
+      start: () => {
+        let loadTimes = 0;
+
+        if (getGogGameLibrary().length === 0) {
+          Swal.fire({
+            title: '游戏库检测脚本提醒',
+            icon: 'warning',
+            text: '没有检测到gog游戏库数据，是否立即获取？',
+            showCancelButton: true,
+            confirmButtonText: '获取',
+            cancelButtonText: '取消'
+          }).then(({ value }) => {
+            if (value) updateGogGameLibrary();
+          });
+        } else {
+          checkGogGame();
+        }
+
+        const observer = new MutationObserver(() => { checkGogGame(false, true); });
+        observer.observe(document.documentElement, {
+          attributes: false,
+          characterData: false,
+          childList: true,
+          subtree: true
+        });
+
+        function checkGogGame(first = true, again = false) {
+          loadTimes++;
+          if (loadTimes > 1000) {
+            observer.disconnect();
+            return;
+          }
+          const gogGames = getGogGameLibrary();
+          const gogLink = again ?
+            $('a[href*="www.gog.com/"]:not(".gog-game-checked")') :
+            $('a[href*="www.gog.com/"]:not(".gog-game-link-owned")');
+          if (gogLink.length === 0) return;
+          if (first) updateGogGameLibrary(false);
+          gogLink.map((i, e) => {
+            const $this = $(e);
+            $this.addClass('gog-game-checked');
+            let href = $this.attr('href');
+            if (!/\/$/.test(href)) href += '/';
+            const gogGameLink = href.match(/https?:\/\/www.gog.com\/([\w]+?\/)game\/([\d\w_]+)/i)?.[2];
+            if (gogGameLink && gogGames.includes(gogGameLink.toLowerCase())) {
+              $this.addClass('gog-game-link-owned');
+            }
+            return e;
+          });
+        }
+        function getGogGameLibrary() {
+          return GM_getValue('gogGames') || [];
+        }
+        function updateGogGameLibrary(loop = true, i = 1, games = []) {
+          if (!loop && i !== 1) {
+            GM_setValue('gogGames', [...new Set([...getGogGameLibrary(), ...games])]);
+            checkGogGame(false);
+            return;
+          }
+          return new Promise((resolve, reject) => {
+            if (loop) {
+              Swal[i === 1 ? 'fire' : 'update']({
+                title: '正在更新gog游戏库数据...',
+                text: `第 ${i} 页`,
+                icon: 'info'
+              });
+            }
+            GM_xmlhttpRequest({
+              method: 'GET',
+              url: `https://www.gog.com/account/getFilteredProducts?hiddenFlag=0&mediaType=1&page=${i}&sortBy=date_purchased`,
+              timeout: 15000,
+              nocache: true,
+              responseType: 'json',
+              onerror: reject,
+              ontimeout: reject,
+              onload: (response) => {
+                response.status === 200 ? resolve(response) : reject(response);
+              }
+            });
+          }).then(async (response) => {
+            if (/openlogin/i.test(response.finalUrl)) {
+              if (loop) {
+                Swal.fire({
+                  title: '获取gog游戏库数据失败！',
+                  text: '请先登录',
+                  icon: 'error',
+                  showCancelButton: true,
+                  confirmButtonText: '登录',
+                  cancelButtonText: '取消'
+                }).then(({ value }) => {
+                  if (value) GM_openInTab('https://www.gog.com/#openlogin', { active: true, insert: true, setParent: true });
+                });
+              } else {
+                $('body').overhang({
+                  type: 'error',
+                  message: 'GOG登录凭证已过期，请重新登录<a href="https://www.gog.com/#openlogin" target="_blank">https://www.gog.com/#openlogin</a>',
+                  html: true,
+                  closeConfirm: true
+                });
+              }
+              return false;
+            } else if (response.response?.products?.length) {
+              games = [...games, ...response.response.products.map((e) => (e?.slug || e?.url?.split('/')?.[e?.url?.split('/').length - 1]))]; // eslint-disable-line
+
+              if (response.response?.totalPages > i) {
+                return await updateGogGameLibrary(loop, ++i, games); // eslint-disable-line
+              } else if (loop) {
+                GM_setValue('gogGames', [...new Set(games)].filter((e) => e));
+                return Swal.update({
+                  icon: 'success',
+                  title: 'gog游戏库数据更新完成',
+                  text: ''
+                });
+              }
+              GM_setValue('gogGames', [...new Set([...getGogGameLibrary(), ...games])].filter((e) => e));
+              checkGogGame(false);
+              return true;
+            } else if (response.response?.products?.length !== 0) {
+              console.error(response);
+              return Swal.update({
+                icon: 'error',
+                title: 'gog游戏库数据更新失败',
+                text: '详情请查看控制台'
+              });
+            }
+          })
+            .catch((error) => {
+              console.error(error);
+              return Swal.update({
+                icon: 'error',
+                title: 'gog游戏库数据更新失败',
+                text: '详情请查看控制台'
+              });
+            });
+        }
+
+        GM_registerMenuCommand('更新gog游戏库', updateGogGameLibrary);
+
+        GM_addStyle('.gog-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}');
+      }
+    };
+  }
+
+  function createItchModule() {
+    return {
+      key: 'itch',
+      enabled: () => settings.platformEnabled.itch,
+      start: () => {
+        let loadTimes = 0;
+
+        if (getItchGameLibrary().length === 0) {
+          Swal.fire({
+            title: '游戏库检测脚本提醒',
+            icon: 'warning',
+            text: '没有检测到itch游戏库数据，是否立即获取？',
+            showCancelButton: true,
+            confirmButtonText: '获取',
+            cancelButtonText: '取消'
+          }).then(({ value }) => {
+            if (value) updateItchGameLibrary();
+          });
+        } else {
+          checkItchGame();
+        }
+
+        const observer = new MutationObserver(() => { checkItchGame(false, true); });
+        observer.observe(document.documentElement, {
+          attributes: false,
+          characterData: false,
+          childList: true,
+          subtree: true
+        });
+
+        function checkItchGame(first = true, again = false) {
+          loadTimes++;
+          if (loadTimes > 1000) {
+            observer.disconnect();
+            return;
+          }
+          const itchGames = getItchGameLibrary();
+          const itchLink = again ? $('a[href*=".itch.io/"]:not(".itch-io-game-checked")') : $('a[href*=".itch.io/"]:not(".itch-io-game-link-owned")');
+          if (itchLink.length === 0) return;
+          if (first) updateItchGameLibrary(false);
+          itchLink.map((i, e) => {
+            const $this = $(e);
+            $this.addClass('itch-io-game-checked');
+            let href = $this.attr('href');
+            if (!/\/$/.test(href)) href += '/';
+            const itchGameLink = href.match(/https?:\/\/(.*?\/.*?)\//i)?.[1];
+            if (itchGameLink && itchGames.includes(itchGameLink)) {
+              $this.addClass('itch-io-game-link-owned');
+            }
+            return e;
+          });
+        }
+        function getItchGameLibrary() {
+          return GM_getValue('itchGames') || [];
+        }
+        function updateItchGameLibrary(loop = true, i = 1, games = []) {
+          if (!loop && i !== 1) {
+            GM_setValue('itchGames', [...new Set([...getItchGameLibrary(), ...games])]);
+            checkItchGame(false);
+            return;
+          }
+          return new Promise((resolve, reject) => {
+            if (loop) {
+              Swal[i === 1 ? 'fire' : 'update']({
+                title: '正在更新itch游戏库数据...',
+                text: `第 ${i} 页`,
+                icon: 'info'
+              });
+            }
+            GM_xmlhttpRequest({
+              method: 'GET',
+              url: `https://itch.io/my-purchases?page=${i}&format=json`,
+              timeout: 15000,
+              nocache: true,
+              responseType: 'json',
+              onerror: reject,
+              ontimeout: reject,
+              onload: (response) => {
+                response.status === 200 ? resolve(response) : reject(response);
+              }
+            });
+          }).then(async (response) => {
+            if (/https?:\/\/itch.io\/login/i.test(response.finalUrl)) {
+              if (loop) {
+                Swal.fire({
+                  title: '获取itch游戏库数据失败！',
+                  text: '请先登录',
+                  icon: 'error',
+                  showCancelButton: true,
+                  confirmButtonText: '登录',
+                  cancelButtonText: '取消'
+                }).then(({ value }) => {
+                  if (value) GM_openInTab('https://itch.io/login', { active: true, insert: true, setParent: true });
+                });
+              } else {
+                $('body').overhang({
+                  type: 'error',
+                  message: 'itch.io登录凭证已过期，请重新登录<a href="https://itch.io/login" target="_blank">https://itch.io/login</a>',
+                  html: true,
+                  closeConfirm: true
+                });
+              }
+              return false;
+            } else if (response.response?.num_items) { // eslint-disable-line camelcase
+              games = [...games, ...$.makeArray($(`<div>${response.response.content}</div>`).find('a.thumb_link.game_link')).map((e) => $(e).attr('href') // eslint-disable-line
+                .match(/https?:\/\/(.*?\/.*?)\//i)?.[1])];
+
+              if (response.response.num_items === 50) {
+                return await updateItchGameLibrary(loop, ++i, games); // eslint-disable-line
+              } else if (loop) {
+                GM_setValue('itchGames', [...new Set(games)]);
+                return Swal.update({
+                  icon: 'success',
+                  title: 'itch游戏库数据更新完成',
+                  text: ''
+                });
+              }
+              GM_setValue('itchGames', [...new Set([...getItchGameLibrary(), ...games])]);
+              checkItchGame(false);
+              return true;
+            } else if (response.response?.num_items === 0) { // eslint-disable-line camelcase
+              GM_setValue('itchGames', [...new Set(games)]);
+              return Swal.update({
+                icon: 'success',
+                title: 'itch游戏库数据更新完成',
+                text: ''
+              });
+            }
+            console.error(response);
+            return Swal.update({
+              icon: 'error',
+              title: 'itch游戏库数据更新失败',
+              text: '详情请查看控制台'
+            });
+          })
+            .catch((error) => {
+              console.error(error);
+              return Swal.update({
+                icon: 'error',
+                title: 'itch游戏库数据更新失败',
+                text: '详情请查看控制台'
+              });
+            });
+        }
+
+        GM_registerMenuCommand('更新itch游戏库', updateItchGameLibrary);
+
+        GM_addStyle('.itch-io-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}');
+        unsafeWindow.checkItchGame = checkItchGame;
+      }
+    };
+  }
+
+  function createCubeModule() {
+    return {
+      key: 'cube',
+      enabled: () => settings.platformEnabled.cube,
+      start: () => {
+        let loadTimes = 0;
+
+        if (getCubeGameLibrary().length === 0) {
+          Swal.fire({
+            title: '游戏库检测脚本提醒',
+            icon: 'warning',
+            text: '没有检测到方块游戏库数据，是否立即获取？',
+            showCancelButton: true,
+            confirmButtonText: '获取',
+            cancelButtonText: '取消'
+          }).then(({ value }) => {
+            if (value) updateCubeGameLibrary();
+          });
+        } else {
+          checkCubeGame();
+        }
+
+        const observer = new MutationObserver(() => { checkCubeGame(false, true); });
+        observer.observe(document.documentElement, {
+          attributes: false,
+          characterData: false,
+          childList: true,
+          subtree: true
+        });
+
+        function checkCubeGame(first = true, again = false) {
+          loadTimes++;
+          if (loadTimes > 1000) {
+            observer.disconnect();
+            return;
+          }
+          const cubeGames = getCubeGameLibrary();
+          const cubeLink = again ?
+            $('a[href*="store.cubejoy.com/html/en/store/goodsdetail/detail"]:not(".cube-game-checked")') :
+            $('a[href*="store.cubejoy.com/html/en/store/goodsdetail/detail"]:not(".cube-game-link-owned")');
+          if (cubeLink.length === 0) return;
+          if (first) updateCubeGameLibrary(false);
+          cubeLink.map((i, e) => {
+            const $this = $(e);
+            $this.addClass('cube-game-checked');
+            let href = $this.attr('href');
+            if (!/\/$/.test(href)) href += '/';
+            const cubeGameId = href.match(/https?:\/\/store\.cubejoy\.com\/html\/en\/store\/goodsdetail\/detail([\d]+).html/i)?.[1];
+            if (cubeGameId && cubeGames.includes(parseInt(cubeGameId, 10))) {
+              $this.addClass('cube-game-link-owned');
+            }
+            return e;
+          });
+        }
+        function getCubeGameLibrary() {
+          return GM_getValue('cubeGames') || [];
+        }
+        function updateCubeGameLibrary(loop = true, i = 1, games = []) {
+          if (!loop && i !== 1) {
+            GM_setValue('cubeGames', [...new Set([...getCubeGameLibrary(), ...games])]);
+            checkCubeGame(false);
+            return;
+          }
+          return new Promise((resolve, reject) => {
+            if (loop) {
+              Swal[i === 1 ? 'fire' : 'update']({
+                title: '正在更新方块游戏库数据...',
+                text: `第 ${i} 页`,
+                icon: 'info'
+              });
+            }
+            GM_xmlhttpRequest({
+              method: 'POST',
+              url: `https://account.cubejoy.com/Comment/MyGameReq?pageIndex=${i}&pageSize=24`,
+              timeout: 15000,
+              nocache: true,
+              responseType: 'json',
+              headers: {
+                Accept: 'application/json, text/plain, */*',
+                Host: 'account.cubejoy.com',
+                Origin: 'https://account.cubejoy.com',
+                Referer: 'https://account.cubejoy.com/Comment/MyGame'
+              },
+              onerror: reject,
+              ontimeout: reject,
+              onload: (response) => {
+                response.status === 200 ? resolve(response) : reject(response);
+              }
+            });
+          }).then(async (response) => {
+            if (response.response?.resultCode === 0) {
+              if (loop) {
+                Swal.fire({
+                  title: '获取方块游戏库数据失败！',
+                  text: '请先登录',
+                  icon: 'error',
+                  showCancelButton: true,
+                  confirmButtonText: '登录',
+                  cancelButtonText: '取消'
+                }).then(({ value }) => {
+                  if (value) GM_openInTab('https://account.cubejoy.com/html/login.html', { active: true, insert: true, setParent: true });
+                });
+              } else {
+                $('body').overhang({
+                  type: 'error',
+                  message: '方块登录凭证已过期，请重新登录<a href="https://account.cubejoy.com/html/login.html" target="_blank">https://account.cubejoy.com/html/login.html</a>',
+                  html: true,
+                  closeConfirm: true
+                });
+              }
+              return false;
+            } else if (response.response?.result?.list?.length) {
+              games = [...games, ...response.response.result.list.map((e) => e.S_Id)]; // eslint-disable-line
+
+              if (response.response?.result.total > i * 24) {
+                return await updateCubeGameLibrary(loop, ++i, games); // eslint-disable-line
+              } else if (loop) {
+                GM_setValue('cubeGames', [...new Set(games)].filter((e) => e));
+                return Swal.update({
+                  icon: 'success',
+                  title: 'cube游戏库数据更新完成',
+                  text: ''
+                });
+              }
+              GM_setValue('cubeGames', [...new Set([...getCubeGameLibrary(), ...games])].filter((e) => e));
+              checkCubeGame(false);
+              return true;
+            } else if (response.response?.result?.list?.length !== 0) {
+              console.error(response);
+              return Swal.update({
+                icon: 'error',
+                title: '方块游戏库数据更新失败',
+                text: '详情请查看控制台'
+              });
+            }
+          })
+            .catch((error) => {
+              console.error(error);
+              return Swal.update({
+                icon: 'error',
+                title: '方块游戏库数据更新失败',
+                text: '详情请查看控制台'
+              });
+            });
+        }
+
+        GM_registerMenuCommand('更新cube游戏库', updateCubeGameLibrary);
+
+        GM_addStyle('.cube-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}');
+      }
+    };
+  }
+
+  function addWhiteList() {
+    const whiteList = settings.whiteList || [];
+    Swal.fire({
+      title: '添加白名单网站',
+      input: 'textarea',
+      inputValue: whiteList.join('\n'),
+      showCancelButton: true,
+      confirmButtonText: '保存',
+      cancelButtonText: '取消'
+    }).then(({ value }) => {
+      if (value !== undefined) {
+        settings.whiteList = value ? value.split('\n') : [];
+        settings.blackList = settings.blackList || [];
+        setGlobalSettings(settings);
+      }
+    });
+  }
+
+  function addBlackList() {
+    const blackList = settings.blackList || [];
+    Swal.fire({
+      title: '添加黑名单网站',
+      input: 'textarea',
+      inputValue: blackList.join('\n'),
+      showCancelButton: true,
+      confirmButtonText: '保存',
+      cancelButtonText: '取消'
+    }).then(({ value }) => {
+      if (value !== undefined) {
+        settings.blackList = value ? value.split('\n') : [];
+        settings.whiteList = settings.whiteList || [];
+        setGlobalSettings(settings);
+      }
+    });
+  }
+
+  function setting() {
+    Swal.fire({
+      showDenyButton: true,
+      showCancelButton: true,
+      confirmButtonText: '白名单网站',
+      denyButtonText: '黑名单网站',
+      cancelButtonText: '关闭'
+    }).then(({ isConfirmed, isDenied }) => {
+      if (isConfirmed) {
+        addWhiteList();
+      } else if (isDenied) {
+        addBlackList();
+      }
+    });
+  }
+
+  const settings = getGlobalSettings();
+
+  GM_registerMenuCommand('设置', setting);
   GM_registerMenuCommand('平台开关', openPlatformSwitchDialog);
   GM_addStyle(GM_getResourceText('overhang'));
 
-  const settings = getGlobalSettings();
   if (!isUrlEnabledByList(window.location.href, settings)) return;
 
-  const modules = [];
-  modules.push(createEpicModule());
+  const modules = [
+    createEpicModule(),
+    createGogModule(),
+    createItchModule(),
+    createCubeModule()
+  ];
   modules.forEach((module) => {
     if (module.enabled()) module.start();
   });
