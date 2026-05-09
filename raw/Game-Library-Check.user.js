@@ -185,7 +185,7 @@
     return enabledModules.filter((module) => module.isCacheEmpty()).map((module) => module.key);
   }
 
-  function showEmptyCacheAggregationDialog(emptyKeys, onConfirm) {
+  function showEmptyCacheAggregationDialog(emptyKeys, onConfirm, onCancel) {
     const bodyNode = document.createElement('div');
     emptyKeys.forEach((key, index) => {
       const label = document.createElement('label');
@@ -207,6 +207,9 @@
         const selected = Array.from(root.querySelectorAll('input[data-platform]:checked'))
           .map((el) => el.getAttribute('data-platform'));
         onConfirm(selected);
+      },
+      onCancel: () => {
+        if (typeof onCancel === 'function') onCancel();
       }
     });
   }
@@ -220,8 +223,13 @@
       state[key] = 'running';
       showProgressPanel(state);
       try {
-        await module.updateLibrary();
-        state[key] = 'success';
+        const updateResult = await module.updateLibrary();
+        if (updateResult === true) {
+          state[key] = 'success';
+        } else {
+          state[key] = 'error';
+          showToast(`${key.toUpperCase()} 更新失败`, 'error');
+        }
       } catch (error) {
         console.error(error);
         state[key] = 'error';
@@ -235,10 +243,16 @@
     const enabledModules = modules.filter((module) => module.enabled());
     const emptyKeys = collectEmptyCaches(enabledModules);
     if (emptyKeys.length > 0) {
-      showEmptyCacheAggregationDialog(emptyKeys, async (selectedKeys) => {
-        if (selectedKeys.length > 0) await batchUpdateSelectedModules(enabledModules, selectedKeys);
-        enabledModules.forEach((module) => module.start());
-      });
+      showEmptyCacheAggregationDialog(
+        emptyKeys,
+        async (selectedKeys) => {
+          if (selectedKeys.length > 0) await batchUpdateSelectedModules(enabledModules, selectedKeys);
+          enabledModules.forEach((module) => module.start());
+        },
+        () => {
+          enabledModules.forEach((module) => module.start());
+        }
+      );
       return;
     }
     enabledModules.forEach((module) => module.start());
@@ -731,11 +745,12 @@
                 return await updateEpicOwnedGames(loop, ++i, games, nextPageToken); // eslint-disable-line
               } else if (loop) {
                 GM_setValue('ownedGames', games);
-                return Swal.update({
+                await Swal.update({
                   icon: 'success',
                   title: 'Epic已拥有游戏数据更新完成',
                   text: ''
                 });
+                return true;
               }
               GM_setValue('ownedGames', games);
               checkEpicGame(false);
@@ -743,20 +758,23 @@
               return true;
             } else if (response.response?.products?.length !== 0) {
               console.error(response);
-              return Swal.update({
+              await Swal.update({
                 icon: 'error',
                 title: 'Epic已拥有游戏数据更新失败',
                 text: '详情请查看控制台'
               });
+              return false;
             }
+            return false;
           })
-            .catch((error) => {
+            .catch(async (error) => {
               console.error(error);
-              return Swal.update({
+              await Swal.update({
                 icon: 'error',
                 title: 'Epic已拥有游戏数据更新失败',
                 text: '详情请查看控制台'
               });
+              return false;
             });
         }
 
@@ -924,31 +942,35 @@
                 return await updateGogGameLibrary(loop, ++i, games); // eslint-disable-line
               } else if (loop) {
                 GM_setValue('gogGames', [...new Set(games)].filter((e) => e));
-                return Swal.update({
+                await Swal.update({
                   icon: 'success',
                   title: 'gog游戏库数据更新完成',
                   text: ''
                 });
+                return true;
               }
               GM_setValue('gogGames', [...new Set([...getGogGameLibrary(), ...games])].filter((e) => e));
               checkGogGame(false);
               return true;
             } else if (response.response?.products?.length !== 0) {
               console.error(response);
-              return Swal.update({
+              await Swal.update({
                 icon: 'error',
                 title: 'gog游戏库数据更新失败',
                 text: '详情请查看控制台'
               });
+              return false;
             }
+            return false;
           })
-            .catch((error) => {
+            .catch(async (error) => {
               console.error(error);
-              return Swal.update({
+              await Swal.update({
                 icon: 'error',
                 title: 'gog游戏库数据更新失败',
                 text: '详情请查看控制台'
               });
+              return false;
             });
         }
 
@@ -1070,37 +1092,41 @@
                 return await updateItchGameLibrary(loop, ++i, games); // eslint-disable-line
               } else if (loop) {
                 GM_setValue('itchGames', [...new Set(games)]);
-                return Swal.update({
+                await Swal.update({
                   icon: 'success',
                   title: 'itch游戏库数据更新完成',
                   text: ''
                 });
+                return true;
               }
               GM_setValue('itchGames', [...new Set([...getItchGameLibrary(), ...games])]);
               checkItchGame(false);
               return true;
             } else if (response.response?.num_items === 0) { // eslint-disable-line camelcase
               GM_setValue('itchGames', [...new Set(games)]);
-              return Swal.update({
+              await Swal.update({
                 icon: 'success',
                 title: 'itch游戏库数据更新完成',
                 text: ''
               });
+              return true;
             }
             console.error(response);
-            return Swal.update({
+            await Swal.update({
               icon: 'error',
               title: 'itch游戏库数据更新失败',
               text: '详情请查看控制台'
             });
+            return false;
           })
-            .catch((error) => {
+            .catch(async (error) => {
               console.error(error);
-              return Swal.update({
+              await Swal.update({
                 icon: 'error',
                 title: 'itch游戏库数据更新失败',
                 text: '详情请查看控制台'
               });
+              return false;
             });
         }
 
@@ -1226,31 +1252,35 @@
                 return await updateCubeGameLibrary(loop, ++i, games); // eslint-disable-line
               } else if (loop) {
                 GM_setValue('cubeGames', [...new Set(games)].filter((e) => e));
-                return Swal.update({
+                await Swal.update({
                   icon: 'success',
                   title: 'cube游戏库数据更新完成',
                   text: ''
                 });
+                return true;
               }
               GM_setValue('cubeGames', [...new Set([...getCubeGameLibrary(), ...games])].filter((e) => e));
               checkCubeGame(false);
               return true;
             } else if (response.response?.result?.list?.length !== 0) {
               console.error(response);
-              return Swal.update({
+              await Swal.update({
                 icon: 'error',
                 title: '方块游戏库数据更新失败',
                 text: '详情请查看控制台'
               });
+              return false;
             }
+            return false;
           })
-            .catch((error) => {
+            .catch(async (error) => {
               console.error(error);
-              return Swal.update({
+              await Swal.update({
                 icon: 'error',
                 title: '方块游戏库数据更新失败',
                 text: '详情请查看控制台'
               });
+              return false;
             });
         }
 

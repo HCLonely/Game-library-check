@@ -64,6 +64,14 @@ describe('merged userscript contract', () => {
       assert.match(rawMergedText, /batchUpdateSelectedModules\s*\(/, 'missing batch update orchestrator');
       assert.match(rawMergedText, /runInitialFlow\s*\(/, 'missing startup flow orchestrator');
     });
+
+    it('wires cancel path to continue module startup and treats non-true update results as failure', () => {
+      assert.match(rawMergedText, /function\s+showEmptyCacheAggregationDialog\s*\([^)]*onCancel[^)]*\)/, 'showEmptyCacheAggregationDialog should accept onCancel callback');
+      assert.match(rawMergedText, /onCancel:\s*\(\)\s*=>\s*\{[\s\S]*onCancel\(\)/, 'showEmptyCacheAggregationDialog should forward onCancel into showDialog');
+      assert.match(rawMergedText, /showEmptyCacheAggregationDialog\([\s\S]*?\(\)\s*=>\s*\{[\s\S]*enabledModules\.forEach\(\(module\)\s*=>\s*module\.start\(\)\)/, 'runInitialFlow should start modules when aggregated dialog is canceled');
+      assert.match(rawMergedText, /if\s*\(updateResult\s*===\s*true\)/, 'batch update should only mark success for explicit true result');
+      assert.match(rawMergedText, /state\[key\]\s*=\s*'error'/, 'batch update should set error state for failed updates');
+    });
   });
 
   describe('merged build output content', () => {

@@ -1,17 +1,18 @@
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e2) { throw _e2; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e3) { didErr = true; err = _e3; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return generator._invoke = function (innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; }(innerFn, self, context), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; this._invoke = function (method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); }; } function maybeInvokeDelegate(delegate, context) { var method = delegate.iterator[context.method]; if (undefined === method) { if (context.delegate = null, "throw" === context.method) { if (delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method)) return ContinueSentinel; context.method = "throw", context.arg = new TypeError("The iterator does not provide a 'throw' method"); } return ContinueSentinel; } var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) { if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; } return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, define(Gp, "constructor", GeneratorFunctionPrototype), define(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (object) { var keys = []; for (var key in object) { keys.push(key); } return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) { "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); } }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
 function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 function _iterableToArrayLimit(arr, i) { var _i = arr == null ? null : typeof Symbol !== "undefined" && arr[Symbol.iterator] || arr["@@iterator"]; if (_i == null) return; var _arr = []; var _n = true; var _d = false; var _s, _e; try { for (_i = _i.call(arr); !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
 function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
-function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return generator._invoke = function (innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; }(innerFn, self, context), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; this._invoke = function (method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); }; } function maybeInvokeDelegate(delegate, context) { var method = delegate.iterator[context.method]; if (undefined === method) { if (context.delegate = null, "throw" === context.method) { if (delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method)) return ContinueSentinel; context.method = "throw", context.arg = new TypeError("The iterator does not provide a 'throw' method"); } return ContinueSentinel; } var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) { if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; } return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, define(Gp, "constructor", GeneratorFunctionPrototype), define(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (object) { var keys = []; for (var key in object) { keys.push(key); } return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) { "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); } }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
-function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
-function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
 function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -32,16 +33,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 // @exclude        *://www.gog.com/*
 // @exclude        *://itch.io/login
 // @exclude        *://account.cubejoy.com/html/login.html
-// @require        https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js
-// @require        https://cdn.jsdelivr.net/npm/jquery-ui@1.13.2/dist/jquery-ui.min.js
-// @require        https://cdn.jsdelivr.net/npm/components-jqueryui@1.12.1/ui/effect.min.js
 // @require        https://cdn.jsdelivr.net/npm/regenerator-runtime@0.13.5/runtime.min.js
-// @require        https://cdn.jsdelivr.net/npm/sweetalert2@11
-// @require        https://cdn.jsdelivr.net/npm/promise-polyfill@8.1.3/dist/polyfill.min.js
-// @require        https://cdn.jsdelivr.net/npm/overhang@1.0.8/dist/overhang.min.js
 // @require        https://greasyfork.org/scripts/418102-tm-request/code/TM_request.js?version=902218
 // @require        https://greasyfork.org/scripts/426803-gistsync/code/gistSync.js?version=957824
-// @resource       overhang https://cdn.jsdelivr.net/npm/overhang@1.0.8/dist/overhang.min.css
 // @grant          GM_setValue
 // @grant          GM_getValue
 // @grant          GM_deleteValue
@@ -49,7 +43,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 // @grant          GM_addStyle
 // @grant          GM_xmlhttpRequest
 // @grant          GM_registerMenuCommand
-// @grant          GM_getResourceText
 // @grant          GM_openInTab
 // @grant          unsafeWindow
 // @connect        store.epicgames.com
@@ -97,12 +90,460 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     });
     return true;
   }
+  function createModalRoot() {
+    var root = document.getElementById('glc-modal-root');
+    if (root) return root;
+    root = document.createElement('div');
+    root.id = 'glc-modal-root';
+    document.body.appendChild(root);
+    return root;
+  }
+  function showDialog(_ref) {
+    var title = _ref.title,
+      bodyHtml = _ref.bodyHtml,
+      _ref$trustedBodyHtml = _ref.trustedBodyHtml,
+      trustedBodyHtml = _ref$trustedBodyHtml === void 0 ? false : _ref$trustedBodyHtml,
+      _ref$bodyText = _ref.bodyText,
+      bodyText = _ref$bodyText === void 0 ? '' : _ref$bodyText,
+      bodyNode = _ref.bodyNode,
+      _ref$confirmText = _ref.confirmText,
+      confirmText = _ref$confirmText === void 0 ? '确定' : _ref$confirmText,
+      _ref$cancelText = _ref.cancelText,
+      cancelText = _ref$cancelText === void 0 ? '取消' : _ref$cancelText,
+      onConfirm = _ref.onConfirm,
+      onCancel = _ref.onCancel,
+      denyText = _ref.denyText,
+      onDeny = _ref.onDeny,
+      _ref$hideCancel = _ref.hideCancel,
+      hideCancel = _ref$hideCancel === void 0 ? false : _ref$hideCancel;
+    var root = createModalRoot();
+    root.innerHTML = "\n      <div class=\"glc-mask\">\n        <div class=\"glc-dialog\" role=\"dialog\" aria-modal=\"true\">\n          <h3 class=\"glc-dialog-title\"></h3>\n          <div class=\"glc-dialog-body\"></div>\n          <div class=\"glc-dialog-actions\">\n            <button type=\"button\" data-glc-cancel></button>\n            <button type=\"button\" data-glc-deny></button>\n            <button type=\"button\" data-glc-confirm></button>\n          </div>\n        </div>\n      </div>";
+    var titleEl = root.querySelector('.glc-dialog-title');
+    var bodyEl = root.querySelector('.glc-dialog-body');
+    var cancelBtn = root.querySelector('[data-glc-cancel]');
+    var denyBtn = root.querySelector('[data-glc-deny]');
+    var confirmBtn = root.querySelector('[data-glc-confirm]');
+    if (titleEl) titleEl.textContent = title || '';
+    if (bodyEl) {
+      bodyEl.textContent = '';
+      if (bodyNode instanceof Node) {
+        bodyEl.replaceChildren(bodyNode);
+      } else if (trustedBodyHtml && typeof bodyHtml === 'string') {
+        bodyEl.innerHTML = bodyHtml;
+      } else {
+        bodyEl.textContent = bodyText || '';
+      }
+    }
+    if (cancelBtn) {
+      cancelBtn.textContent = cancelText;
+      cancelBtn.style.display = hideCancel ? 'none' : '';
+    }
+    if (denyBtn) {
+      denyBtn.textContent = denyText || '';
+      denyBtn.style.display = denyText ? '' : 'none';
+    }
+    if (confirmBtn) confirmBtn.textContent = confirmText;
+    var close = function close() {
+      root.innerHTML = '';
+    };
+    cancelBtn === null || cancelBtn === void 0 ? void 0 : cancelBtn.addEventListener('click', function () {
+      if (typeof onCancel === 'function') onCancel(root);
+      close();
+    });
+    denyBtn === null || denyBtn === void 0 ? void 0 : denyBtn.addEventListener('click', function () {
+      if (typeof onDeny === 'function') onDeny(root);
+      close();
+    });
+    confirmBtn === null || confirmBtn === void 0 ? void 0 : confirmBtn.addEventListener('click', function () {
+      if (typeof onConfirm === 'function') onConfirm(root);
+      close();
+    });
+  }
+  function showToast(message) {
+    var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'info';
+    var el = document.createElement('div');
+    el.className = "glc-toast glc-toast-".concat(type);
+    el.textContent = message;
+    document.body.appendChild(el);
+    window.setTimeout(function () {
+      return el.remove();
+    }, 4000);
+  }
+  function showProgressPanel(stateMap) {
+    var root = createModalRoot();
+    root.innerHTML = "\n      <div class=\"glc-mask\">\n        <div class=\"glc-dialog glc-progress-dialog\" role=\"dialog\" aria-modal=\"true\">\n          <h3 class=\"glc-dialog-title\"></h3>\n          <ul class=\"glc-progress-list\"></ul>\n        </div>\n      </div>";
+    var titleEl = root.querySelector('.glc-dialog-title');
+    var listEl = root.querySelector('.glc-progress-list');
+    if (titleEl) titleEl.textContent = '正在更新缓存';
+    if (listEl) {
+      Object.entries(stateMap || {}).forEach(function (_ref2) {
+        var _ref3 = _slicedToArray(_ref2, 2),
+          platform = _ref3[0],
+          state = _ref3[1];
+        var li = document.createElement('li');
+        var platformEl = document.createElement('span');
+        platformEl.className = 'glc-progress-platform';
+        platformEl.textContent = String(platform).toUpperCase();
+        var stateEl = document.createElement('span');
+        stateEl.className = 'glc-progress-state';
+        stateEl.textContent = String(state);
+        li.appendChild(platformEl);
+        li.appendChild(stateEl);
+        listEl.appendChild(li);
+      });
+    }
+  }
+  function queryLinks(selector) {
+    return Array.from(document.querySelectorAll(selector));
+  }
+  function addClass(el, className) {
+    if (el && !el.classList.contains(className)) el.classList.add(className);
+  }
+  function getHref(el) {
+    return el && el.getAttribute('href') || '';
+  }
+  function parseHtml(html) {
+    return new DOMParser().parseFromString(html, 'text/html');
+  }
+  function collectEmptyCaches(enabledModules) {
+    return enabledModules.filter(function (module) {
+      return module.isCacheEmpty();
+    }).map(function (module) {
+      return module.key;
+    });
+  }
+  function showEmptyCacheAggregationDialog(emptyKeys, _onConfirm, _onCancel) {
+    var bodyNode = document.createElement('div');
+    emptyKeys.forEach(function (key, index) {
+      var label = document.createElement('label');
+      var input = document.createElement('input');
+      input.type = 'checkbox';
+      input.dataset.platform = key;
+      input.checked = true;
+      label.appendChild(input);
+      label.appendChild(document.createTextNode(" ".concat(key.toUpperCase())));
+      bodyNode.appendChild(label);
+      if (index < emptyKeys.length - 1) bodyNode.appendChild(document.createElement('br'));
+    });
+    showDialog({
+      title: '检测到缓存为空的平台',
+      bodyNode: bodyNode,
+      confirmText: '立即更新',
+      cancelText: '稍后再说',
+      onConfirm: function onConfirm(root) {
+        var selected = Array.from(root.querySelectorAll('input[data-platform]:checked')).map(function (el) {
+          return el.getAttribute('data-platform');
+        });
+        _onConfirm(selected);
+      },
+      onCancel: function onCancel() {
+        if (typeof _onCancel === 'function') _onCancel();
+      }
+    });
+  }
+  function batchUpdateSelectedModules(_x, _x2) {
+    return _batchUpdateSelectedModules.apply(this, arguments);
+  }
+  function _batchUpdateSelectedModules() {
+    _batchUpdateSelectedModules = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee20(enabledModules, selectedKeys) {
+      var state, _iterator, _step, _loop, _ret;
+      return _regeneratorRuntime().wrap(function _callee20$(_context21) {
+        while (1) {
+          switch (_context21.prev = _context21.next) {
+            case 0:
+              state = Object.fromEntries(selectedKeys.map(function (key) {
+                return [key, 'waiting'];
+              }));
+              showProgressPanel(state);
+              _iterator = _createForOfIteratorHelper(selectedKeys);
+              _context21.prev = 3;
+              _loop = /*#__PURE__*/_regeneratorRuntime().mark(function _loop() {
+                var key, module, updateResult;
+                return _regeneratorRuntime().wrap(function _loop$(_context20) {
+                  while (1) {
+                    switch (_context20.prev = _context20.next) {
+                      case 0:
+                        key = _step.value;
+                        module = enabledModules.find(function (item) {
+                          return item.key === key;
+                        });
+                        if (module) {
+                          _context20.next = 4;
+                          break;
+                        }
+                        return _context20.abrupt("return", "continue");
+                      case 4:
+                        state[key] = 'running';
+                        showProgressPanel(state);
+                        _context20.prev = 6;
+                        _context20.next = 9;
+                        return module.updateLibrary();
+                      case 9:
+                        updateResult = _context20.sent;
+                        if (updateResult === true) {
+                          state[key] = 'success';
+                        } else {
+                          state[key] = 'error';
+                          showToast("".concat(key.toUpperCase(), " \u66F4\u65B0\u5931\u8D25"), 'error');
+                        }
+                        _context20.next = 18;
+                        break;
+                      case 13:
+                        _context20.prev = 13;
+                        _context20.t0 = _context20["catch"](6);
+                        console.error(_context20.t0);
+                        state[key] = 'error';
+                        showToast("".concat(key.toUpperCase(), " \u66F4\u65B0\u5931\u8D25"), 'error');
+                      case 18:
+                        showProgressPanel(state);
+                      case 19:
+                      case "end":
+                        return _context20.stop();
+                    }
+                  }
+                }, _loop, null, [[6, 13]]);
+              });
+              _iterator.s();
+            case 6:
+              if ((_step = _iterator.n()).done) {
+                _context21.next = 13;
+                break;
+              }
+              return _context21.delegateYield(_loop(), "t0", 8);
+            case 8:
+              _ret = _context21.t0;
+              if (!(_ret === "continue")) {
+                _context21.next = 11;
+                break;
+              }
+              return _context21.abrupt("continue", 11);
+            case 11:
+              _context21.next = 6;
+              break;
+            case 13:
+              _context21.next = 18;
+              break;
+            case 15:
+              _context21.prev = 15;
+              _context21.t1 = _context21["catch"](3);
+              _iterator.e(_context21.t1);
+            case 18:
+              _context21.prev = 18;
+              _iterator.f();
+              return _context21.finish(18);
+            case 21:
+            case "end":
+              return _context21.stop();
+          }
+        }
+      }, _callee20, null, [[3, 15, 18, 21]]);
+    }));
+    return _batchUpdateSelectedModules.apply(this, arguments);
+  }
+  function runInitialFlow() {
+    return _runInitialFlow.apply(this, arguments);
+  }
+  function _runInitialFlow() {
+    _runInitialFlow = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee22() {
+      var enabledModules, emptyKeys;
+      return _regeneratorRuntime().wrap(function _callee22$(_context23) {
+        while (1) {
+          switch (_context23.prev = _context23.next) {
+            case 0:
+              enabledModules = modules.filter(function (module) {
+                return module.enabled();
+              });
+              emptyKeys = collectEmptyCaches(enabledModules);
+              if (!(emptyKeys.length > 0)) {
+                _context23.next = 5;
+                break;
+              }
+              showEmptyCacheAggregationDialog(emptyKeys, /*#__PURE__*/function () {
+                var _ref31 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee21(selectedKeys) {
+                  return _regeneratorRuntime().wrap(function _callee21$(_context22) {
+                    while (1) {
+                      switch (_context22.prev = _context22.next) {
+                        case 0:
+                          if (!(selectedKeys.length > 0)) {
+                            _context22.next = 3;
+                            break;
+                          }
+                          _context22.next = 3;
+                          return batchUpdateSelectedModules(enabledModules, selectedKeys);
+                        case 3:
+                          enabledModules.forEach(function (module) {
+                            return module.start();
+                          });
+                        case 4:
+                        case "end":
+                          return _context22.stop();
+                      }
+                    }
+                  }, _callee21);
+                }));
+                return function (_x19) {
+                  return _ref31.apply(this, arguments);
+                };
+              }(), function () {
+                enabledModules.forEach(function (module) {
+                  return module.start();
+                });
+              });
+              return _context23.abrupt("return");
+            case 5:
+              enabledModules.forEach(function (module) {
+                return module.start();
+              });
+            case 6:
+            case "end":
+              return _context23.stop();
+          }
+        }
+      }, _callee22);
+    }));
+    return _runInitialFlow.apply(this, arguments);
+  }
+  function showNativeOverhang() {
+    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    var type = options.type === 'error' ? 'error' : 'info';
+    if (options.html) {
+      showDialog({
+        title: type === 'error' ? '错误' : '提示',
+        bodyHtml: options.message || '',
+        trustedBodyHtml: true,
+        confirmText: options.closeConfirm ? '关闭' : '确定',
+        hideCancel: true
+      });
+      return;
+    }
+    showToast(options.message || '', type);
+  }
+  var swalCompatState = {
+    config: null,
+    panelMap: {}
+  };
+  var Swal = {
+    fire: function fire() {
+      var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      swalCompatState.config = _objectSpread({}, config);
+      return new Promise(function (resolve) {
+        var settle = function settle(result) {
+          return resolve(_objectSpread({
+            value: undefined,
+            isConfirmed: false,
+            isDenied: false
+          }, result));
+        };
+        if (config.input === 'textarea') {
+          showDialog({
+            title: config.title || '',
+            bodyHtml: '<textarea id="glc-swal-input" class="glc-textarea"></textarea>',
+            trustedBodyHtml: true,
+            confirmText: config.confirmButtonText || '确定',
+            cancelText: config.cancelButtonText || '取消',
+            onConfirm: function onConfirm() {
+              var _document$getElementB;
+              var value = (_document$getElementB = document.getElementById('glc-swal-input')) === null || _document$getElementB === void 0 ? void 0 : _document$getElementB.value;
+              settle({
+                value: value,
+                isConfirmed: true
+              });
+            },
+            onCancel: function onCancel() {
+              return settle({
+                value: undefined
+              });
+            }
+          });
+          var inputEl = document.getElementById('glc-swal-input');
+          if (inputEl) inputEl.value = config.inputValue || '';
+          return;
+        }
+        if (config.showCancelButton || config.showDenyButton || typeof config.preConfirm === 'function') {
+          showDialog({
+            title: config.title || '',
+            bodyNode: config.bodyNode,
+            bodyHtml: config.trustedHtml === true ? config.html || '' : '',
+            trustedBodyHtml: config.trustedHtml === true,
+            bodyText: config.text || '',
+            confirmText: config.confirmButtonText || '确定',
+            cancelText: config.cancelButtonText || '取消',
+            denyText: config.showDenyButton ? config.denyButtonText || '拒绝' : '',
+            hideCancel: !config.showCancelButton && !config.showDenyButton,
+            onConfirm: function onConfirm() {
+              var value = typeof config.preConfirm === 'function' ? config.preConfirm() : true;
+              settle({
+                value: value,
+                isConfirmed: true
+              });
+            },
+            onCancel: function onCancel() {
+              return settle({
+                value: undefined
+              });
+            },
+            onDeny: function onDeny() {
+              return settle({
+                isDenied: true
+              });
+            }
+          });
+          return;
+        }
+        if (config.title && config.text && /第\s*\d+\s*页/.test(config.text)) {
+          swalCompatState.panelMap["default"] = config.text;
+          showProgressPanel(swalCompatState.panelMap);
+          settle({
+            value: true,
+            isConfirmed: true
+          });
+          return;
+        }
+        showToast(config.title || config.text || '', config.icon || 'info');
+        settle({
+          value: true,
+          isConfirmed: true
+        });
+      });
+    },
+    update: function update() {
+      var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+      swalCompatState.config = _objectSpread(_objectSpread({}, swalCompatState.config || {}), config);
+      if (config.title && config.text && /第\s*\d+\s*页/.test(config.text)) {
+        swalCompatState.panelMap["default"] = config.text;
+        showProgressPanel(swalCompatState.panelMap);
+      } else if (config.icon === 'success' || config.icon === 'error') {
+        showToast(config.title || '', config.icon);
+      }
+      return Promise.resolve({
+        value: true,
+        isConfirmed: true,
+        isDenied: false
+      });
+    }
+  };
   function openPlatformSwitchDialog() {
     var settings = getGlobalSettings();
     var current = settings.platformEnabled;
+    var bodyNode = document.createElement('div');
+    [['glc-epic', 'Epic', current.epic], ['glc-gog', 'GOG', current.gog], ['glc-itch', 'Itch', current.itch], ['glc-cube', 'Cube', current.cube]].forEach(function (_ref4, index) {
+      var _ref5 = _slicedToArray(_ref4, 3),
+        id = _ref5[0],
+        labelText = _ref5[1],
+        checked = _ref5[2];
+      var label = document.createElement('label');
+      var input = document.createElement('input');
+      input.type = 'checkbox';
+      input.id = id;
+      input.checked = Boolean(checked);
+      label.appendChild(input);
+      label.appendChild(document.createTextNode(" ".concat(labelText)));
+      bodyNode.appendChild(label);
+      if (index < 3) bodyNode.appendChild(document.createElement('br'));
+    });
     Swal.fire({
       title: '平台开关',
-      html: "\n        <label><input type=\"checkbox\" id=\"glc-epic\" ".concat(current.epic ? 'checked' : '', "/> Epic</label><br/>\n        <label><input type=\"checkbox\" id=\"glc-gog\" ").concat(current.gog ? 'checked' : '', "/> GOG</label><br/>\n        <label><input type=\"checkbox\" id=\"glc-itch\" ").concat(current.itch ? 'checked' : '', "/> Itch</label><br/>\n        <label><input type=\"checkbox\" id=\"glc-cube\" ").concat(current.cube ? 'checked' : '', "/> Cube</label>\n      "),
+      bodyNode: bodyNode,
       showCancelButton: true,
       confirmButtonText: '保存',
       cancelButtonText: '取消',
@@ -114,25 +555,56 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           cube: document.getElementById('glc-cube').checked
         };
       }
-    }).then(function (_ref) {
-      var value = _ref.value;
+    }).then(function (_ref6) {
+      var value = _ref6.value;
       if (!value) return;
       settings.platformEnabled = value;
       setGlobalSettings(settings);
     });
   }
   function createEpicModule() {
-    return {
+    var _updateLibrary;
+    var started = false;
+    var moduleApi = {
       key: 'epic',
       enabled: function enabled() {
         return settings.platformEnabled.epic;
       },
-      start: function () {
-        var _start = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee12() {
-          var loadTimes, catalogOfferSha256Hash, locale, observer, checkEpicGame, _checkEpicGame, getEpicOwnedGames, getSha256Hash, _getSha256Hash, getPagePlug, _getPagePlug, updateEpicAuth, _updateEpicAuth, updateEpicOwnedGames;
-          return _regeneratorRuntime().wrap(function _callee12$(_context12) {
+      isCacheEmpty: function isCacheEmpty() {
+        return (GM_getValue('ownedGames') || []).length === 0;
+      },
+      updateLibrary: function () {
+        var _updateLibrary2 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
+          return _regeneratorRuntime().wrap(function _callee$(_context) {
             while (1) {
-              switch (_context12.prev = _context12.next) {
+              switch (_context.prev = _context.next) {
+                case 0:
+                  if (_updateLibrary) {
+                    _context.next = 3;
+                    break;
+                  }
+                  _context.next = 3;
+                  return moduleApi.start();
+                case 3:
+                  return _context.abrupt("return", _updateLibrary());
+                case 4:
+                case "end":
+                  return _context.stop();
+              }
+            }
+          }, _callee);
+        }));
+        function updateLibrary() {
+          return _updateLibrary2.apply(this, arguments);
+        }
+        return updateLibrary;
+      }(),
+      start: function () {
+        var _start = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee13() {
+          var loadTimes, catalogOfferSha256Hash, locale, observer, checkEpicGame, _checkEpicGame, getEpicOwnedGames, getSha256Hash, _getSha256Hash, getPagePlug, _getPagePlug, updateEpicAuth, _updateEpicAuth, updateEpicOwnedGames;
+          return _regeneratorRuntime().wrap(function _callee13$(_context13) {
+            while (1) {
+              switch (_context13.prev = _context13.next) {
                 case 0:
                   updateEpicOwnedGames = function _updateEpicOwnedGames() {
                     var loop = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
@@ -166,15 +638,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                         }
                       });
                     }).then(/*#__PURE__*/function () {
-                      var _ref3 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(response) {
+                      var _ref7 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(response) {
                         var _response$response, _response$response$or, _response$response2, _response$response2$p;
                         var ordersLength, orderedGames, _nextPageToken;
-                        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+                        return _regeneratorRuntime().wrap(function _callee3$(_context3) {
                           while (1) {
-                            switch (_context2.prev = _context2.next) {
+                            switch (_context3.prev = _context3.next) {
                               case 0:
                                 if (!/login/i.test(response.finalUrl)) {
-                                  _context2.next = 3;
+                                  _context3.next = 3;
                                   break;
                                 }
                                 /*
@@ -192,8 +664,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                     showCancelButton: true,
                                     confirmButtonText: '登录',
                                     cancelButtonText: '取消'
-                                  }).then(function (_ref4) {
-                                    var value = _ref4.value;
+                                  }).then(function (_ref8) {
+                                    var value = _ref8.value;
                                     if (value) GM_openInTab('https://www.epicgames.com/id/login', {
                                       active: true,
                                       insert: true,
@@ -201,18 +673,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                     });
                                   });
                                 } else {
-                                  $('body').overhang({
+                                  showNativeOverhang({
                                     type: 'error',
                                     message: 'Epic登录凭证已过期，请重新登录<a href="https://www.epicgames.com/id/login" target="_blank">https://www.epicgames.com/id/login</a>',
                                     html: true,
                                     closeConfirm: true
                                   });
                                 }
-                                return _context2.abrupt("return", false);
+                                return _context3.abrupt("return", false);
                               case 3:
                                 ordersLength = ((_response$response = response.response) === null || _response$response === void 0 ? void 0 : (_response$response$or = _response$response.orders) === null || _response$response$or === void 0 ? void 0 : _response$response$or.length) || 0;
                                 if (!(ordersLength >= 0)) {
-                                  _context2.next = 27;
+                                  _context3.next = 29;
                                   break;
                                 }
                                 orderedGames = response.response.orders.map(function (e) {
@@ -221,26 +693,26 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                 }).filter(function (e) {
                                   return e;
                                 });
-                                _context2.next = 8;
+                                _context3.next = 8;
                                 return Promise.all(orderedGames.map(/*#__PURE__*/function () {
-                                  var _ref5 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee(item) {
+                                  var _ref9 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(item) {
                                     var pageSlug;
-                                    return _regeneratorRuntime().wrap(function _callee$(_context) {
+                                    return _regeneratorRuntime().wrap(function _callee2$(_context2) {
                                       while (1) {
-                                        switch (_context.prev = _context.next) {
+                                        switch (_context2.prev = _context2.next) {
                                           case 0:
                                             if (!games.find(function (game) {
                                               return game.namespace === item.namespace && game.offerId === item.offerId;
                                             })) {
-                                              _context.next = 2;
+                                              _context2.next = 2;
                                               break;
                                             }
-                                            return _context.abrupt("return", true);
+                                            return _context2.abrupt("return", true);
                                           case 2:
-                                            _context.next = 4;
+                                            _context2.next = 4;
                                             return getPagePlug(item.namespace, item.offerId);
                                           case 4:
-                                            pageSlug = _context.sent;
+                                            pageSlug = _context2.sent;
                                             console.log("[EGLC] pageSlug: ".concat(pageSlug));
                                             if (pageSlug) {
                                               games.push({
@@ -252,89 +724,115 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                             }
                                           case 7:
                                           case "end":
-                                            return _context.stop();
+                                            return _context2.stop();
                                         }
                                       }
-                                    }, _callee);
+                                    }, _callee2);
                                   }));
-                                  return function (_x5) {
-                                    return _ref5.apply(this, arguments);
+                                  return function (_x7) {
+                                    return _ref9.apply(this, arguments);
                                   };
                                 }()));
                               case 8:
                                 // const lastCreatedAt = new Date(response.response.orders[ordersLength - 1]?.createdAtMillis || null).toISOString();
                                 _nextPageToken = response.response.nextPageToken;
                                 if (!_nextPageToken) {
-                                  _context2.next = 18;
+                                  _context3.next = 18;
                                   break;
                                 }
                                 if (!loop) {
-                                  _context2.next = 13;
+                                  _context3.next = 13;
                                   break;
                                 }
-                                _context2.next = 13;
+                                _context3.next = 13;
                                 return new Promise(function (resolve) {
                                   setTimeout(function () {
                                     resolve(true);
                                   }, 1000);
                                 });
                               case 13:
-                                _context2.next = 15;
+                                _context3.next = 15;
                                 return updateEpicOwnedGames(loop, ++i, games, _nextPageToken);
                               case 15:
-                                return _context2.abrupt("return", _context2.sent);
+                                return _context3.abrupt("return", _context3.sent);
                               case 18:
                                 if (!loop) {
-                                  _context2.next = 21;
+                                  _context3.next = 23;
                                   break;
                                 }
                                 GM_setValue('ownedGames', games);
-                                return _context2.abrupt("return", Swal.update({
+                                _context3.next = 22;
+                                return Swal.update({
                                   icon: 'success',
                                   title: 'Epic已拥有游戏数据更新完成',
                                   text: ''
-                                }));
-                              case 21:
+                                });
+                              case 22:
+                                return _context3.abrupt("return", true);
+                              case 23:
                                 GM_setValue('ownedGames', games);
                                 checkEpicGame(false);
                                 console.log('[EGLC] updateEpicOwnedGames: Finish!');
-                                return _context2.abrupt("return", true);
-                              case 27:
+                                return _context3.abrupt("return", true);
+                              case 29:
                                 if (!(((_response$response2 = response.response) === null || _response$response2 === void 0 ? void 0 : (_response$response2$p = _response$response2.products) === null || _response$response2$p === void 0 ? void 0 : _response$response2$p.length) !== 0)) {
-                                  _context2.next = 30;
+                                  _context3.next = 34;
                                   break;
                                 }
                                 console.error(response);
-                                return _context2.abrupt("return", Swal.update({
+                                _context3.next = 33;
+                                return Swal.update({
                                   icon: 'error',
                                   title: 'Epic已拥有游戏数据更新失败',
                                   text: '详情请查看控制台'
-                                }));
-                              case 30:
+                                });
+                              case 33:
+                                return _context3.abrupt("return", false);
+                              case 34:
+                                return _context3.abrupt("return", false);
+                              case 35:
                               case "end":
-                                return _context2.stop();
+                                return _context3.stop();
                             }
                           }
-                        }, _callee2);
+                        }, _callee3);
                       }));
-                      return function (_x4) {
-                        return _ref3.apply(this, arguments);
+                      return function (_x6) {
+                        return _ref7.apply(this, arguments);
                       };
-                    }())["catch"](function (error) {
-                      console.error(error);
-                      return Swal.update({
-                        icon: 'error',
-                        title: 'Epic已拥有游戏数据更新失败',
-                        text: '详情请查看控制台'
-                      });
-                    });
+                    }())["catch"](/*#__PURE__*/function () {
+                      var _ref10 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(error) {
+                        return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+                          while (1) {
+                            switch (_context4.prev = _context4.next) {
+                              case 0:
+                                console.error(error);
+                                _context4.next = 3;
+                                return Swal.update({
+                                  icon: 'error',
+                                  title: 'Epic已拥有游戏数据更新失败',
+                                  text: '详情请查看控制台'
+                                });
+                              case 3:
+                                return _context4.abrupt("return", false);
+                              case 4:
+                              case "end":
+                                return _context4.stop();
+                            }
+                          }
+                        }, _callee4);
+                      }));
+                      return function (_x8) {
+                        return _ref10.apply(this, arguments);
+                      };
+                    }());
                   };
                   _updateEpicAuth = function _updateEpicAuth3() {
-                    _updateEpicAuth = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee11(loop) {
+                    _updateEpicAuth = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee12(loop) {
                       var reputationResult, authenticateResult, refreshCsrfResult;
-                      return _regeneratorRuntime().wrap(function _callee11$(_context11) {
+                      return _regeneratorRuntime().wrap(function _callee12$(_context12) {
                         while (1) {
-                          switch (_context11.prev = _context11.next) {
+                          switch (_context12.prev = _context12.next) {
                             case 0:
                               console.log('[EGLC] updateEpicAuth...');
                               if (loop) {
@@ -343,7 +841,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                   icon: 'info'
                                 });
                               }
-                              _context11.next = 4;
+                              _context12.next = 4;
                               return new Promise(function (resolve, reject) {
                                 GM_xmlhttpRequest({
                                   method: 'GET',
@@ -363,35 +861,35 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                   }
                                 });
                               }).then(/*#__PURE__*/function () {
-                                var _ref12 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee8(response) {
-                                  return _regeneratorRuntime().wrap(function _callee8$(_context8) {
+                                var _ref16 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee9(response) {
+                                  return _regeneratorRuntime().wrap(function _callee9$(_context9) {
                                     while (1) {
-                                      switch (_context8.prev = _context8.next) {
+                                      switch (_context9.prev = _context9.next) {
                                         case 0:
-                                          return _context8.abrupt("return", response.status === 200);
+                                          return _context9.abrupt("return", response.status === 200);
                                         case 1:
                                         case "end":
-                                          return _context8.stop();
+                                          return _context9.stop();
                                       }
                                     }
-                                  }, _callee8);
+                                  }, _callee9);
                                 }));
-                                return function (_x9) {
-                                  return _ref12.apply(this, arguments);
+                                return function (_x10) {
+                                  return _ref16.apply(this, arguments);
                                 };
                               }())["catch"](function (error) {
                                 console.error(error);
                                 return false;
                               });
                             case 4:
-                              reputationResult = _context11.sent;
+                              reputationResult = _context12.sent;
                               if (reputationResult) {
-                                _context11.next = 7;
+                                _context12.next = 7;
                                 break;
                               }
-                              return _context11.abrupt("return", false);
+                              return _context12.abrupt("return", false);
                             case 7:
-                              _context11.next = 9;
+                              _context12.next = 9;
                               return new Promise(function (resolve, reject) {
                                 GM_xmlhttpRequest({
                                   method: 'GET',
@@ -418,35 +916,35 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                   }
                                 });
                               }).then(/*#__PURE__*/function () {
-                                var _ref13 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee9(response) {
-                                  return _regeneratorRuntime().wrap(function _callee9$(_context9) {
+                                var _ref17 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee10(response) {
+                                  return _regeneratorRuntime().wrap(function _callee10$(_context10) {
                                     while (1) {
-                                      switch (_context9.prev = _context9.next) {
+                                      switch (_context10.prev = _context10.next) {
                                         case 0:
-                                          return _context9.abrupt("return", response.status === 200);
+                                          return _context10.abrupt("return", response.status === 200);
                                         case 1:
                                         case "end":
-                                          return _context9.stop();
+                                          return _context10.stop();
                                       }
                                     }
-                                  }, _callee9);
+                                  }, _callee10);
                                 }));
-                                return function (_x10) {
-                                  return _ref13.apply(this, arguments);
+                                return function (_x11) {
+                                  return _ref17.apply(this, arguments);
                                 };
                               }())["catch"](function (error) {
                                 console.error(error);
                                 return false;
                               });
                             case 9:
-                              authenticateResult = _context11.sent;
+                              authenticateResult = _context12.sent;
                               if (authenticateResult) {
-                                _context11.next = 12;
+                                _context12.next = 12;
                                 break;
                               }
-                              return _context11.abrupt("return", false);
+                              return _context12.abrupt("return", false);
                             case 12:
-                              _context11.next = 14;
+                              _context12.next = 14;
                               return new Promise(function (resolve, reject) {
                                 GM_xmlhttpRequest({
                                   method: 'POST',
@@ -466,70 +964,70 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                   }
                                 });
                               }).then(/*#__PURE__*/function () {
-                                var _ref14 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee10(response) {
+                                var _ref18 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee11(response) {
                                   var _response$response4;
-                                  return _regeneratorRuntime().wrap(function _callee10$(_context10) {
+                                  return _regeneratorRuntime().wrap(function _callee11$(_context11) {
                                     while (1) {
-                                      switch (_context10.prev = _context10.next) {
+                                      switch (_context11.prev = _context11.next) {
                                         case 0:
-                                          return _context10.abrupt("return", ((_response$response4 = response.response) === null || _response$response4 === void 0 ? void 0 : _response$response4.success) === true);
+                                          return _context11.abrupt("return", ((_response$response4 = response.response) === null || _response$response4 === void 0 ? void 0 : _response$response4.success) === true);
                                         case 1:
                                         case "end":
-                                          return _context10.stop();
+                                          return _context11.stop();
                                       }
                                     }
-                                  }, _callee10);
+                                  }, _callee11);
                                 }));
-                                return function (_x11) {
-                                  return _ref14.apply(this, arguments);
+                                return function (_x12) {
+                                  return _ref18.apply(this, arguments);
                                 };
                               }())["catch"](function (error) {
                                 console.error(error);
                                 return false;
                               });
                             case 14:
-                              refreshCsrfResult = _context11.sent;
+                              refreshCsrfResult = _context12.sent;
                               if (refreshCsrfResult) {
-                                _context11.next = 17;
+                                _context12.next = 17;
                                 break;
                               }
-                              return _context11.abrupt("return", false);
+                              return _context12.abrupt("return", false);
                             case 17:
-                              return _context11.abrupt("return", true);
+                              return _context12.abrupt("return", true);
                             case 18:
                             case "end":
-                              return _context11.stop();
+                              return _context12.stop();
                           }
                         }
-                      }, _callee11);
+                      }, _callee12);
                     }));
                     return _updateEpicAuth.apply(this, arguments);
                   };
-                  updateEpicAuth = function _updateEpicAuth2(_x3) {
+                  updateEpicAuth = function _updateEpicAuth2(_x5) {
                     return _updateEpicAuth.apply(this, arguments);
                   };
                   _getPagePlug = function _getPagePlug3() {
-                    _getPagePlug = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee7(namespace, offerId) {
-                      return _regeneratorRuntime().wrap(function _callee7$(_context7) {
+                    _getPagePlug = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee8(namespace, offerId) {
+                      return _regeneratorRuntime().wrap(function _callee8$(_context8) {
                         while (1) {
-                          switch (_context7.prev = _context7.next) {
+                          switch (_context8.prev = _context8.next) {
                             case 0:
                               console.log('[EGLC] getPagePlug...');
                               if (!(catalogOfferSha256Hash === false)) {
-                                _context7.next = 4;
+                                _context8.next = 4;
                                 break;
                               }
-                              _context7.next = 4;
+                              _context8.next = 4;
                               return getSha256Hash();
                             case 4:
                               if (catalogOfferSha256Hash) {
-                                _context7.next = 7;
+                                _context8.next = 7;
                                 break;
                               }
                               console.log('[EGLC] No catalogOfferSha256Hash');
-                              return _context7.abrupt("return", false);
+                              return _context8.abrupt("return", false);
                             case 7:
-                              return _context7.abrupt("return", new Promise(function (resolve, reject) {
+                              return _context8.abrupt("return", new Promise(function (resolve, reject) {
                                 GM_xmlhttpRequest({
                                   method: 'GET',
                                   // eslint-disable-next-line max-len
@@ -547,34 +1045,34 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                   }
                                 });
                               }).then(/*#__PURE__*/function () {
-                                var _ref11 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee6(response) {
+                                var _ref15 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee7(response) {
                                   var _response$response3, _response$response3$d, _response$response3$d2;
                                   var _offerMappings$, _customAttributes$fin, _customAttributes$fin2, _response$response$da, offerMappings, urlSlug, customAttributes;
-                                  return _regeneratorRuntime().wrap(function _callee6$(_context6) {
+                                  return _regeneratorRuntime().wrap(function _callee7$(_context7) {
                                     while (1) {
-                                      switch (_context6.prev = _context6.next) {
+                                      switch (_context7.prev = _context7.next) {
                                         case 0:
                                           if (!((_response$response3 = response.response) !== null && _response$response3 !== void 0 && (_response$response3$d = _response$response3.data) !== null && _response$response3$d !== void 0 && (_response$response3$d2 = _response$response3$d.Catalog) !== null && _response$response3$d2 !== void 0 && _response$response3$d2.catalogOffer)) {
-                                            _context6.next = 3;
+                                            _context7.next = 3;
                                             break;
                                           }
                                           _response$response$da = response.response.data.Catalog.catalogOffer, offerMappings = _response$response$da.offerMappings, urlSlug = _response$response$da.urlSlug, customAttributes = _response$response$da.customAttributes;
-                                          return _context6.abrupt("return", _toConsumableArray(new Set([offerMappings === null || offerMappings === void 0 ? void 0 : (_offerMappings$ = offerMappings[0]) === null || _offerMappings$ === void 0 ? void 0 : _offerMappings$.pageSlug, urlSlug, customAttributes === null || customAttributes === void 0 ? void 0 : (_customAttributes$fin = customAttributes.find(function (e) {
+                                          return _context7.abrupt("return", _toConsumableArray(new Set([offerMappings === null || offerMappings === void 0 ? void 0 : (_offerMappings$ = offerMappings[0]) === null || _offerMappings$ === void 0 ? void 0 : _offerMappings$.pageSlug, urlSlug, customAttributes === null || customAttributes === void 0 ? void 0 : (_customAttributes$fin = customAttributes.find(function (e) {
                                             return e.key === 'com.epicgames.app.productSlug';
                                           })) === null || _customAttributes$fin === void 0 ? void 0 : (_customAttributes$fin2 = _customAttributes$fin.value) === null || _customAttributes$fin2 === void 0 ? void 0 : _customAttributes$fin2.replace(/\/home$/, '')].filter(function (e) {
                                             return e;
                                           }))));
                                         case 3:
-                                          return _context6.abrupt("return", false);
+                                          return _context7.abrupt("return", false);
                                         case 4:
                                         case "end":
-                                          return _context6.stop();
+                                          return _context7.stop();
                                       }
                                     }
-                                  }, _callee6);
+                                  }, _callee7);
                                 }));
-                                return function (_x8) {
-                                  return _ref11.apply(this, arguments);
+                                return function (_x9) {
+                                  return _ref15.apply(this, arguments);
                                 };
                               }())["catch"](function (error) {
                                 console.error(error);
@@ -582,24 +1080,24 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                               }));
                             case 8:
                             case "end":
-                              return _context7.stop();
+                              return _context8.stop();
                           }
                         }
-                      }, _callee7);
+                      }, _callee8);
                     }));
                     return _getPagePlug.apply(this, arguments);
                   };
-                  getPagePlug = function _getPagePlug2(_x, _x2) {
+                  getPagePlug = function _getPagePlug2(_x3, _x4) {
                     return _getPagePlug.apply(this, arguments);
                   };
                   _getSha256Hash = function _getSha256Hash3() {
-                    _getSha256Hash = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
-                      return _regeneratorRuntime().wrap(function _callee5$(_context5) {
+                    _getSha256Hash = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee6() {
+                      return _regeneratorRuntime().wrap(function _callee6$(_context6) {
                         while (1) {
-                          switch (_context5.prev = _context5.next) {
+                          switch (_context6.prev = _context6.next) {
                             case 0:
                               console.log('[EGLC] getSha256Hash...');
-                              return _context5.abrupt("return", new Promise(function (resolve, reject) {
+                              return _context6.abrupt("return", new Promise(function (resolve, reject) {
                                 GM_xmlhttpRequest({
                                   method: 'GET',
                                   url: 'https://store.epicgames.com/zh-CN/p/grand-theft-auto-v',
@@ -616,12 +1114,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                 });
                               }).then(function (response) {
                                 // [, accountId, wishlistSha256Hash] = response.responseText.match(/"queryKey":\["getWishlist",\["accountId","([\w\d]+?)"\],"([\w\d]+?)"\]/i) || [];
-                                var _ref7 = response.responseText.match(/"],"([\w\d]+?)"],"queryHash":"\[\\"getCatalogOffer\\"/i) || [];
-                                var _ref8 = _slicedToArray(_ref7, 2);
-                                catalogOfferSha256Hash = _ref8[1];
-                                var _ref9 = response.responseText.match(/"localizationData":{"locale":"(.+?)"/i) || ['en-US'];
-                                var _ref10 = _slicedToArray(_ref9, 2);
-                                locale = _ref10[1];
+                                var _ref11 = response.responseText.match(/"],"([\w\d]+?)"],"queryHash":"\[\\"getCatalogOffer\\"/i) || [];
+                                var _ref12 = _slicedToArray(_ref11, 2);
+                                catalogOfferSha256Hash = _ref12[1];
+                                var _ref13 = response.responseText.match(/"localizationData":{"locale":"(.+?)"/i) || ['en-US'];
+                                var _ref14 = _slicedToArray(_ref13, 2);
+                                locale = _ref14[1];
                                 console.log('[EGLC] ', JSON.stringify({
                                   /* accountId, wishlistSha256Hash, */catalogOfferSha256Hash: catalogOfferSha256Hash,
                                   locale: locale
@@ -631,10 +1129,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                               }));
                             case 2:
                             case "end":
-                              return _context5.stop();
+                              return _context6.stop();
                           }
                         }
-                      }, _callee5);
+                      }, _callee6);
                     }));
                     return _getSha256Hash.apply(this, arguments);
                   };
@@ -645,86 +1143,79 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                     return GM_getValue('ownedGames') || [];
                   };
                   _checkEpicGame = function _checkEpicGame3() {
-                    _checkEpicGame = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4() {
+                    _checkEpicGame = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee5() {
                       var first,
                         again,
                         ownedGames,
                         wishlistGames,
+                        excludedClass,
                         epicLink,
-                        _args4 = arguments;
-                      return _regeneratorRuntime().wrap(function _callee4$(_context4) {
+                        _args5 = arguments;
+                      return _regeneratorRuntime().wrap(function _callee5$(_context5) {
                         while (1) {
-                          switch (_context4.prev = _context4.next) {
+                          switch (_context5.prev = _context5.next) {
                             case 0:
-                              first = _args4.length > 0 && _args4[0] !== undefined ? _args4[0] : true;
-                              again = _args4.length > 1 && _args4[1] !== undefined ? _args4[1] : false;
+                              first = _args5.length > 0 && _args5[0] !== undefined ? _args5[0] : true;
+                              again = _args5.length > 1 && _args5[1] !== undefined ? _args5[1] : false;
                               // eslint-disable-next-line no-plusplus
                               loadTimes++;
                               if (!(loadTimes > 1000)) {
-                                _context4.next = 6;
+                                _context5.next = 6;
                                 break;
                               }
                               observer.disconnect();
-                              return _context4.abrupt("return");
+                              return _context5.abrupt("return");
                             case 6:
                               ownedGames = getEpicOwnedGames();
-                              wishlistGames = GM_getValue('epicWishist') || []; // eslint-disable-next-line max-len
-                              epicLink = again ? $('a[href*="www.epicgames.com/store/"]:not(".epic-game-checked"),a[href*="store.epicgames.com/"]:not(".epic-game-checked")') : $('a[href*="www.epicgames.com/store/"]:not(".epic-game-link-owned"),a[href*="store.epicgames.com/"]:not(".epic-game-link-owned")');
+                              wishlistGames = GM_getValue('epicWishist') || [];
+                              excludedClass = again ? 'epic-game-checked' : 'epic-game-link-owned';
+                              epicLink = queryLinks('a[href*="www.epicgames.com/store/"],a[href*="store.epicgames.com/"]').filter(function (el) {
+                                return !el.classList.contains(excludedClass);
+                              });
                               if (!(epicLink.length === 0)) {
-                                _context4.next = 11;
+                                _context5.next = 12;
                                 break;
                               }
-                              return _context4.abrupt("return");
-                            case 11:
+                              return _context5.abrupt("return");
+                            case 12:
                               if (first) updateEpicOwnedGames(false);
-                              epicLink.map(/*#__PURE__*/function () {
-                                var _ref6 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(i, e) {
-                                  var _href$match, _href$match$, _href$match2, _href$match2$;
-                                  var $this, href, epicGameName;
-                                  return _regeneratorRuntime().wrap(function _callee3$(_context3) {
-                                    while (1) {
-                                      switch (_context3.prev = _context3.next) {
-                                        case 0:
-                                          $this = $(e);
-                                          $this.addClass('epic-game-checked');
-                                          href = $this.attr('href');
-                                          if (!/\/$/.test(href)) href += '/';
-                                          epicGameName = ((_href$match = href.match(/https?:\/\/www\.epicgames\.com\/store\/.*?\/p(roduct)?\/([^?/]+)/i)) === null || _href$match === void 0 ? void 0 : (_href$match$ = _href$match[2]) === null || _href$match$ === void 0 ? void 0 : _href$match$.toLowerCase()) || ((_href$match2 = href.match(/https?:\/\/store\.epicgames\.com\/.*?\/p(roduct)?\/([^?/]+)/i)) === null || _href$match2 === void 0 ? void 0 : (_href$match2$ = _href$match2[2]) === null || _href$match2$ === void 0 ? void 0 : _href$match2$.toLowerCase());
-                                          if (epicGameName) {
-                                            if (ownedGames.find(function (game) {
-                                              return game.pageSlug.includes(epicGameName);
-                                            })) {
-                                              $this.addClass('epic-game-link-owned');
-                                            } else if (wishlistGames.find(function (game) {
-                                              return game.pageSlug.includes(epicGameName);
-                                            })) {
-                                              $this.addClass('epic-game-link-wishlist');
-                                            }
-                                          }
-                                          return _context3.abrupt("return", e);
-                                        case 7:
-                                        case "end":
-                                          return _context3.stop();
-                                      }
-                                    }
-                                  }, _callee3);
-                                }));
-                                return function (_x6, _x7) {
-                                  return _ref6.apply(this, arguments);
-                                };
-                              }());
-                            case 13:
+                              epicLink.forEach(function (el) {
+                                var _href$match, _href$match$, _href$match2, _href$match2$;
+                                addClass(el, 'epic-game-checked');
+                                var href = getHref(el);
+                                if (!/\/$/.test(href)) href += '/';
+                                var epicGameName = ((_href$match = href.match(/https?:\/\/www\.epicgames\.com\/store\/.*?\/p(roduct)?\/([^?/]+)/i)) === null || _href$match === void 0 ? void 0 : (_href$match$ = _href$match[2]) === null || _href$match$ === void 0 ? void 0 : _href$match$.toLowerCase()) || ((_href$match2 = href.match(/https?:\/\/store\.epicgames\.com\/.*?\/p(roduct)?\/([^?/]+)/i)) === null || _href$match2 === void 0 ? void 0 : (_href$match2$ = _href$match2[2]) === null || _href$match2$ === void 0 ? void 0 : _href$match2$.toLowerCase());
+                                if (epicGameName) {
+                                  if (ownedGames.find(function (game) {
+                                    return game.pageSlug.includes(epicGameName);
+                                  })) {
+                                    addClass(el, 'epic-game-link-owned');
+                                  } else if (wishlistGames.find(function (game) {
+                                    return game.pageSlug.includes(epicGameName);
+                                  })) {
+                                    addClass(el, 'epic-game-link-wishlist');
+                                  }
+                                }
+                              });
+                            case 14:
                             case "end":
-                              return _context4.stop();
+                              return _context5.stop();
                           }
                         }
-                      }, _callee4);
+                      }, _callee5);
                     }));
                     return _checkEpicGame.apply(this, arguments);
                   };
                   checkEpicGame = function _checkEpicGame2() {
                     return _checkEpicGame.apply(this, arguments);
                   };
+                  if (!started) {
+                    _context13.next = 12;
+                    break;
+                  }
+                  return _context13.abrupt("return");
+                case 12:
+                  started = true;
                   if (!GM_getValue('version')) {
                     GM_deleteValue('epicGamesLibrary');
                     GM_deleteValue('ownedGames');
@@ -735,24 +1226,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                   catalogOfferSha256Hash = false; // let wishlistSha256Hash = false;
                   // let accountId = 0;
                   locale = 'en-US';
-                  _context12.next = 16;
+                  _context13.next = 19;
                   return getSha256Hash();
-                case 16:
-                  if (getEpicOwnedGames().length === 0) {
-                    Swal.fire({
-                      title: '游戏库检测脚本提醒',
-                      icon: 'warning',
-                      text: '没有检测到Epic已拥有游戏数据，是否立即获取？',
-                      showCancelButton: true,
-                      confirmButtonText: '获取',
-                      cancelButtonText: '取消'
-                    }).then(function (_ref2) {
-                      var value = _ref2.value;
-                      if (value) updateEpicOwnedGames();
-                    });
-                  } else {
-                    checkEpicGame();
-                  }
+                case 19:
+                  checkEpicGame();
                   observer = new MutationObserver(function () {
                     checkEpicGame(false, true);
                   });
@@ -833,14 +1310,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                   }
                   */
 
+                  _updateLibrary = updateEpicOwnedGames;
                   GM_registerMenuCommand('更新Epic已拥有游戏数据', updateEpicOwnedGames);
                   GM_addStyle("\n.epic-game-link-owned {\n  color:#ffffff !important;\n  background:#5c8a00 !important\n}\n.epic-game-link-wishlist {\n  color:#ffffff !important;\n  background:#007399 !important\n}");
-                case 21:
+                case 25:
                 case "end":
-                  return _context12.stop();
+                  return _context13.stop();
               }
             }
-          }, _callee12);
+          }, _callee13);
         }));
         function start() {
           return _start.apply(this, arguments);
@@ -848,30 +1326,28 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         return start;
       }()
     };
+    return moduleApi;
   }
   function createGogModule() {
-    return {
+    var _updateLibrary3;
+    var started = false;
+    var moduleApi = {
       key: 'gog',
       enabled: function enabled() {
         return settings.platformEnabled.gog;
       },
+      isCacheEmpty: function isCacheEmpty() {
+        return (GM_getValue('gogGames') || []).length === 0;
+      },
+      updateLibrary: function updateLibrary() {
+        if (!_updateLibrary3) moduleApi.start();
+        return _updateLibrary3();
+      },
       start: function start() {
+        if (started) return;
+        started = true;
         var loadTimes = 0;
-        if (getGogGameLibrary().length === 0) {
-          Swal.fire({
-            title: '游戏库检测脚本提醒',
-            icon: 'warning',
-            text: '没有检测到gog游戏库数据，是否立即获取？',
-            showCancelButton: true,
-            confirmButtonText: '获取',
-            cancelButtonText: '取消'
-          }).then(function (_ref15) {
-            var value = _ref15.value;
-            if (value) updateGogGameLibrary();
-          });
-        } else {
-          checkGogGame();
-        }
+        checkGogGame();
         var observer = new MutationObserver(function () {
           checkGogGame(false, true);
         });
@@ -890,22 +1366,23 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             return;
           }
           var gogGames = getGogGameLibrary();
-          var gogLink = again ? $('a[href*="www.gog.com/"]:not(".gog-game-checked")') : $('a[href*="www.gog.com/"]:not(".gog-game-link-owned")');
+          var excludedClass = again ? 'gog-game-checked' : 'gog-game-link-owned';
+          var gogLink = queryLinks('a[href*="www.gog.com/"]').filter(function (el) {
+            return !el.classList.contains(excludedClass);
+          });
           if (gogLink.length === 0) return;
           if (first) updateGogGameLibrary(false);
-          gogLink.map(function (i, e) {
+          gogLink.forEach(function (el) {
             var _href$match3, _href$match3$;
-            var $this = $(e);
-            $this.addClass('gog-game-checked');
-            var href = $this.attr('href');
+            addClass(el, 'gog-game-checked');
+            var href = getHref(el);
             if (!/\/$/.test(href)) href += '/';
             var gogGameLink = (_href$match3 = href.match(/https?:\/\/www\.gog\.com\/(?:[\w-]+\/)?game\/([^/?#]+)/i)) === null || _href$match3 === void 0 ? void 0 : (_href$match3$ = _href$match3[1]) === null || _href$match3$ === void 0 ? void 0 : _href$match3$.toLowerCase();
             if (gogGameLink && gogGames.some(function (game) {
               return game.toLowerCase() === gogGameLink;
             })) {
-              $this.addClass('gog-game-link-owned');
+              addClass(el, 'gog-game-link-owned');
             }
-            return e;
           });
         }
         function getGogGameLibrary() {
@@ -941,15 +1418,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
               }
             });
           }).then(/*#__PURE__*/function () {
-            var _ref16 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee13(response) {
+            var _ref19 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee14(response) {
               var _response$response5, _response$response5$p, _response$response7, _response$response7$p;
               var _response$response6;
-              return _regeneratorRuntime().wrap(function _callee13$(_context13) {
+              return _regeneratorRuntime().wrap(function _callee14$(_context14) {
                 while (1) {
-                  switch (_context13.prev = _context13.next) {
+                  switch (_context14.prev = _context14.next) {
                     case 0:
                       if (!/openlogin/i.test(response.finalUrl)) {
-                        _context13.next = 5;
+                        _context14.next = 5;
                         break;
                       }
                       if (loop) {
@@ -960,8 +1437,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                           showCancelButton: true,
                           confirmButtonText: '登录',
                           cancelButtonText: '取消'
-                        }).then(function (_ref17) {
-                          var value = _ref17.value;
+                        }).then(function (_ref20) {
+                          var value = _ref20.value;
                           if (value) GM_openInTab('https://www.gog.com/#openlogin', {
                             active: true,
                             insert: true,
@@ -969,17 +1446,17 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                           });
                         });
                       } else {
-                        $('body').overhang({
+                        showNativeOverhang({
                           type: 'error',
                           message: 'GOG登录凭证已过期，请重新登录<a href="https://www.gog.com/#openlogin" target="_blank">https://www.gog.com/#openlogin</a>',
                           html: true,
                           closeConfirm: true
                         });
                       }
-                      return _context13.abrupt("return", false);
+                      return _context14.abrupt("return", false);
                     case 5:
                       if (!((_response$response5 = response.response) !== null && _response$response5 !== void 0 && (_response$response5$p = _response$response5.products) !== null && _response$response5$p !== void 0 && _response$response5$p.length)) {
-                        _context13.next = 21;
+                        _context14.next = 23;
                         break;
                       }
                       games = [].concat(_toConsumableArray(games), _toConsumableArray(response.response.products.map(function (e) {
@@ -987,90 +1464,115 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                         return (e === null || e === void 0 ? void 0 : e.slug) || (e === null || e === void 0 ? void 0 : (_e$url = e.url) === null || _e$url === void 0 ? void 0 : (_e$url$split = _e$url.split('/')) === null || _e$url$split === void 0 ? void 0 : _e$url$split[(e === null || e === void 0 ? void 0 : (_e$url2 = e.url) === null || _e$url2 === void 0 ? void 0 : _e$url2.split('/').length) - 1]);
                       }))); // eslint-disable-line
                       if (!(((_response$response6 = response.response) === null || _response$response6 === void 0 ? void 0 : _response$response6.totalPages) > i)) {
-                        _context13.next = 13;
+                        _context14.next = 13;
                         break;
                       }
-                      _context13.next = 10;
+                      _context14.next = 10;
                       return updateGogGameLibrary(loop, ++i, games);
                     case 10:
-                      return _context13.abrupt("return", _context13.sent);
+                      return _context14.abrupt("return", _context14.sent);
                     case 13:
                       if (!loop) {
-                        _context13.next = 16;
+                        _context14.next = 18;
                         break;
                       }
                       GM_setValue('gogGames', _toConsumableArray(new Set(games)).filter(function (e) {
                         return e;
                       }));
-                      return _context13.abrupt("return", Swal.update({
+                      _context14.next = 17;
+                      return Swal.update({
                         icon: 'success',
                         title: 'gog游戏库数据更新完成',
                         text: ''
-                      }));
-                    case 16:
+                      });
+                    case 17:
+                      return _context14.abrupt("return", true);
+                    case 18:
                       GM_setValue('gogGames', _toConsumableArray(new Set([].concat(_toConsumableArray(getGogGameLibrary()), _toConsumableArray(games)))).filter(function (e) {
                         return e;
                       }));
                       checkGogGame(false);
-                      return _context13.abrupt("return", true);
-                    case 21:
+                      return _context14.abrupt("return", true);
+                    case 23:
                       if (!(((_response$response7 = response.response) === null || _response$response7 === void 0 ? void 0 : (_response$response7$p = _response$response7.products) === null || _response$response7$p === void 0 ? void 0 : _response$response7$p.length) !== 0)) {
-                        _context13.next = 24;
+                        _context14.next = 28;
                         break;
                       }
                       console.error(response);
-                      return _context13.abrupt("return", Swal.update({
+                      _context14.next = 27;
+                      return Swal.update({
                         icon: 'error',
                         title: 'gog游戏库数据更新失败',
                         text: '详情请查看控制台'
-                      }));
-                    case 24:
+                      });
+                    case 27:
+                      return _context14.abrupt("return", false);
+                    case 28:
+                      return _context14.abrupt("return", false);
+                    case 29:
                     case "end":
-                      return _context13.stop();
+                      return _context14.stop();
                   }
                 }
-              }, _callee13);
+              }, _callee14);
             }));
-            return function (_x12) {
-              return _ref16.apply(this, arguments);
+            return function (_x13) {
+              return _ref19.apply(this, arguments);
             };
-          }())["catch"](function (error) {
-            console.error(error);
-            return Swal.update({
-              icon: 'error',
-              title: 'gog游戏库数据更新失败',
-              text: '详情请查看控制台'
-            });
-          });
+          }())["catch"](/*#__PURE__*/function () {
+            var _ref21 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee15(error) {
+              return _regeneratorRuntime().wrap(function _callee15$(_context15) {
+                while (1) {
+                  switch (_context15.prev = _context15.next) {
+                    case 0:
+                      console.error(error);
+                      _context15.next = 3;
+                      return Swal.update({
+                        icon: 'error',
+                        title: 'gog游戏库数据更新失败',
+                        text: '详情请查看控制台'
+                      });
+                    case 3:
+                      return _context15.abrupt("return", false);
+                    case 4:
+                    case "end":
+                      return _context15.stop();
+                  }
+                }
+              }, _callee15);
+            }));
+            return function (_x14) {
+              return _ref21.apply(this, arguments);
+            };
+          }());
         }
+        _updateLibrary3 = updateGogGameLibrary;
         GM_registerMenuCommand('更新gog游戏库', updateGogGameLibrary);
         GM_addStyle('.gog-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}');
       }
     };
+    return moduleApi;
   }
   function createItchModule() {
-    return {
+    var _updateLibrary4;
+    var started = false;
+    var moduleApi = {
       key: 'itch',
       enabled: function enabled() {
         return settings.platformEnabled.itch;
       },
+      isCacheEmpty: function isCacheEmpty() {
+        return (GM_getValue('itchGames') || []).length === 0;
+      },
+      updateLibrary: function updateLibrary() {
+        if (!_updateLibrary4) moduleApi.start();
+        return _updateLibrary4();
+      },
       start: function start() {
+        if (started) return;
+        started = true;
         var loadTimes = 0;
-        if (getItchGameLibrary().length === 0) {
-          Swal.fire({
-            title: '游戏库检测脚本提醒',
-            icon: 'warning',
-            text: '没有检测到itch游戏库数据，是否立即获取？',
-            showCancelButton: true,
-            confirmButtonText: '获取',
-            cancelButtonText: '取消'
-          }).then(function (_ref18) {
-            var value = _ref18.value;
-            if (value) updateItchGameLibrary();
-          });
-        } else {
-          checkItchGame();
-        }
+        checkItchGame();
         var observer = new MutationObserver(function () {
           checkItchGame(false, true);
         });
@@ -1089,20 +1591,21 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             return;
           }
           var itchGames = getItchGameLibrary();
-          var itchLink = again ? $('a[href*=".itch.io/"]:not(".itch-io-game-checked")') : $('a[href*=".itch.io/"]:not(".itch-io-game-link-owned")');
+          var excludedClass = again ? 'itch-io-game-checked' : 'itch-io-game-link-owned';
+          var itchLink = queryLinks('a[href*=".itch.io/"]').filter(function (el) {
+            return !el.classList.contains(excludedClass);
+          });
           if (itchLink.length === 0) return;
           if (first) updateItchGameLibrary(false);
-          itchLink.map(function (i, e) {
+          itchLink.forEach(function (el) {
             var _href$match4;
-            var $this = $(e);
-            $this.addClass('itch-io-game-checked');
-            var href = $this.attr('href');
+            addClass(el, 'itch-io-game-checked');
+            var href = getHref(el);
             if (!/\/$/.test(href)) href += '/';
             var itchGameLink = (_href$match4 = href.match(/https?:\/\/(.*?\/.*?)\//i)) === null || _href$match4 === void 0 ? void 0 : _href$match4[1];
             if (itchGameLink && itchGames.includes(itchGameLink)) {
-              $this.addClass('itch-io-game-link-owned');
+              addClass(el, 'itch-io-game-link-owned');
             }
-            return e;
           });
         }
         function getItchGameLibrary() {
@@ -1138,14 +1641,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
               }
             });
           }).then(/*#__PURE__*/function () {
-            var _ref19 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee14(response) {
+            var _ref22 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee16(response) {
               var _response$response8, _response$response9;
-              return _regeneratorRuntime().wrap(function _callee14$(_context14) {
+              var itchDoc, purchaseLinks;
+              return _regeneratorRuntime().wrap(function _callee16$(_context16) {
                 while (1) {
-                  switch (_context14.prev = _context14.next) {
+                  switch (_context16.prev = _context16.next) {
                     case 0:
                       if (!/https?:\/\/itch.io\/login/i.test(response.finalUrl)) {
-                        _context14.next = 5;
+                        _context16.next = 5;
                         break;
                       }
                       if (loop) {
@@ -1156,8 +1660,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                           showCancelButton: true,
                           confirmButtonText: '登录',
                           cancelButtonText: '取消'
-                        }).then(function (_ref20) {
-                          var value = _ref20.value;
+                        }).then(function (_ref23) {
+                          var value = _ref23.value;
                           if (value) GM_openInTab('https://itch.io/login', {
                             active: true,
                             insert: true,
@@ -1165,115 +1669,142 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                           });
                         });
                       } else {
-                        $('body').overhang({
+                        showNativeOverhang({
                           type: 'error',
                           message: 'itch.io登录凭证已过期，请重新登录<a href="https://itch.io/login" target="_blank">https://itch.io/login</a>',
                           html: true,
                           closeConfirm: true
                         });
                       }
-                      return _context14.abrupt("return", false);
+                      return _context16.abrupt("return", false);
                     case 5:
                       if (!((_response$response8 = response.response) !== null && _response$response8 !== void 0 && _response$response8.num_items)) {
-                        _context14.next = 21;
+                        _context16.next = 25;
                         break;
                       }
                       // eslint-disable-line camelcase
-                      games = [].concat(_toConsumableArray(games), _toConsumableArray($.makeArray($("<div>".concat(response.response.content, "</div>")).find('a.thumb_link.game_link')).map(function (e) {
-                        var _$$attr$match;
-                        return (_$$attr$match = $(e).attr('href') // eslint-disable-line
-                        .match(/https?:\/\/(.*?\/.*?)\//i)) === null || _$$attr$match === void 0 ? void 0 : _$$attr$match[1];
+                      itchDoc = parseHtml("<div>".concat(response.response.content, "</div>"));
+                      purchaseLinks = Array.from(itchDoc.querySelectorAll('a.thumb_link.game_link'));
+                      games = [].concat(_toConsumableArray(games), _toConsumableArray(purchaseLinks.map(function (el) {
+                        var _getHref$match;
+                        return (_getHref$match = getHref(el).match(/https?:\/\/(.*?\/.*?)\//i)) === null || _getHref$match === void 0 ? void 0 : _getHref$match[1];
                       })));
                       if (!(response.response.num_items === 50)) {
-                        _context14.next = 13;
+                        _context16.next = 15;
                         break;
                       }
-                      _context14.next = 10;
+                      _context16.next = 12;
                       return updateItchGameLibrary(loop, ++i, games);
-                    case 10:
-                      return _context14.abrupt("return", _context14.sent);
-                    case 13:
+                    case 12:
+                      return _context16.abrupt("return", _context16.sent);
+                    case 15:
                       if (!loop) {
-                        _context14.next = 16;
+                        _context16.next = 20;
                         break;
                       }
                       GM_setValue('itchGames', _toConsumableArray(new Set(games)));
-                      return _context14.abrupt("return", Swal.update({
+                      _context16.next = 19;
+                      return Swal.update({
                         icon: 'success',
                         title: 'itch游戏库数据更新完成',
                         text: ''
-                      }));
-                    case 16:
+                      });
+                    case 19:
+                      return _context16.abrupt("return", true);
+                    case 20:
                       GM_setValue('itchGames', _toConsumableArray(new Set([].concat(_toConsumableArray(getItchGameLibrary()), _toConsumableArray(games)))));
                       checkItchGame(false);
-                      return _context14.abrupt("return", true);
-                    case 21:
+                      return _context16.abrupt("return", true);
+                    case 25:
                       if (!(((_response$response9 = response.response) === null || _response$response9 === void 0 ? void 0 : _response$response9.num_items) === 0)) {
-                        _context14.next = 24;
+                        _context16.next = 30;
                         break;
                       }
                       // eslint-disable-line camelcase
                       GM_setValue('itchGames', _toConsumableArray(new Set(games)));
-                      return _context14.abrupt("return", Swal.update({
+                      _context16.next = 29;
+                      return Swal.update({
                         icon: 'success',
                         title: 'itch游戏库数据更新完成',
                         text: ''
-                      }));
-                    case 24:
+                      });
+                    case 29:
+                      return _context16.abrupt("return", true);
+                    case 30:
                       console.error(response);
-                      return _context14.abrupt("return", Swal.update({
+                      _context16.next = 33;
+                      return Swal.update({
                         icon: 'error',
                         title: 'itch游戏库数据更新失败',
                         text: '详情请查看控制台'
-                      }));
-                    case 26:
+                      });
+                    case 33:
+                      return _context16.abrupt("return", false);
+                    case 34:
                     case "end":
-                      return _context14.stop();
+                      return _context16.stop();
                   }
                 }
-              }, _callee14);
+              }, _callee16);
             }));
-            return function (_x13) {
-              return _ref19.apply(this, arguments);
+            return function (_x15) {
+              return _ref22.apply(this, arguments);
             };
-          }())["catch"](function (error) {
-            console.error(error);
-            return Swal.update({
-              icon: 'error',
-              title: 'itch游戏库数据更新失败',
-              text: '详情请查看控制台'
-            });
-          });
+          }())["catch"](/*#__PURE__*/function () {
+            var _ref24 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee17(error) {
+              return _regeneratorRuntime().wrap(function _callee17$(_context17) {
+                while (1) {
+                  switch (_context17.prev = _context17.next) {
+                    case 0:
+                      console.error(error);
+                      _context17.next = 3;
+                      return Swal.update({
+                        icon: 'error',
+                        title: 'itch游戏库数据更新失败',
+                        text: '详情请查看控制台'
+                      });
+                    case 3:
+                      return _context17.abrupt("return", false);
+                    case 4:
+                    case "end":
+                      return _context17.stop();
+                  }
+                }
+              }, _callee17);
+            }));
+            return function (_x16) {
+              return _ref24.apply(this, arguments);
+            };
+          }());
         }
+        _updateLibrary4 = updateItchGameLibrary;
         GM_registerMenuCommand('更新itch游戏库', updateItchGameLibrary);
         GM_addStyle('.itch-io-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}');
         unsafeWindow.checkItchGame = checkItchGame;
       }
     };
+    return moduleApi;
   }
   function createCubeModule() {
-    return {
+    var _updateLibrary5;
+    var started = false;
+    var moduleApi = {
       key: 'cube',
       enabled: function enabled() {
         return settings.platformEnabled.cube;
       },
+      isCacheEmpty: function isCacheEmpty() {
+        return (GM_getValue('cubeGames') || []).length === 0;
+      },
+      updateLibrary: function updateLibrary() {
+        if (!_updateLibrary5) moduleApi.start();
+        return _updateLibrary5();
+      },
       start: function start() {
+        if (started) return;
+        started = true;
         var loadTimes = 0;
-        if (getCubeGameLibrary().length === 0) {
-          Swal.fire({
-            title: '游戏库检测脚本提醒',
-            icon: 'warning',
-            text: '没有检测到方块游戏库数据，是否立即获取？',
-            showCancelButton: true,
-            confirmButtonText: '获取',
-            cancelButtonText: '取消'
-          }).then(function (_ref21) {
-            var value = _ref21.value;
-            if (value) updateCubeGameLibrary();
-          });
-        } else {
-          checkCubeGame();
-        }
+        checkCubeGame();
         var observer = new MutationObserver(function () {
           checkCubeGame(false, true);
         });
@@ -1292,20 +1823,21 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             return;
           }
           var cubeGames = getCubeGameLibrary();
-          var cubeLink = again ? $('a[href*="store.cubejoy.com/html/en/store/goodsdetail/detail"]:not(".cube-game-checked")') : $('a[href*="store.cubejoy.com/html/en/store/goodsdetail/detail"]:not(".cube-game-link-owned")');
+          var excludedClass = again ? 'cube-game-checked' : 'cube-game-link-owned';
+          var cubeLink = queryLinks('a[href*="store.cubejoy.com/html/en/store/goodsdetail/detail"]').filter(function (el) {
+            return !el.classList.contains(excludedClass);
+          });
           if (cubeLink.length === 0) return;
           if (first) updateCubeGameLibrary(false);
-          cubeLink.map(function (i, e) {
+          cubeLink.forEach(function (el) {
             var _href$match5;
-            var $this = $(e);
-            $this.addClass('cube-game-checked');
-            var href = $this.attr('href');
+            addClass(el, 'cube-game-checked');
+            var href = getHref(el);
             if (!/\/$/.test(href)) href += '/';
             var cubeGameId = (_href$match5 = href.match(/https?:\/\/store\.cubejoy\.com\/html\/en\/store\/goodsdetail\/detail([\d]+).html/i)) === null || _href$match5 === void 0 ? void 0 : _href$match5[1];
             if (cubeGameId && cubeGames.includes(parseInt(cubeGameId, 10))) {
-              $this.addClass('cube-game-link-owned');
+              addClass(el, 'cube-game-link-owned');
             }
-            return e;
           });
         }
         function getCubeGameLibrary() {
@@ -1347,15 +1879,15 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
               }
             });
           }).then(/*#__PURE__*/function () {
-            var _ref22 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee15(response) {
+            var _ref25 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee18(response) {
               var _response$response10, _response$response11, _response$response11$, _response$response11$2, _response$response13, _response$response13$, _response$response13$2;
               var _response$response12;
-              return _regeneratorRuntime().wrap(function _callee15$(_context15) {
+              return _regeneratorRuntime().wrap(function _callee18$(_context18) {
                 while (1) {
-                  switch (_context15.prev = _context15.next) {
+                  switch (_context18.prev = _context18.next) {
                     case 0:
                       if (!(((_response$response10 = response.response) === null || _response$response10 === void 0 ? void 0 : _response$response10.resultCode) === 0)) {
-                        _context15.next = 5;
+                        _context18.next = 5;
                         break;
                       }
                       if (loop) {
@@ -1366,8 +1898,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                           showCancelButton: true,
                           confirmButtonText: '登录',
                           cancelButtonText: '取消'
-                        }).then(function (_ref23) {
-                          var value = _ref23.value;
+                        }).then(function (_ref26) {
+                          var value = _ref26.value;
                           if (value) GM_openInTab('https://account.cubejoy.com/html/login.html', {
                             active: true,
                             insert: true,
@@ -1375,83 +1907,111 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                           });
                         });
                       } else {
-                        $('body').overhang({
+                        showNativeOverhang({
                           type: 'error',
                           message: '方块登录凭证已过期，请重新登录<a href="https://account.cubejoy.com/html/login.html" target="_blank">https://account.cubejoy.com/html/login.html</a>',
                           html: true,
                           closeConfirm: true
                         });
                       }
-                      return _context15.abrupt("return", false);
+                      return _context18.abrupt("return", false);
                     case 5:
                       if (!((_response$response11 = response.response) !== null && _response$response11 !== void 0 && (_response$response11$ = _response$response11.result) !== null && _response$response11$ !== void 0 && (_response$response11$2 = _response$response11$.list) !== null && _response$response11$2 !== void 0 && _response$response11$2.length)) {
-                        _context15.next = 21;
+                        _context18.next = 23;
                         break;
                       }
                       games = [].concat(_toConsumableArray(games), _toConsumableArray(response.response.result.list.map(function (e) {
                         return e.S_Id;
                       }))); // eslint-disable-line
                       if (!(((_response$response12 = response.response) === null || _response$response12 === void 0 ? void 0 : _response$response12.result.total) > i * 24)) {
-                        _context15.next = 13;
+                        _context18.next = 13;
                         break;
                       }
-                      _context15.next = 10;
+                      _context18.next = 10;
                       return updateCubeGameLibrary(loop, ++i, games);
                     case 10:
-                      return _context15.abrupt("return", _context15.sent);
+                      return _context18.abrupt("return", _context18.sent);
                     case 13:
                       if (!loop) {
-                        _context15.next = 16;
+                        _context18.next = 18;
                         break;
                       }
                       GM_setValue('cubeGames', _toConsumableArray(new Set(games)).filter(function (e) {
                         return e;
                       }));
-                      return _context15.abrupt("return", Swal.update({
+                      _context18.next = 17;
+                      return Swal.update({
                         icon: 'success',
                         title: 'cube游戏库数据更新完成',
                         text: ''
-                      }));
-                    case 16:
+                      });
+                    case 17:
+                      return _context18.abrupt("return", true);
+                    case 18:
                       GM_setValue('cubeGames', _toConsumableArray(new Set([].concat(_toConsumableArray(getCubeGameLibrary()), _toConsumableArray(games)))).filter(function (e) {
                         return e;
                       }));
                       checkCubeGame(false);
-                      return _context15.abrupt("return", true);
-                    case 21:
+                      return _context18.abrupt("return", true);
+                    case 23:
                       if (!(((_response$response13 = response.response) === null || _response$response13 === void 0 ? void 0 : (_response$response13$ = _response$response13.result) === null || _response$response13$ === void 0 ? void 0 : (_response$response13$2 = _response$response13$.list) === null || _response$response13$2 === void 0 ? void 0 : _response$response13$2.length) !== 0)) {
-                        _context15.next = 24;
+                        _context18.next = 28;
                         break;
                       }
                       console.error(response);
-                      return _context15.abrupt("return", Swal.update({
+                      _context18.next = 27;
+                      return Swal.update({
                         icon: 'error',
                         title: '方块游戏库数据更新失败',
                         text: '详情请查看控制台'
-                      }));
-                    case 24:
+                      });
+                    case 27:
+                      return _context18.abrupt("return", false);
+                    case 28:
+                      return _context18.abrupt("return", false);
+                    case 29:
                     case "end":
-                      return _context15.stop();
+                      return _context18.stop();
                   }
                 }
-              }, _callee15);
+              }, _callee18);
             }));
-            return function (_x14) {
-              return _ref22.apply(this, arguments);
+            return function (_x17) {
+              return _ref25.apply(this, arguments);
             };
-          }())["catch"](function (error) {
-            console.error(error);
-            return Swal.update({
-              icon: 'error',
-              title: '方块游戏库数据更新失败',
-              text: '详情请查看控制台'
-            });
-          });
+          }())["catch"](/*#__PURE__*/function () {
+            var _ref27 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee19(error) {
+              return _regeneratorRuntime().wrap(function _callee19$(_context19) {
+                while (1) {
+                  switch (_context19.prev = _context19.next) {
+                    case 0:
+                      console.error(error);
+                      _context19.next = 3;
+                      return Swal.update({
+                        icon: 'error',
+                        title: '方块游戏库数据更新失败',
+                        text: '详情请查看控制台'
+                      });
+                    case 3:
+                      return _context19.abrupt("return", false);
+                    case 4:
+                    case "end":
+                      return _context19.stop();
+                  }
+                }
+              }, _callee19);
+            }));
+            return function (_x18) {
+              return _ref27.apply(this, arguments);
+            };
+          }());
         }
+        _updateLibrary5 = updateCubeGameLibrary;
         GM_registerMenuCommand('更新cube游戏库', updateCubeGameLibrary);
         GM_addStyle('.cube-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}');
       }
     };
+    return moduleApi;
   }
   function addWhiteList() {
     var whiteList = settings.whiteList || [];
@@ -1462,8 +2022,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       showCancelButton: true,
       confirmButtonText: '保存',
       cancelButtonText: '取消'
-    }).then(function (_ref24) {
-      var value = _ref24.value;
+    }).then(function (_ref28) {
+      var value = _ref28.value;
       if (value !== undefined) {
         settings.whiteList = value ? value.split('\n') : [];
         settings.blackList = settings.blackList || [];
@@ -1480,8 +2040,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       showCancelButton: true,
       confirmButtonText: '保存',
       cancelButtonText: '取消'
-    }).then(function (_ref25) {
-      var value = _ref25.value;
+    }).then(function (_ref29) {
+      var value = _ref29.value;
       if (value !== undefined) {
         settings.blackList = value ? value.split('\n') : [];
         settings.whiteList = settings.whiteList || [];
@@ -1496,9 +2056,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       confirmButtonText: '白名单网站',
       denyButtonText: '黑名单网站',
       cancelButtonText: '关闭'
-    }).then(function (_ref26) {
-      var isConfirmed = _ref26.isConfirmed,
-        isDenied = _ref26.isDenied;
+    }).then(function (_ref30) {
+      var isConfirmed = _ref30.isConfirmed,
+        isDenied = _ref30.isDenied;
       if (isConfirmed) {
         addWhiteList();
       } else if (isDenied) {
@@ -1509,10 +2069,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   var settings = getGlobalSettings();
   GM_registerMenuCommand('设置', setting);
   GM_registerMenuCommand('平台开关', openPlatformSwitchDialog);
-  GM_addStyle(GM_getResourceText('overhang'));
+  GM_addStyle("\n.glc-mask{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2147483646;display:flex;align-items:center;justify-content:center}\n.glc-dialog{background:#fff;color:#111;padding:16px;border-radius:10px;min-width:340px;max-width:560px;font-size:14px;box-shadow:0 20px 45px rgba(0,0,0,.24)}\n.glc-dialog-title{margin:0 0 12px;font-size:18px;line-height:1.4}\n.glc-dialog-body{line-height:1.6}\n.glc-dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}\n.glc-dialog-actions button{border:1px solid #d1d5db;border-radius:6px;background:#fff;color:#111;padding:6px 12px;cursor:pointer}\n.glc-dialog-actions [data-glc-confirm]{border-color:#2563eb;background:#2563eb;color:#fff}\n.glc-textarea{width:100%;min-height:160px;box-sizing:border-box}\n.glc-toast{position:fixed;right:16px;bottom:16px;z-index:2147483647;background:#1f2937;color:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 10px 25px rgba(0,0,0,.2)}\n.glc-toast-error{background:#b91c1c}\n.glc-toast-success{background:#15803d}\n.glc-progress-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}\n.glc-progress-list li{display:flex;justify-content:space-between;gap:16px}\n.glc-progress-platform{font-weight:700}\n  ");
   if (!isUrlEnabledByList(window.location.href, settings)) return;
   var modules = [createEpicModule(), createGogModule(), createItchModule(), createCubeModule()];
-  modules.forEach(function (module) {
-    if (module.enabled()) module.start();
-  });
+  runInitialFlow();
 })();
