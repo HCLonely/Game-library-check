@@ -165,82 +165,38 @@
     }
   }
 
+  function queryLinks(selector) {
+    return Array.from(document.querySelectorAll(selector));
+  }
+
+  function addClass(el, className) {
+    if (el && !el.classList.contains(className)) el.classList.add(className);
+  }
+
+  function getHref(el) {
+    return (el && el.getAttribute('href')) || '';
+  }
+
+  function parseHtml(html) {
+    return new DOMParser().parseFromString(html, 'text/html');
+  }
+
+  function showNativeOverhang(options = {}) {
+    const type = options.type === 'error' ? 'error' : 'info';
+    if (options.html) {
+      showDialog({
+        title: type === 'error' ? '错误' : '提示',
+        bodyHtml: options.message || '',
+        trustedBodyHtml: true,
+        confirmText: options.closeConfirm ? '关闭' : '确定',
+        hideCancel: true
+      });
+      return;
+    }
+    showToast(options.message || '', type);
+  }
+
   const swalCompatState = { config: null, panelMap: {} };
-
-  function createCompatCollection(elements) {
-    const list = Array.isArray(elements) ? elements.filter(Boolean) : [];
-    const collection = {
-      length: list.length,
-      _elements: list,
-      map(callback) {
-        return list.map((el, index) => callback(index, el));
-      },
-      [Symbol.iterator]() {
-        return list[Symbol.iterator]();
-      },
-      addClass(className) {
-        list.forEach((el) => el.classList?.add(className));
-        return this;
-      },
-      attr(name, value) {
-        if (value !== undefined) {
-          list.forEach((el) => el.setAttribute?.(name, value));
-          return this;
-        }
-        return list[0]?.getAttribute?.(name);
-      },
-      find(selector) {
-        const found = [];
-        list.forEach((el) => {
-          found.push(...el.querySelectorAll(selector));
-        });
-        return createCompatCollection(found);
-      },
-      overhang(options = {}) {
-        const type = options.type === 'error' ? 'error' : 'info';
-        if (options.html) {
-          showDialog({
-            title: type === 'error' ? '错误' : '提示',
-            bodyText: options.message || '',
-            confirmText: options.closeConfirm ? '关闭' : '确定',
-            hideCancel: true
-          });
-          return this;
-        }
-        showToast(options.message || '', type);
-        return this;
-      }
-    };
-    list.forEach((el, index) => {
-      collection[index] = el;
-    });
-    return collection;
-  }
-
-  function $(input) {
-    if (typeof input === 'string') {
-      if (input.trim().startsWith('<')) {
-        const template = document.createElement('template');
-        template.innerHTML = input.trim();
-        return createCompatCollection([template.content.firstElementChild]);
-      }
-      return createCompatCollection(Array.from(document.querySelectorAll(input)));
-    }
-    if (input instanceof Element || input === document.body) {
-      return createCompatCollection([input]);
-    }
-    if (input && typeof input.length === 'number') {
-      return createCompatCollection(Array.from(input));
-    }
-    return createCompatCollection([]);
-  }
-
-  $.makeArray = (value) => {
-    if (!value) return [];
-    if (Array.isArray(value)) return value.slice();
-    if (Array.isArray(value._elements)) return value._elements.slice();
-    return Array.from(value);
-  };
 
   const Swal = {
     fire(config = {}) {
@@ -399,26 +355,24 @@
           }
           const ownedGames = getEpicOwnedGames();
           const wishlistGames = GM_getValue('epicWishist') || [];
-          // eslint-disable-next-line max-len
-          const epicLink = again ? $('a[href*="www.epicgames.com/store/"]:not(".epic-game-checked"),a[href*="store.epicgames.com/"]:not(".epic-game-checked")') :
-            $('a[href*="www.epicgames.com/store/"]:not(".epic-game-link-owned"),a[href*="store.epicgames.com/"]:not(".epic-game-link-owned")');
+          const excludedClass = again ? 'epic-game-checked' : 'epic-game-link-owned';
+          const epicLink = queryLinks('a[href*="www.epicgames.com/store/"],a[href*="store.epicgames.com/"]')
+            .filter((el) => !el.classList.contains(excludedClass));
           if (epicLink.length === 0) return;
           if (first) updateEpicOwnedGames(false);
-          epicLink.map(async (i, e) => {
-            const $this = $(e);
-            $this.addClass('epic-game-checked');
-            let href = $this.attr('href');
+          epicLink.forEach((el) => {
+            addClass(el, 'epic-game-checked');
+            let href = getHref(el);
             if (!/\/$/.test(href)) href += '/';
             const epicGameName = href.match(/https?:\/\/www\.epicgames\.com\/store\/.*?\/p(roduct)?\/([^?/]+)/i)?.[2]?.toLowerCase() ||
               href.match(/https?:\/\/store\.epicgames\.com\/.*?\/p(roduct)?\/([^?/]+)/i)?.[2]?.toLowerCase();
             if (epicGameName) {
               if (ownedGames.find((game) => game.pageSlug.includes(epicGameName))) {
-                $this.addClass('epic-game-link-owned');
+                addClass(el, 'epic-game-link-owned');
               } else if (wishlistGames.find((game) => game.pageSlug.includes(epicGameName))) {
-                $this.addClass('epic-game-link-wishlist');
+                addClass(el, 'epic-game-link-wishlist');
               }
             }
-            return e;
           });
         }
         function getEpicOwnedGames() {
@@ -663,7 +617,7 @@
                   if (value) GM_openInTab('https://www.epicgames.com/id/login', { active: true, insert: true, setParent: true });
                 });
               } else {
-                $('body').overhang({
+                showNativeOverhang({
                   type: 'error',
                   message: 'Epic登录凭证已过期，请重新登录<a href="https://www.epicgames.com/id/login" target="_blank">https://www.epicgames.com/id/login</a>',
                   html: true,
@@ -840,21 +794,19 @@
             return;
           }
           const gogGames = getGogGameLibrary();
-          const gogLink = again ?
-            $('a[href*="www.gog.com/"]:not(".gog-game-checked")') :
-            $('a[href*="www.gog.com/"]:not(".gog-game-link-owned")');
+          const excludedClass = again ? 'gog-game-checked' : 'gog-game-link-owned';
+          const gogLink = queryLinks('a[href*="www.gog.com/"]')
+            .filter((el) => !el.classList.contains(excludedClass));
           if (gogLink.length === 0) return;
           if (first) updateGogGameLibrary(false);
-          gogLink.map((i, e) => {
-            const $this = $(e);
-            $this.addClass('gog-game-checked');
-            let href = $this.attr('href');
+          gogLink.forEach((el) => {
+            addClass(el, 'gog-game-checked');
+            let href = getHref(el);
             if (!/\/$/.test(href)) href += '/';
             const gogGameLink = href.match(/https?:\/\/www\.gog\.com\/(?:[\w-]+\/)?game\/([^/?#]+)/i)?.[1]?.toLowerCase();
             if (gogGameLink && gogGames.some((game) => game.toLowerCase() === gogGameLink)) {
-              $this.addClass('gog-game-link-owned');
+              addClass(el, 'gog-game-link-owned');
             }
-            return e;
           });
         }
         function getGogGameLibrary() {
@@ -900,7 +852,7 @@
                   if (value) GM_openInTab('https://www.gog.com/#openlogin', { active: true, insert: true, setParent: true });
                 });
               } else {
-                $('body').overhang({
+                showNativeOverhang({
                   type: 'error',
                   message: 'GOG登录凭证已过期，请重新登录<a href="https://www.gog.com/#openlogin" target="_blank">https://www.gog.com/#openlogin</a>',
                   html: true,
@@ -987,19 +939,19 @@
             return;
           }
           const itchGames = getItchGameLibrary();
-          const itchLink = again ? $('a[href*=".itch.io/"]:not(".itch-io-game-checked")') : $('a[href*=".itch.io/"]:not(".itch-io-game-link-owned")');
+          const excludedClass = again ? 'itch-io-game-checked' : 'itch-io-game-link-owned';
+          const itchLink = queryLinks('a[href*=".itch.io/"]')
+            .filter((el) => !el.classList.contains(excludedClass));
           if (itchLink.length === 0) return;
           if (first) updateItchGameLibrary(false);
-          itchLink.map((i, e) => {
-            const $this = $(e);
-            $this.addClass('itch-io-game-checked');
-            let href = $this.attr('href');
+          itchLink.forEach((el) => {
+            addClass(el, 'itch-io-game-checked');
+            let href = getHref(el);
             if (!/\/$/.test(href)) href += '/';
             const itchGameLink = href.match(/https?:\/\/(.*?\/.*?)\//i)?.[1];
             if (itchGameLink && itchGames.includes(itchGameLink)) {
-              $this.addClass('itch-io-game-link-owned');
+              addClass(el, 'itch-io-game-link-owned');
             }
-            return e;
           });
         }
         function getItchGameLibrary() {
@@ -1045,7 +997,7 @@
                   if (value) GM_openInTab('https://itch.io/login', { active: true, insert: true, setParent: true });
                 });
               } else {
-                $('body').overhang({
+                showNativeOverhang({
                   type: 'error',
                   message: 'itch.io登录凭证已过期，请重新登录<a href="https://itch.io/login" target="_blank">https://itch.io/login</a>',
                   html: true,
@@ -1054,7 +1006,9 @@
               }
               return false;
             } else if (response.response?.num_items) { // eslint-disable-line camelcase
-              games = [...games, ...$.makeArray($(`<div>${response.response.content}</div>`).find('a.thumb_link.game_link')).map((e) => $(e).attr('href') // eslint-disable-line
+              const itchDoc = parseHtml(`<div>${response.response.content}</div>`);
+              const purchaseLinks = Array.from(itchDoc.querySelectorAll('a.thumb_link.game_link'));
+              games = [...games, ...purchaseLinks.map((el) => getHref(el)
                 .match(/https?:\/\/(.*?\/.*?)\//i)?.[1])];
 
               if (response.response.num_items === 50) {
@@ -1140,21 +1094,19 @@
             return;
           }
           const cubeGames = getCubeGameLibrary();
-          const cubeLink = again ?
-            $('a[href*="store.cubejoy.com/html/en/store/goodsdetail/detail"]:not(".cube-game-checked")') :
-            $('a[href*="store.cubejoy.com/html/en/store/goodsdetail/detail"]:not(".cube-game-link-owned")');
+          const excludedClass = again ? 'cube-game-checked' : 'cube-game-link-owned';
+          const cubeLink = queryLinks('a[href*="store.cubejoy.com/html/en/store/goodsdetail/detail"]')
+            .filter((el) => !el.classList.contains(excludedClass));
           if (cubeLink.length === 0) return;
           if (first) updateCubeGameLibrary(false);
-          cubeLink.map((i, e) => {
-            const $this = $(e);
-            $this.addClass('cube-game-checked');
-            let href = $this.attr('href');
+          cubeLink.forEach((el) => {
+            addClass(el, 'cube-game-checked');
+            let href = getHref(el);
             if (!/\/$/.test(href)) href += '/';
             const cubeGameId = href.match(/https?:\/\/store\.cubejoy\.com\/html\/en\/store\/goodsdetail\/detail([\d]+).html/i)?.[1];
             if (cubeGameId && cubeGames.includes(parseInt(cubeGameId, 10))) {
-              $this.addClass('cube-game-link-owned');
+              addClass(el, 'cube-game-link-owned');
             }
-            return e;
           });
         }
         function getCubeGameLibrary() {
@@ -1206,7 +1158,7 @@
                   if (value) GM_openInTab('https://account.cubejoy.com/html/login.html', { active: true, insert: true, setParent: true });
                 });
               } else {
-                $('body').overhang({
+                showNativeOverhang({
                   type: 'error',
                   message: '方块登录凭证已过期，请重新登录<a href="https://account.cubejoy.com/html/login.html" target="_blank">https://account.cubejoy.com/html/login.html</a>',
                   html: true,
