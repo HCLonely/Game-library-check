@@ -159,27 +159,44 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       close();
     });
   }
+  function createToastContainer() {
+    var container = document.getElementById('glc-toast-container');
+    if (container) return container;
+    container = document.createElement('div');
+    container.id = 'glc-toast-container';
+    document.body.appendChild(container);
+    return container;
+  }
   function showToast(message) {
     var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'info';
     var el = document.createElement('div');
     el.className = "glc-toast glc-toast-".concat(type);
     el.textContent = message;
-    document.body.appendChild(el);
+    createToastContainer().appendChild(el);
     window.setTimeout(function () {
       return el.remove();
     }, 4000);
   }
+  var progressPanelStateMap = {};
   function showProgressPanel(stateMap) {
+    var _ref2 = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {},
+      _ref2$replace = _ref2.replace,
+      replace = _ref2$replace === void 0 ? false : _ref2$replace;
+    if (replace) {
+      progressPanelStateMap = _objectSpread({}, stateMap || {});
+    } else {
+      progressPanelStateMap = _objectSpread(_objectSpread({}, progressPanelStateMap), stateMap || {});
+    }
     var root = createModalRoot();
     root.innerHTML = "\n      <div class=\"glc-mask\">\n        <div class=\"glc-dialog glc-progress-dialog\" role=\"dialog\" aria-modal=\"true\">\n          <h3 class=\"glc-dialog-title\"></h3>\n          <ul class=\"glc-progress-list\"></ul>\n        </div>\n      </div>";
     var titleEl = root.querySelector('.glc-dialog-title');
     var listEl = root.querySelector('.glc-progress-list');
     if (titleEl) titleEl.textContent = '正在更新缓存';
     if (listEl) {
-      Object.entries(stateMap || {}).forEach(function (_ref2) {
-        var _ref3 = _slicedToArray(_ref2, 2),
-          platform = _ref3[0],
-          state = _ref3[1];
+      Object.entries(progressPanelStateMap).forEach(function (_ref3) {
+        var _ref4 = _slicedToArray(_ref3, 2),
+          platform = _ref4[0],
+          state = _ref4[1];
         var li = document.createElement('li');
         var platformEl = document.createElement('span');
         platformEl.className = 'glc-progress-platform';
@@ -194,6 +211,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     }
   }
   function clearProgressPanel() {
+    progressPanelStateMap = {};
     var root = createModalRoot();
     if (root.querySelector('.glc-progress-dialog')) root.innerHTML = '';
   }
@@ -202,6 +220,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     ERROR: 'error',
     AUTH_EXPIRED: 'auth_expired'
   };
+  var inBatchUpdateFlow = false;
   function queryLinks(selector) {
     return Array.from(document.querySelectorAll(selector));
   }
@@ -264,9 +283,13 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 return [key, 'waiting'];
               }));
               interruptedByAuthExpired = false;
-              showProgressPanel(state);
-              _iterator = _createForOfIteratorHelper(selectedKeys);
+              inBatchUpdateFlow = true;
+              showProgressPanel(state, {
+                replace: true
+              });
               _context25.prev = 4;
+              _iterator = _createForOfIteratorHelper(selectedKeys);
+              _context25.prev = 6;
               _loop = /*#__PURE__*/_regeneratorRuntime().mark(function _loop() {
                 var key, module, updateResult;
                 return _regeneratorRuntime().wrap(function _loop$(_context24) {
@@ -284,7 +307,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                         return _context24.abrupt("return", "continue");
                       case 4:
                         state[key] = 'running';
-                        showProgressPanel(state);
+                        showProgressPanel(_defineProperty({}, key, state[key]));
                         _context24.prev = 6;
                         _context24.next = 9;
                         return module.updateLibrary();
@@ -320,7 +343,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                         state[key] = 'error';
                         showToast("".concat(key.toUpperCase(), " \u66F4\u65B0\u5931\u8D25"), 'error');
                       case 31:
-                        if (!interruptedByAuthExpired) showProgressPanel(state);
+                        if (!interruptedByAuthExpired) showProgressPanel(_defineProperty({}, key, state[key]));
                       case 32:
                       case "end":
                         return _context24.stop();
@@ -329,47 +352,51 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 }, _loop, null, [[6, 26]]);
               });
               _iterator.s();
-            case 7:
+            case 9:
               if ((_step = _iterator.n()).done) {
-                _context25.next = 16;
+                _context25.next = 18;
                 break;
               }
-              return _context25.delegateYield(_loop(), "t0", 9);
-            case 9:
+              return _context25.delegateYield(_loop(), "t0", 11);
+            case 11:
               _ret = _context25.t0;
               if (!(_ret === "continue")) {
-                _context25.next = 12;
-                break;
-              }
-              return _context25.abrupt("continue", 14);
-            case 12:
-              if (!(_ret === "break")) {
                 _context25.next = 14;
                 break;
               }
-              return _context25.abrupt("break", 16);
+              return _context25.abrupt("continue", 16);
             case 14:
-              _context25.next = 7;
-              break;
+              if (!(_ret === "break")) {
+                _context25.next = 16;
+                break;
+              }
+              return _context25.abrupt("break", 18);
             case 16:
-              _context25.next = 21;
+              _context25.next = 9;
               break;
             case 18:
-              _context25.prev = 18;
-              _context25.t1 = _context25["catch"](4);
+              _context25.next = 23;
+              break;
+            case 20:
+              _context25.prev = 20;
+              _context25.t1 = _context25["catch"](6);
               _iterator.e(_context25.t1);
-            case 21:
-              _context25.prev = 21;
+            case 23:
+              _context25.prev = 23;
               _iterator.f();
-              return _context25.finish(21);
-            case 24:
+              return _context25.finish(23);
+            case 26:
+              _context25.prev = 26;
+              inBatchUpdateFlow = false;
+              return _context25.finish(26);
+            case 29:
               if (!interruptedByAuthExpired) clearProgressPanel();
-            case 25:
+            case 30:
             case "end":
               return _context25.stop();
           }
         }
-      }, _callee24, null, [[4, 18, 21, 24]]);
+      }, _callee24, null, [[4,, 26, 29], [6, 20, 23, 26]]);
     }));
     return _batchUpdateSelectedModules.apply(this, arguments);
   }
@@ -392,7 +419,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 break;
               }
               showEmptyCacheAggregationDialog(emptyKeys, /*#__PURE__*/function () {
-                var _ref27 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee25(selectedKeys) {
+                var _ref28 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee25(selectedKeys) {
                   return _regeneratorRuntime().wrap(function _callee25$(_context26) {
                     while (1) {
                       switch (_context26.prev = _context26.next) {
@@ -415,7 +442,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                   }, _callee25);
                 }));
                 return function (_x19) {
-                  return _ref27.apply(this, arguments);
+                  return _ref28.apply(this, arguments);
                 };
               }(), function () {
                 enabledModules.forEach(function (module) {
@@ -440,7 +467,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     showProgressPanel(_defineProperty({}, platform, text));
   }
   function showUpdateResult(title, type) {
-    clearProgressPanel();
+    if (!inBatchUpdateFlow) clearProgressPanel();
     showToast(title, type);
     return Promise.resolve(true);
   }
@@ -463,11 +490,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     var settings = getGlobalSettings();
     var current = settings.platformEnabled;
     var bodyNode = document.createElement('div');
-    [['glc-epic', 'Epic', current.epic], ['glc-gog', 'GOG', current.gog], ['glc-itch', 'Itch', current.itch], ['glc-cube', 'Cube', current.cube]].forEach(function (_ref4, index) {
-      var _ref5 = _slicedToArray(_ref4, 3),
-        id = _ref5[0],
-        labelText = _ref5[1],
-        checked = _ref5[2];
+    [['glc-epic', 'Epic', current.epic], ['glc-gog', 'GOG', current.gog], ['glc-itch', 'Itch', current.itch], ['glc-cube', 'Cube', current.cube]].forEach(function (_ref5, index) {
+      var _ref6 = _slicedToArray(_ref5, 3),
+        id = _ref6[0],
+        labelText = _ref6[1],
+        checked = _ref6[2];
       var label = document.createElement('label');
       var input = document.createElement('input');
       input.type = 'checkbox';
@@ -566,7 +593,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                         }
                       });
                     }).then(/*#__PURE__*/function () {
-                      var _ref6 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(response) {
+                      var _ref7 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee3(response) {
                         var _response$response, _response$response$or, _response$response2, _response$response2$p;
                         var ordersLength, orderedGames, _nextPageToken;
                         return _regeneratorRuntime().wrap(function _callee3$(_context3) {
@@ -596,7 +623,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                 });
                                 _context3.next = 7;
                                 return Promise.all(orderedGames.map(/*#__PURE__*/function () {
-                                  var _ref7 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(item) {
+                                  var _ref8 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(item) {
                                     var pageSlug;
                                     return _regeneratorRuntime().wrap(function _callee2$(_context2) {
                                       while (1) {
@@ -631,7 +658,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                     }, _callee2);
                                   }));
                                   return function (_x7) {
-                                    return _ref7.apply(this, arguments);
+                                    return _ref8.apply(this, arguments);
                                   };
                                 }()));
                               case 7:
@@ -691,10 +718,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                         }, _callee3);
                       }));
                       return function (_x6) {
-                        return _ref6.apply(this, arguments);
+                        return _ref7.apply(this, arguments);
                       };
                     }())["catch"](/*#__PURE__*/function () {
-                      var _ref8 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(error) {
+                      var _ref9 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee4(error) {
                         return _regeneratorRuntime().wrap(function _callee4$(_context4) {
                           while (1) {
                             switch (_context4.prev = _context4.next) {
@@ -712,7 +739,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                         }, _callee4);
                       }));
                       return function (_x8) {
-                        return _ref8.apply(this, arguments);
+                        return _ref9.apply(this, arguments);
                       };
                     }());
                   };
@@ -747,7 +774,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                   }
                                 });
                               }).then(/*#__PURE__*/function () {
-                                var _ref15 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee10(response) {
+                                var _ref16 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee10(response) {
                                   return _regeneratorRuntime().wrap(function _callee10$(_context10) {
                                     while (1) {
                                       switch (_context10.prev = _context10.next) {
@@ -761,7 +788,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                   }, _callee10);
                                 }));
                                 return function (_x10) {
-                                  return _ref15.apply(this, arguments);
+                                  return _ref16.apply(this, arguments);
                                 };
                               }())["catch"](function (error) {
                                 console.error(error);
@@ -802,7 +829,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                   }
                                 });
                               }).then(/*#__PURE__*/function () {
-                                var _ref16 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee11(response) {
+                                var _ref17 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee11(response) {
                                   return _regeneratorRuntime().wrap(function _callee11$(_context11) {
                                     while (1) {
                                       switch (_context11.prev = _context11.next) {
@@ -816,7 +843,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                   }, _callee11);
                                 }));
                                 return function (_x11) {
-                                  return _ref16.apply(this, arguments);
+                                  return _ref17.apply(this, arguments);
                                 };
                               }())["catch"](function (error) {
                                 console.error(error);
@@ -850,7 +877,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                   }
                                 });
                               }).then(/*#__PURE__*/function () {
-                                var _ref17 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee12(response) {
+                                var _ref18 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee12(response) {
                                   var _response$response4;
                                   return _regeneratorRuntime().wrap(function _callee12$(_context12) {
                                     while (1) {
@@ -865,7 +892,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                   }, _callee12);
                                 }));
                                 return function (_x12) {
-                                  return _ref17.apply(this, arguments);
+                                  return _ref18.apply(this, arguments);
                                 };
                               }())["catch"](function (error) {
                                 console.error(error);
@@ -931,7 +958,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                   }
                                 });
                               }).then(/*#__PURE__*/function () {
-                                var _ref14 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee8(response) {
+                                var _ref15 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee8(response) {
                                   var _response$response3, _response$response3$d, _response$response3$d2;
                                   var _offerMappings$, _customAttributes$fin, _customAttributes$fin2, _response$response$da, offerMappings, urlSlug, customAttributes;
                                   return _regeneratorRuntime().wrap(function _callee8$(_context8) {
@@ -958,7 +985,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                   }, _callee8);
                                 }));
                                 return function (_x9) {
-                                  return _ref14.apply(this, arguments);
+                                  return _ref15.apply(this, arguments);
                                 };
                               }())["catch"](function (error) {
                                 console.error(error);
@@ -1000,12 +1027,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                 });
                               }).then(function (response) {
                                 // [, accountId, wishlistSha256Hash] = response.responseText.match(/"queryKey":\["getWishlist",\["accountId","([\w\d]+?)"\],"([\w\d]+?)"\]/i) || [];
-                                var _ref10 = response.responseText.match(/"],"([\w\d]+?)"],"queryHash":"\[\\"getCatalogOffer\\"/i) || [];
-                                var _ref11 = _slicedToArray(_ref10, 2);
-                                catalogOfferSha256Hash = _ref11[1];
-                                var _ref12 = response.responseText.match(/"localizationData":{"locale":"(.+?)"/i) || ['en-US'];
-                                var _ref13 = _slicedToArray(_ref12, 2);
-                                locale = _ref13[1];
+                                var _ref11 = response.responseText.match(/"],"([\w\d]+?)"],"queryHash":"\[\\"getCatalogOffer\\"/i) || [];
+                                var _ref12 = _slicedToArray(_ref11, 2);
+                                catalogOfferSha256Hash = _ref12[1];
+                                var _ref13 = response.responseText.match(/"localizationData":{"locale":"(.+?)"/i) || ['en-US'];
+                                var _ref14 = _slicedToArray(_ref13, 2);
+                                locale = _ref14[1];
                                 console.log('[EGLC] ', JSON.stringify({
                                   /* accountId, wishlistSha256Hash, */catalogOfferSha256Hash: catalogOfferSha256Hash,
                                   locale: locale
@@ -1319,7 +1346,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
               }
             });
           }).then(/*#__PURE__*/function () {
-            var _ref18 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee15(response) {
+            var _ref19 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee15(response) {
               var _response$response5, _response$response5$p, _response$response7, _response$response7$p;
               var _response$response6;
               return _regeneratorRuntime().wrap(function _callee15$(_context15) {
@@ -1390,10 +1417,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
               }, _callee15);
             }));
             return function (_x13) {
-              return _ref18.apply(this, arguments);
+              return _ref19.apply(this, arguments);
             };
           }())["catch"](/*#__PURE__*/function () {
-            var _ref19 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee16(error) {
+            var _ref20 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee16(error) {
               return _regeneratorRuntime().wrap(function _callee16$(_context16) {
                 while (1) {
                   switch (_context16.prev = _context16.next) {
@@ -1411,7 +1438,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
               }, _callee16);
             }));
             return function (_x14) {
-              return _ref19.apply(this, arguments);
+              return _ref20.apply(this, arguments);
             };
           }());
         }
@@ -1525,7 +1552,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
               }
             });
           }).then(/*#__PURE__*/function () {
-            var _ref21 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee18(response) {
+            var _ref22 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee18(response) {
               var _response$response8, _response$response9;
               var itchDoc, purchaseLinks;
               return _regeneratorRuntime().wrap(function _callee18$(_context18) {
@@ -1600,10 +1627,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
               }, _callee18);
             }));
             return function (_x15) {
-              return _ref21.apply(this, arguments);
+              return _ref22.apply(this, arguments);
             };
           }())["catch"](/*#__PURE__*/function () {
-            var _ref22 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee19(error) {
+            var _ref23 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee19(error) {
               return _regeneratorRuntime().wrap(function _callee19$(_context19) {
                 while (1) {
                   switch (_context19.prev = _context19.next) {
@@ -1621,7 +1648,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
               }, _callee19);
             }));
             return function (_x16) {
-              return _ref22.apply(this, arguments);
+              return _ref23.apply(this, arguments);
             };
           }());
         }
@@ -1742,7 +1769,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
               }
             });
           }).then(/*#__PURE__*/function () {
-            var _ref24 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee21(response) {
+            var _ref25 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee21(response) {
               var _response$response10, _response$response11, _response$response11$, _response$response11$2, _response$response13, _response$response13$, _response$response13$2;
               var _response$response12;
               return _regeneratorRuntime().wrap(function _callee21$(_context21) {
@@ -1812,10 +1839,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
               }, _callee21);
             }));
             return function (_x17) {
-              return _ref24.apply(this, arguments);
+              return _ref25.apply(this, arguments);
             };
           }())["catch"](/*#__PURE__*/function () {
-            var _ref25 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee22(error) {
+            var _ref26 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee22(error) {
               return _regeneratorRuntime().wrap(function _callee22$(_context22) {
                 while (1) {
                   switch (_context22.prev = _context22.next) {
@@ -1833,7 +1860,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
               }, _callee22);
             }));
             return function (_x18) {
-              return _ref25.apply(this, arguments);
+              return _ref26.apply(this, arguments);
             };
           }());
         }
@@ -1918,7 +1945,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
   var settings = getGlobalSettings();
   GM_registerMenuCommand('设置', setting);
   GM_registerMenuCommand('平台开关', openPlatformSwitchDialog);
-  GM_addStyle("\n.glc-mask{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2147483646;display:flex;align-items:center;justify-content:center}\n.glc-dialog{background:#fff;color:#111;padding:16px;border-radius:10px;min-width:340px;max-width:560px;font-size:14px;box-shadow:0 20px 45px rgba(0,0,0,.24)}\n.glc-dialog-title{margin:0 0 12px;font-size:18px;line-height:1.4}\n.glc-dialog-body{line-height:1.6}\n.glc-dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}\n.glc-dialog-actions button{border:1px solid #d1d5db;border-radius:6px;background:#fff;color:#111;padding:6px 12px;cursor:pointer}\n.glc-dialog-actions [data-glc-confirm]{border-color:#2563eb;background:#2563eb;color:#fff}\n.glc-textarea{width:100%;min-height:160px;box-sizing:border-box}\n.glc-toast{position:fixed;right:16px;bottom:16px;z-index:2147483647;background:#1f2937;color:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 10px 25px rgba(0,0,0,.2)}\n.glc-toast-error{background:#b91c1c}\n.glc-toast-success{background:#15803d}\n.glc-progress-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}\n.glc-progress-list li{display:flex;justify-content:space-between;gap:16px}\n.glc-progress-platform{font-weight:700}\n  ");
+  GM_addStyle("\n.glc-mask{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2147483646;display:flex;align-items:center;justify-content:center}\n.glc-dialog{background:#fff;color:#111;padding:16px;border-radius:10px;min-width:340px;max-width:560px;font-size:14px;box-shadow:0 20px 45px rgba(0,0,0,.24)}\n.glc-dialog-title{margin:0 0 12px;font-size:18px;line-height:1.4}\n.glc-dialog-body{line-height:1.6}\n.glc-dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}\n.glc-dialog-actions button{border:1px solid #d1d5db;border-radius:6px;background:#fff;color:#111;padding:6px 12px;cursor:pointer}\n.glc-dialog-actions [data-glc-confirm]{border-color:#2563eb;background:#2563eb;color:#fff}\n.glc-textarea{width:100%;min-height:160px;box-sizing:border-box}\n#glc-toast-container{position:fixed;right:16px;bottom:16px;z-index:2147483647;display:flex;flex-direction:column;gap:8px;align-items:flex-end;pointer-events:none}\n.glc-toast{background:#1f2937;color:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 10px 25px rgba(0,0,0,.2);pointer-events:auto;max-width:420px;word-break:break-word}\n.glc-toast-error{background:#b91c1c}\n.glc-toast-success{background:#15803d}\n.glc-progress-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}\n.glc-progress-list li{display:flex;justify-content:space-between;gap:16px}\n.glc-progress-platform{font-weight:700}\n  ");
   if (!isUrlEnabledByList(window.location.href, settings)) return;
   var modules = [createEpicModule(), createGogModule(), createItchModule(), createCubeModule()];
   runInitialFlow();

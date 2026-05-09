@@ -129,15 +129,31 @@
     });
   }
 
+  function createToastContainer() {
+    let container = document.getElementById('glc-toast-container');
+    if (container) return container;
+    container = document.createElement('div');
+    container.id = 'glc-toast-container';
+    document.body.appendChild(container);
+    return container;
+  }
+
   function showToast(message, type = 'info') {
     const el = document.createElement('div');
     el.className = `glc-toast glc-toast-${type}`;
     el.textContent = message;
-    document.body.appendChild(el);
+    createToastContainer().appendChild(el);
     window.setTimeout(() => el.remove(), 4000);
   }
 
-  function showProgressPanel(stateMap) {
+  let progressPanelStateMap = {};
+
+  function showProgressPanel(stateMap, { replace = false } = {}) {
+    if (replace) {
+      progressPanelStateMap = { ...(stateMap || {}) };
+    } else {
+      progressPanelStateMap = { ...progressPanelStateMap, ...(stateMap || {}) };
+    }
     const root = createModalRoot();
     root.innerHTML = `
       <div class="glc-mask">
@@ -150,7 +166,7 @@
     const listEl = root.querySelector('.glc-progress-list');
     if (titleEl) titleEl.textContent = '正在更新缓存';
     if (listEl) {
-      Object.entries(stateMap || {}).forEach(([platform, state]) => {
+      Object.entries(progressPanelStateMap).forEach(([platform, state]) => {
         const li = document.createElement('li');
         const platformEl = document.createElement('span');
         platformEl.className = 'glc-progress-platform';
@@ -166,6 +182,7 @@
   }
 
   function clearProgressPanel() {
+    progressPanelStateMap = {};
     const root = createModalRoot();
     if (root.querySelector('.glc-progress-dialog')) root.innerHTML = '';
   }
@@ -175,6 +192,8 @@
     ERROR: 'error',
     AUTH_EXPIRED: 'auth_expired'
   };
+
+  let inBatchUpdateFlow = false;
 
   function queryLinks(selector) {
     return Array.from(document.querySelectorAll(selector));
@@ -228,32 +247,37 @@
   async function batchUpdateSelectedModules(enabledModules, selectedKeys) {
     const state = Object.fromEntries(selectedKeys.map((key) => [key, 'waiting']));
     let interruptedByAuthExpired = false;
-    showProgressPanel(state);
-    for (const key of selectedKeys) {
-      const module = enabledModules.find((item) => item.key === key);
-      if (!module) continue;
-      state[key] = 'running';
-      showProgressPanel(state);
-      try {
-        const updateResult = await module.updateLibrary();
-        if (updateResult === true) {
-          state[key] = 'success';
-        } else if (updateResult?.status === UPDATE_STATUS.AUTH_EXPIRED) {
-          interruptedByAuthExpired = true;
-          state[key] = UPDATE_STATUS.AUTH_EXPIRED;
-          clearProgressPanel();
-          showLoginExpiredDialog(updateResult.platformName, updateResult.loginUrl);
-          break;
-        } else {
+    inBatchUpdateFlow = true;
+    showProgressPanel(state, { replace: true });
+    try {
+      for (const key of selectedKeys) {
+        const module = enabledModules.find((item) => item.key === key);
+        if (!module) continue;
+        state[key] = 'running';
+        showProgressPanel({ [key]: state[key] });
+        try {
+          const updateResult = await module.updateLibrary();
+          if (updateResult === true) {
+            state[key] = 'success';
+          } else if (updateResult?.status === UPDATE_STATUS.AUTH_EXPIRED) {
+            interruptedByAuthExpired = true;
+            state[key] = UPDATE_STATUS.AUTH_EXPIRED;
+            clearProgressPanel();
+            showLoginExpiredDialog(updateResult.platformName, updateResult.loginUrl);
+            break;
+          } else {
+            state[key] = 'error';
+            showToast(`${key.toUpperCase()} 更新失败`, 'error');
+          }
+        } catch (error) {
+          console.error(error);
           state[key] = 'error';
           showToast(`${key.toUpperCase()} 更新失败`, 'error');
         }
-      } catch (error) {
-        console.error(error);
-        state[key] = 'error';
-        showToast(`${key.toUpperCase()} 更新失败`, 'error');
+        if (!interruptedByAuthExpired) showProgressPanel({ [key]: state[key] });
       }
-      if (!interruptedByAuthExpired) showProgressPanel(state);
+    } finally {
+      inBatchUpdateFlow = false;
     }
     if (!interruptedByAuthExpired) clearProgressPanel();
   }
@@ -282,7 +306,7 @@
   }
 
   function showUpdateResult(title, type) {
-    clearProgressPanel();
+    if (!inBatchUpdateFlow) clearProgressPanel();
     showToast(title, type);
     return Promise.resolve(true);
   }
@@ -1188,7 +1212,8 @@
 .glc-dialog-actions button{border:1px solid #d1d5db;border-radius:6px;background:#fff;color:#111;padding:6px 12px;cursor:pointer}
 .glc-dialog-actions [data-glc-confirm]{border-color:#2563eb;background:#2563eb;color:#fff}
 .glc-textarea{width:100%;min-height:160px;box-sizing:border-box}
-.glc-toast{position:fixed;right:16px;bottom:16px;z-index:2147483647;background:#1f2937;color:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 10px 25px rgba(0,0,0,.2)}
+#glc-toast-container{position:fixed;right:16px;bottom:16px;z-index:2147483647;display:flex;flex-direction:column;gap:8px;align-items:flex-end;pointer-events:none}
+.glc-toast{background:#1f2937;color:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 10px 25px rgba(0,0,0,.2);pointer-events:auto;max-width:420px;word-break:break-word}
 .glc-toast-error{background:#b91c1c}
 .glc-toast-success{background:#15803d}
 .glc-progress-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}

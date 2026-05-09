@@ -72,6 +72,15 @@ describe('merged userscript contract', () => {
       assert.match(rawMergedText, /if\s*\(updateResult\s*===\s*true\)/, 'batch update should only mark success for explicit true result');
       assert.match(rawMergedText, /state\[key\]\s*=\s*'error'/, 'batch update should set error state for failed updates');
     });
+
+    it('keeps multi-platform progress state and stacks toasts in a container', () => {
+      assert.match(rawMergedText, /let\s+progressPanelStateMap\s*=\s*\{\}/, 'missing shared progress state map');
+      assert.match(rawMergedText, /showProgressPanel\(stateMap,\s*\{\s*replace\s*=\s*false\s*\}\s*=\s*\{\}\)/, 'showProgressPanel should support merge updates');
+      assert.match(rawMergedText, /progressPanelStateMap\s*=\s*\{\s*\.\.\.progressPanelStateMap,\s*\.\.\.\(stateMap\s*\|\|\s*\{\}\)\s*\}/, 'progress updates should merge instead of replacing');
+      assert.match(rawMergedText, /function\s+createToastContainer\s*\(/, 'missing toast container helper');
+      assert.match(rawMergedText, /container\.id\s*=\s*'glc-toast-container'/, 'toast container should use fixed id');
+      assert.match(rawMergedText, /#glc-toast-container\{/, 'missing toast container css for stacking');
+    });
   });
 
   describe('merged build output content', () => {
