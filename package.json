@@ -9,7 +9,9 @@
     "gog": "node ./tools/gog.js",
     "epic": "node ./tools/epic.js",
     "cube": "node ./tools/cube.js",
-    "build": "npm run itch && npm run gog && npm run epic && npm run cube"
+    "test:merged": "node --test tests/merged-userscript/merged-script.test.js",
+    "merged": "node ./tools/merged.js",
+    "build": "npm run itch && npm run gog && npm run epic && npm run cube && npm run merged"
   },
   "repository": {
     "type": "git",
