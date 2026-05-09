@@ -181,6 +181,69 @@
     return new DOMParser().parseFromString(html, 'text/html');
   }
 
+  function collectEmptyCaches(enabledModules) {
+    return enabledModules.filter((module) => module.isCacheEmpty()).map((module) => module.key);
+  }
+
+  function showEmptyCacheAggregationDialog(emptyKeys, onConfirm) {
+    const bodyNode = document.createElement('div');
+    emptyKeys.forEach((key, index) => {
+      const label = document.createElement('label');
+      const input = document.createElement('input');
+      input.type = 'checkbox';
+      input.dataset.platform = key;
+      input.checked = true;
+      label.appendChild(input);
+      label.appendChild(document.createTextNode(` ${key.toUpperCase()}`));
+      bodyNode.appendChild(label);
+      if (index < emptyKeys.length - 1) bodyNode.appendChild(document.createElement('br'));
+    });
+    showDialog({
+      title: '检测到缓存为空的平台',
+      bodyNode,
+      confirmText: '立即更新',
+      cancelText: '稍后再说',
+      onConfirm: (root) => {
+        const selected = Array.from(root.querySelectorAll('input[data-platform]:checked'))
+          .map((el) => el.getAttribute('data-platform'));
+        onConfirm(selected);
+      }
+    });
+  }
+
+  async function batchUpdateSelectedModules(enabledModules, selectedKeys) {
+    const state = Object.fromEntries(selectedKeys.map((key) => [key, 'waiting']));
+    showProgressPanel(state);
+    for (const key of selectedKeys) {
+      const module = enabledModules.find((item) => item.key === key);
+      if (!module) continue;
+      state[key] = 'running';
+      showProgressPanel(state);
+      try {
+        await module.updateLibrary();
+        state[key] = 'success';
+      } catch (error) {
+        console.error(error);
+        state[key] = 'error';
+        showToast(`${key.toUpperCase()} 更新失败`, 'error');
+      }
+      showProgressPanel(state);
+    }
+  }
+
+  async function runInitialFlow() {
+    const enabledModules = modules.filter((module) => module.enabled());
+    const emptyKeys = collectEmptyCaches(enabledModules);
+    if (emptyKeys.length > 0) {
+      showEmptyCacheAggregationDialog(emptyKeys, async (selectedKeys) => {
+        if (selectedKeys.length > 0) await batchUpdateSelectedModules(enabledModules, selectedKeys);
+        enabledModules.forEach((module) => module.start());
+      });
+      return;
+    }
+    enabledModules.forEach((module) => module.start());
+  }
+
   function showNativeOverhang(options = {}) {
     const type = options.type === 'error' ? 'error' : 'info';
     if (options.html) {
@@ -305,10 +368,19 @@
   }
 
   function createEpicModule() {
-    return {
+    let updateLibrary;
+    let started = false;
+    const moduleApi = {
       key: 'epic',
       enabled: () => settings.platformEnabled.epic,
+      isCacheEmpty: () => (GM_getValue('ownedGames') || []).length === 0,
+      updateLibrary: async () => {
+        if (!updateLibrary) await moduleApi.start();
+        return updateLibrary();
+      },
       start: async () => {
+        if (started) return;
+        started = true;
         if (!GM_getValue('version')) {
           GM_deleteValue('epicGamesLibrary');
           GM_deleteValue('ownedGames');
@@ -323,20 +395,7 @@
 
         await getSha256Hash();
 
-        if (getEpicOwnedGames().length === 0) {
-          Swal.fire({
-            title: '游戏库检测脚本提醒',
-            icon: 'warning',
-            text: '没有检测到Epic已拥有游戏数据，是否立即获取？',
-            showCancelButton: true,
-            confirmButtonText: '获取',
-            cancelButtonText: '取消'
-          }).then(({ value }) => {
-            if (value) updateEpicOwnedGames();
-          });
-        } else {
-          checkEpicGame();
-        }
+        checkEpicGame();
 
         const observer = new MutationObserver(() => { checkEpicGame(false, true); });
         observer.observe(document.documentElement, {
@@ -742,6 +801,7 @@
         }
         */
 
+        updateLibrary = updateEpicOwnedGames;
         GM_registerMenuCommand('更新Epic已拥有游戏数据', updateEpicOwnedGames);
 
         GM_addStyle(`
@@ -755,29 +815,26 @@
 }`);
       }
     };
+    return moduleApi;
   }
 
   function createGogModule() {
-    return {
+    let updateLibrary;
+    let started = false;
+    const moduleApi = {
       key: 'gog',
       enabled: () => settings.platformEnabled.gog,
+      isCacheEmpty: () => (GM_getValue('gogGames') || []).length === 0,
+      updateLibrary: () => {
+        if (!updateLibrary) moduleApi.start();
+        return updateLibrary();
+      },
       start: () => {
+        if (started) return;
+        started = true;
         let loadTimes = 0;
 
-        if (getGogGameLibrary().length === 0) {
-          Swal.fire({
-            title: '游戏库检测脚本提醒',
-            icon: 'warning',
-            text: '没有检测到gog游戏库数据，是否立即获取？',
-            showCancelButton: true,
-            confirmButtonText: '获取',
-            cancelButtonText: '取消'
-          }).then(({ value }) => {
-            if (value) updateGogGameLibrary();
-          });
-        } else {
-          checkGogGame();
-        }
+        checkGogGame();
 
         const observer = new MutationObserver(() => { checkGogGame(false, true); });
         observer.observe(document.documentElement, {
@@ -895,34 +952,32 @@
             });
         }
 
+        updateLibrary = updateGogGameLibrary;
         GM_registerMenuCommand('更新gog游戏库', updateGogGameLibrary);
 
         GM_addStyle('.gog-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}');
       }
     };
+    return moduleApi;
   }
 
   function createItchModule() {
-    return {
+    let updateLibrary;
+    let started = false;
+    const moduleApi = {
       key: 'itch',
       enabled: () => settings.platformEnabled.itch,
+      isCacheEmpty: () => (GM_getValue('itchGames') || []).length === 0,
+      updateLibrary: () => {
+        if (!updateLibrary) moduleApi.start();
+        return updateLibrary();
+      },
       start: () => {
+        if (started) return;
+        started = true;
         let loadTimes = 0;
 
-        if (getItchGameLibrary().length === 0) {
-          Swal.fire({
-            title: '游戏库检测脚本提醒',
-            icon: 'warning',
-            text: '没有检测到itch游戏库数据，是否立即获取？',
-            showCancelButton: true,
-            confirmButtonText: '获取',
-            cancelButtonText: '取消'
-          }).then(({ value }) => {
-            if (value) updateItchGameLibrary();
-          });
-        } else {
-          checkItchGame();
-        }
+        checkItchGame();
 
         const observer = new MutationObserver(() => { checkItchGame(false, true); });
         observer.observe(document.documentElement, {
@@ -1049,35 +1104,33 @@
             });
         }
 
+        updateLibrary = updateItchGameLibrary;
         GM_registerMenuCommand('更新itch游戏库', updateItchGameLibrary);
 
         GM_addStyle('.itch-io-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}');
         unsafeWindow.checkItchGame = checkItchGame;
       }
     };
+    return moduleApi;
   }
 
   function createCubeModule() {
-    return {
+    let updateLibrary;
+    let started = false;
+    const moduleApi = {
       key: 'cube',
       enabled: () => settings.platformEnabled.cube,
+      isCacheEmpty: () => (GM_getValue('cubeGames') || []).length === 0,
+      updateLibrary: () => {
+        if (!updateLibrary) moduleApi.start();
+        return updateLibrary();
+      },
       start: () => {
+        if (started) return;
+        started = true;
         let loadTimes = 0;
 
-        if (getCubeGameLibrary().length === 0) {
-          Swal.fire({
-            title: '游戏库检测脚本提醒',
-            icon: 'warning',
-            text: '没有检测到方块游戏库数据，是否立即获取？',
-            showCancelButton: true,
-            confirmButtonText: '获取',
-            cancelButtonText: '取消'
-          }).then(({ value }) => {
-            if (value) updateCubeGameLibrary();
-          });
-        } else {
-          checkCubeGame();
-        }
+        checkCubeGame();
 
         const observer = new MutationObserver(() => { checkCubeGame(false, true); });
         observer.observe(document.documentElement, {
@@ -1201,11 +1254,13 @@
             });
         }
 
+        updateLibrary = updateCubeGameLibrary;
         GM_registerMenuCommand('更新cube游戏库', updateCubeGameLibrary);
 
         GM_addStyle('.cube-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}');
       }
     };
+    return moduleApi;
   }
 
   function addWhiteList() {
@@ -1289,7 +1344,5 @@
     createItchModule(),
     createCubeModule()
   ];
-  modules.forEach((module) => {
-    if (module.enabled()) module.start();
-  });
+  runInitialFlow();
 }());

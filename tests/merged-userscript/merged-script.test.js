@@ -61,6 +61,7 @@ describe('merged userscript contract', () => {
     it('contains aggregated startup orchestration markers', () => {
       assert.match(rawMergedText, /collectEmptyCaches\s*\(/, 'missing collectEmptyCaches orchestrator');
       assert.match(rawMergedText, /showEmptyCacheAggregationDialog\s*\(/, 'missing aggregated empty-cache dialog');
+      assert.match(rawMergedText, /batchUpdateSelectedModules\s*\(/, 'missing batch update orchestrator');
       assert.match(rawMergedText, /runInitialFlow\s*\(/, 'missing startup flow orchestrator');
     });
   });
