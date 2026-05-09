@@ -15,16 +15,9 @@
 // @exclude        *://www.gog.com/*
 // @exclude        *://itch.io/login
 // @exclude        *://account.cubejoy.com/html/login.html
-// @require        https://cdn.jsdelivr.net/npm/jquery@3.4.1/dist/jquery.min.js
-// @require        https://cdn.jsdelivr.net/npm/jquery-ui@1.13.2/dist/jquery-ui.min.js
-// @require        https://cdn.jsdelivr.net/npm/components-jqueryui@1.12.1/ui/effect.min.js
 // @require        https://cdn.jsdelivr.net/npm/regenerator-runtime@0.13.5/runtime.min.js
-// @require        https://cdn.jsdelivr.net/npm/sweetalert2@11
-// @require        https://cdn.jsdelivr.net/npm/promise-polyfill@8.1.3/dist/polyfill.min.js
-// @require        https://cdn.jsdelivr.net/npm/overhang@1.0.8/dist/overhang.min.js
 // @require        https://greasyfork.org/scripts/418102-tm-request/code/TM_request.js?version=902218
 // @require        https://greasyfork.org/scripts/426803-gistsync/code/gistSync.js?version=957824
-// @resource       overhang https://cdn.jsdelivr.net/npm/overhang@1.0.8/dist/overhang.min.css
 // @grant          GM_setValue
 // @grant          GM_getValue
 // @grant          GM_deleteValue
@@ -32,7 +25,6 @@
 // @grant          GM_addStyle
 // @grant          GM_xmlhttpRequest
 // @grant          GM_registerMenuCommand
-// @grant          GM_getResourceText
 // @grant          GM_openInTab
 // @grant          unsafeWindow
 // @connect        store.epicgames.com
@@ -72,6 +64,58 @@
     if (whiteList.length > 0) return whiteList.some((item) => url.includes(item));
     if (blackList.length > 0) return !blackList.some((item) => url.includes(item));
     return true;
+  }
+
+  function createModalRoot() {
+    let root = document.getElementById('glc-modal-root');
+    if (root) return root;
+    root = document.createElement('div');
+    root.id = 'glc-modal-root';
+    document.body.appendChild(root);
+    return root;
+  }
+
+  function showDialog({ title, bodyHtml, confirmText = '确定', cancelText = '取消', onConfirm }) {
+    const root = createModalRoot();
+    root.innerHTML = `
+      <div class="glc-mask">
+        <div class="glc-dialog" role="dialog" aria-modal="true">
+          <h3 class="glc-dialog-title">${title}</h3>
+          <div class="glc-dialog-body">${bodyHtml}</div>
+          <div class="glc-dialog-actions">
+            <button type="button" data-glc-cancel>${cancelText}</button>
+            <button type="button" data-glc-confirm>${confirmText}</button>
+          </div>
+        </div>
+      </div>`;
+    const close = () => { root.innerHTML = ''; };
+    root.querySelector('[data-glc-cancel]')?.addEventListener('click', close);
+    root.querySelector('[data-glc-confirm]')?.addEventListener('click', () => {
+      if (typeof onConfirm === 'function') onConfirm(root);
+      close();
+    });
+  }
+
+  function showToast(message, type = 'info') {
+    const el = document.createElement('div');
+    el.className = `glc-toast glc-toast-${type}`;
+    el.textContent = message;
+    document.body.appendChild(el);
+    window.setTimeout(() => el.remove(), 4000);
+  }
+
+  function showProgressPanel(stateMap) {
+    const root = createModalRoot();
+    const rows = Object.entries(stateMap)
+      .map(([platform, state]) => `<li><span class="glc-progress-platform">${platform.toUpperCase()}</span><span class="glc-progress-state">${state}</span></li>`)
+      .join('');
+    root.innerHTML = `
+      <div class="glc-mask">
+        <div class="glc-dialog glc-progress-dialog" role="dialog" aria-modal="true">
+          <h3 class="glc-dialog-title">正在更新缓存</h3>
+          <ul class="glc-progress-list">${rows}</ul>
+        </div>
+      </div>`;
   }
 
   function openPlatformSwitchDialog() {
@@ -1065,7 +1109,21 @@
 
   GM_registerMenuCommand('设置', setting);
   GM_registerMenuCommand('平台开关', openPlatformSwitchDialog);
-  GM_addStyle(GM_getResourceText('overhang'));
+  GM_addStyle(`
+.glc-mask{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2147483646;display:flex;align-items:center;justify-content:center}
+.glc-dialog{background:#fff;color:#111;padding:16px;border-radius:10px;min-width:340px;max-width:560px;font-size:14px;box-shadow:0 20px 45px rgba(0,0,0,.24)}
+.glc-dialog-title{margin:0 0 12px;font-size:18px;line-height:1.4}
+.glc-dialog-body{line-height:1.6}
+.glc-dialog-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:12px}
+.glc-dialog-actions button{border:1px solid #d1d5db;border-radius:6px;background:#fff;color:#111;padding:6px 12px;cursor:pointer}
+.glc-dialog-actions [data-glc-confirm]{border-color:#2563eb;background:#2563eb;color:#fff}
+.glc-toast{position:fixed;right:16px;bottom:16px;z-index:2147483647;background:#1f2937;color:#fff;padding:10px 14px;border-radius:8px;box-shadow:0 10px 25px rgba(0,0,0,.2)}
+.glc-toast-error{background:#b91c1c}
+.glc-toast-success{background:#15803d}
+.glc-progress-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.glc-progress-list li{display:flex;justify-content:space-between;gap:16px}
+.glc-progress-platform{font-weight:700}
+  `);
 
   if (!isUrlEnabledByList(window.location.href, settings)) return;
 
