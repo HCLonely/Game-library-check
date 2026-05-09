@@ -603,8 +603,8 @@
             $this.addClass('gog-game-checked');
             let href = $this.attr('href');
             if (!/\/$/.test(href)) href += '/';
-            const gogGameLink = href.match(/https?:\/\/www.gog.com\/([\w]+?\/)game\/([\d\w_]+)/i)?.[2];
-            if (gogGameLink && gogGames.includes(gogGameLink.toLowerCase())) {
+            const gogGameLink = href.match(/https?:\/\/www\.gog\.com\/(?:[\w-]+\/)?game\/([^/?#]+)/i)?.[1]?.toLowerCase();
+            if (gogGameLink && gogGames.some((game) => game.toLowerCase() === gogGameLink)) {
               $this.addClass('gog-game-link-owned');
             }
             return e;
