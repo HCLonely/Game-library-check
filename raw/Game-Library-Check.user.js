@@ -29,6 +29,7 @@
 // @grant          unsafeWindow
 // @connect        store.epicgames.com
 // @connect        www.epicgames.com
+// @connect        accounts.epicgames.com
 // @connect        www.gog.com
 // @connect        itch.io
 // @connect        account.cubejoy.com
@@ -629,7 +630,7 @@
             }
             GM_xmlhttpRequest({
               method: 'GET',
-              url: `https://www.epicgames.com/account/v2/payment/ajaxGetOrderHistory?sortDir=DESC&sortBy=DATE&locale=${locale}${nextPageToken ? `&nextPageToken=${encodeURIComponent(nextPageToken)}` : ''}`,
+              url: `https://accounts.epicgames.com/account/v2/payment/ajaxGetOrderHistory?sortDir=DESC&sortBy=DATE&locale=${locale}${nextPageToken ? `&nextPageToken=${encodeURIComponent(nextPageToken)}` : ''}`,
               timeout: 30000,
               nocache: true,
               responseType: 'json',
