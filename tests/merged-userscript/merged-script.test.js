@@ -5,6 +5,7 @@ const { describe, it, before } = require('node:test');
 
 const rawMergedPath = path.resolve(__dirname, '../../raw/Game-Library-Check.user.js');
 const mergedBuildPath = path.resolve(__dirname, '../../Game-Library-Check.user.js');
+const mergedAllBuildPath = path.resolve(__dirname, '../../Game-Library-Check.all.user.js');
 
 function readRequiredFile(filePath, missingMessage) {
   assert.ok(fs.existsSync(filePath), `${missingMessage} (path: ${filePath})`);
@@ -20,6 +21,7 @@ function extractPlatformEnabledBlock(text) {
 describe('merged userscript contract', () => {
   let rawMergedText = '';
   let builtMergedText = '';
+  let builtMergedAllText = '';
 
   it('raw merged script exists', () => {
     assert.ok(
@@ -55,10 +57,21 @@ describe('merged userscript contract', () => {
         mergedBuildPath,
         'missing built Game-Library-Check.user.js',
       );
+      builtMergedAllText = readRequiredFile(
+        mergedAllBuildPath,
+        'missing built Game-Library-Check.all.user.js',
+      );
     });
 
     it('contains merged userscript header', () => {
       assert.ok(builtMergedText.includes('@name'), 'missing @name in build output');
+    });
+
+    it('has valid JavaScript syntax after bundling resources', () => {
+      assert.doesNotThrow(
+        () => new Function(builtMergedAllText),
+        'merged all-in-one build output should parse as JavaScript',
+      );
     });
   });
 });

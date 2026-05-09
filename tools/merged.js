@@ -34,8 +34,8 @@ babel.transform(mergedJs, {}, (err, result) => {
       console.log('缺少文件', fileName);
       return '';
     }
-    userAllText = userAllText.replace(`GM_getResourceText('${resourceName}')`, `\`${fs.readFileSync(path.join('resource', fileName)).toString()
-      .trim()}\``).replace(`${e[0]}\n`, '');
+    userAllText = userAllText.replace(`GM_getResourceText('${resourceName}')`, JSON.stringify(fs.readFileSync(path.join('resource', fileName)).toString()
+      .trim())).replace(`${e[0]}\n`, '');
     return null;
   });
   fs.writeFile('./Game-Library-Check.all.user.js', userAllText, (error) => { // eslint-disable-line
