@@ -50,20 +50,6 @@ function showDialog({ title, bodyHtml, trustedBodyHtml = false, bodyText = '', b
   if (confirmBtn) confirmBtn.textContent = confirmText;
 
   let closed = false;
-  const onKeydown = (event) => {
-    if (event.key === 'Escape') {
-      if (typeof onCancel === 'function') onCancel(root);
-      close();
-    }
-  };
-
-  const onMaskClick = (event) => {
-    if (event.target === maskEl) {
-      if (typeof onCancel === 'function') onCancel(root);
-      close();
-    }
-  };
-
   const close = () => {
     if (closed) return;
     closed = true;
@@ -72,21 +58,39 @@ function showDialog({ title, bodyHtml, trustedBodyHtml = false, bodyText = '', b
     root.innerHTML = '';
   };
 
+  const runAndClose = (callback) => {
+    try {
+      if (typeof callback === 'function') callback(root);
+    } finally {
+      close();
+    }
+  };
+
+  const onKeydown = (event) => {
+    if (closed) return;
+    if (event.key === 'Escape') runAndClose(onCancel);
+  };
+
+  const onMaskClick = (event) => {
+    if (closed) return;
+    if (event.target === maskEl) runAndClose(onCancel);
+  };
+
   document.addEventListener('keydown', onKeydown);
   maskEl?.addEventListener('click', onMaskClick);
   dialogEl?.addEventListener('click', (event) => event.stopPropagation());
 
   cancelBtn?.addEventListener('click', () => {
-    if (typeof onCancel === 'function') onCancel(root);
-    close();
+    if (closed) return;
+    runAndClose(onCancel);
   });
   denyBtn?.addEventListener('click', () => {
-    if (typeof onDeny === 'function') onDeny(root);
-    close();
+    if (closed) return;
+    runAndClose(onDeny);
   });
   confirmBtn?.addEventListener('click', () => {
-    if (typeof onConfirm === 'function') onConfirm(root);
-    close();
+    if (closed) return;
+    runAndClose(onConfirm);
   });
 }
 
