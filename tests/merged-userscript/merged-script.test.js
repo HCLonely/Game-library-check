@@ -81,6 +81,47 @@ describe('merged userscript contract', () => {
       assert.match(rawMergedText, /container\.id\s*=\s*'glc-toast-container'/, 'toast container should use fixed id');
       assert.match(rawMergedText, /#glc-toast-container\{/, 'missing toast container css for stacking');
     });
+
+    it('contains ig platform key in platformEnabled settings', () => {
+      const platformEnabledBlock = extractPlatformEnabledBlock(rawMergedText);
+      assert.match(platformEnabledBlock, /\big\s*:/, 'missing ig key in platformEnabled settings');
+    });
+
+    it('contains ig startup orchestration markers', () => {
+      assert.match(rawMergedText, /createIgModule\s*\(/, 'missing createIgModule factory');
+      assert.match(rawMergedText, /key\s*:\s*\'ig\'/, 'missing ig module key');
+      assert.match(rawMergedText, /platformEnabled\s*:\s*\{[\s\S]*ig\s*:/, 'missing ig toggle in defaults');
+    });
+
+    it('contains modular merged source files', () => {
+      const requiredFiles = [
+        '../../src/index.js',
+        '../../src/meta/userscript-header.js',
+        '../../src/core/settings.js',
+        '../../src/core/startup.js',
+        '../../src/ui/dialog.js',
+        '../../src/ui/toast.js',
+        '../../src/ui/progress.js',
+        '../../src/platforms/epic.js',
+        '../../src/platforms/gog.js',
+        '../../src/platforms/itch.js',
+        '../../src/platforms/cube.js',
+        '../../src/platforms/ig.js',
+        '../../tools/build-merged-esbuild.js',
+      ];
+
+      requiredFiles.forEach((relativePath) => {
+        const absolute = path.resolve(__dirname, relativePath);
+        assert.ok(fs.existsSync(absolute), `missing modular file: ${relativePath}`);
+      });
+    });
+
+    it('runs merged build through esbuild raw generation first', () => {
+      const packageJsonPath = path.resolve(__dirname, '../../package.json');
+      const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+      assert.match(packageJson.scripts.merged, /tools\/build-merged-esbuild\.js/, 'missing esbuild raw build step');
+      assert.match(packageJson.scripts.merged, /tools\/merged\.js/, 'missing merged post-build step');
+    });
   });
 
   describe('merged build output content', () => {
