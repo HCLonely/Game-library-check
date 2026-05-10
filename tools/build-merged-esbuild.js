@@ -12,6 +12,7 @@ esbuild.build({
   format: 'iife',
   target: ['chrome100'],
   write: false,
+  charset: 'utf8',
   banner: { js: header }
 }).then(({ outputFiles }) => {
   fs.writeFileSync(outFile, `${outputFiles[0].text}\n`, 'utf8');

@@ -1,14 +1,16 @@
 # Game-library-check
 
-检测 [itch](https://itch.io/),[gog](https://www.gog.com/),[epic](https://www.epicgames.com/),[方块](https://www.cubejoy.com/) 游戏链接是否已拥有，拥有的游戏链接背景为绿色。
+检测 [itch](https://itch.io/),[gog](https://www.gog.com/),[epic](https://www.epicgames.com/),[方块](https://www.cubejoy.com/),[indiegala](https://www.indiegala.com/) 游戏链接是否已拥有，拥有的游戏链接背景为绿色。
 
 首次使用需要获取游戏库数据，首次安装会弹窗询问是否获取。
 
 ## 合并脚本用法
 
+- `raw/Game-Library-Check.user.js` 由 `src/` 模块通过 esbuild 生成。
 - `Game-Library-Check.user.js`：合并版脚本，按平台开关决定各平台模块是否在启动时运行。
-- `Game-Library-Check.all.user.js`：包含所有平台的合并版脚本，可在同一脚本内管理 itch、GOG、Epic、方块等平台检测。
+- `Game-Library-Check.all.user.js`：包含所有平台的合并版脚本，可在同一脚本内管理 Itch、GOG、Epic、方块、IG 平台检测。
 - 菜单项 `设置` 用于打开脚本设置；菜单项 `平台开关` 用于启用或停用各平台。
+- 多平台缓存为空时仅出现一次聚合提示，支持勾选后批量更新；批量更新进度会同时显示所有已选平台状态。
 - `平台开关` 中的切换项只控制对应平台是否在页面启动时加载，不会清除或迁移已保存的数据；原有平台缓存键会继续复用，因此旧脚本获取过的游戏库缓存仍可被合并脚本读取。
 
 ## 白名单模式

@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const babel = require('@babel/core');
 
-const gogJs = fs.readFileSync('./raw/Gog-Game-Library-Check.user.js', 'utf8');
+const gogJs = fs.readFileSync('./raw/olds/Gog-Game-Library-Check.user.js', 'utf8');
 babel.transform(gogJs, {}, (err, result) => {
   if (err) {
     return console.error('babel转换失败: ', err);

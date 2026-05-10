@@ -46,8 +46,9 @@ describe('merged userscript contract', () => {
       assert.match(platformEnabledBlock, /\bcube\s*:/, 'missing cube key in platformEnabled settings');
     });
 
-    it('contains platform switch menu command', () => {
-      assert.ok(rawMergedText.includes('平台开关'), 'missing 平台开关 menu');
+    it('contains platform switch entrypoint', () => {
+      assert.match(rawMergedText, /openPlatformSwitchDialog\s*\(/, 'missing platform switch dialog entrypoint');
+      assert.match(rawMergedText, /GM_registerMenuCommand\([^)]*openPlatformSwitchDialog/, 'missing menu binding for platform switch');
     });
 
     it('does not include deprecated UI/polyfill dependencies in merged raw metadata', () => {
@@ -68,17 +69,17 @@ describe('merged userscript contract', () => {
     it('wires cancel path to continue module startup and treats non-true update results as failure', () => {
       assert.match(rawMergedText, /function\s+showEmptyCacheAggregationDialog\s*\([^)]*onCancel[^)]*\)/, 'showEmptyCacheAggregationDialog should accept onCancel callback');
       assert.match(rawMergedText, /onCancel:\s*\(\)\s*=>\s*\{[\s\S]*onCancel\(\)/, 'showEmptyCacheAggregationDialog should forward onCancel into showDialog');
-      assert.match(rawMergedText, /showEmptyCacheAggregationDialog\([\s\S]*?\(\)\s*=>\s*\{[\s\S]*enabledModules\.forEach\(\(module\)\s*=>\s*module\.start\(\)\)/, 'runInitialFlow should start modules when aggregated dialog is canceled');
+      assert.match(rawMergedText, /showEmptyCacheAggregationDialog\([\s\S]*?\(\)\s*=>\s*\{[\s\S]*enabledModules\.forEach\(\(\w+\)\s*=>\s*\w+\.start\(\)\)/, 'runInitialFlow should start modules when aggregated dialog is canceled');
       assert.match(rawMergedText, /if\s*\(updateResult\s*===\s*true\)/, 'batch update should only mark success for explicit true result');
-      assert.match(rawMergedText, /state\[key\]\s*=\s*'error'/, 'batch update should set error state for failed updates');
+      assert.match(rawMergedText, /state\[key\]\s*=\s*[\"\']error[\"\']/, 'batch update should set error state for failed updates');
     });
 
     it('keeps multi-platform progress state and stacks toasts in a container', () => {
       assert.match(rawMergedText, /let\s+progressPanelStateMap\s*=\s*\{\}/, 'missing shared progress state map');
       assert.match(rawMergedText, /showProgressPanel\(stateMap,\s*\{\s*replace\s*=\s*false\s*\}\s*=\s*\{\}\)/, 'showProgressPanel should support merge updates');
-      assert.match(rawMergedText, /progressPanelStateMap\s*=\s*\{\s*\.\.\.progressPanelStateMap,\s*\.\.\.\(stateMap\s*\|\|\s*\{\}\)\s*\}/, 'progress updates should merge instead of replacing');
+      assert.match(rawMergedText, /progressPanelStateMap\s*=\s*\{\s*\.\.\.progressPanelStateMap,\s*\.\.\.\(?stateMap\s*\|\|\s*\{\}\)?\s*\}/, 'progress updates should merge instead of replacing');
       assert.match(rawMergedText, /function\s+createToastContainer\s*\(/, 'missing toast container helper');
-      assert.match(rawMergedText, /container\.id\s*=\s*'glc-toast-container'/, 'toast container should use fixed id');
+      assert.match(rawMergedText, /container\.id\s*=\s*[\"\']glc-toast-container[\"\']/, 'toast container should use fixed id');
       assert.match(rawMergedText, /#glc-toast-container\{/, 'missing toast container css for stacking');
     });
 
@@ -89,7 +90,7 @@ describe('merged userscript contract', () => {
 
     it('contains ig startup orchestration markers', () => {
       assert.match(rawMergedText, /createIgModule\s*\(/, 'missing createIgModule factory');
-      assert.match(rawMergedText, /key\s*:\s*\'ig\'/, 'missing ig module key');
+      assert.match(rawMergedText, /key\s*:\s*[\"\']ig[\"\']/, 'missing ig module key');
       assert.match(rawMergedText, /platformEnabled\s*:\s*\{[\s\S]*ig\s*:/, 'missing ig toggle in defaults');
     });
 

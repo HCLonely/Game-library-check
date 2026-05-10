@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const babel = require('@babel/core');
 
-const epicJs = fs.readFileSync('./raw/Epic-Game-Library-Check.user.js', 'utf8');
+const epicJs = fs.readFileSync('./raw/olds/Epic-Game-Library-Check.user.js', 'utf8');
 babel.transform(epicJs, {}, (err, result) => {
   if (err) {
     return console.error('babel转换失败: ', err);

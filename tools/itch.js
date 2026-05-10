@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const babel = require('@babel/core');
 
-const itchJs = fs.readFileSync('./raw/Itch-Game-Library-Check.user.js', 'utf8');
+const itchJs = fs.readFileSync('./raw/olds/Itch-Game-Library-Check.user.js', 'utf8');
 babel.transform(itchJs, {}, (err, result) => {
   if (err) {
     return console.error('babel转换失败: ', err);

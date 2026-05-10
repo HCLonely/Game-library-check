@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const babel = require('@babel/core');
 
-const cubeJs = fs.readFileSync('./raw/Cube-Game-Library-Check.user.js', 'utf8');
+const cubeJs = fs.readFileSync('./raw/olds/Cube-Game-Library-Check.user.js', 'utf8');
 babel.transform(cubeJs, {}, (err, result) => {
   if (err) {
     return console.error('babel转换失败: ', err);
