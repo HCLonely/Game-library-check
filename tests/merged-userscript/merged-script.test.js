@@ -83,6 +83,33 @@ describe('merged userscript contract', () => {
       assert.match(rawMergedText, /#glc-toast-container\{/, 'missing toast container css for stacking');
     });
 
+    it('contains dialog interaction contracts in source', () => {
+      const dialogPath = path.resolve(__dirname, '../../src/ui/dialog.js');
+      const dialogText = readRequiredFile(dialogPath, 'missing src/ui/dialog.js');
+
+      assert.match(dialogText, /addEventListener\(\s*[\"\']keydown[\"\']/, 'dialog should register keydown listener');
+      assert.match(dialogText, /event\.key\s*===\s*[\"\']Escape[\"\']/, 'dialog should handle Escape key');
+      assert.match(dialogText, /removeEventListener\(\s*[\"\']keydown[\"\']/, 'dialog should remove keydown listener on close');
+      assert.match(dialogText, /event\.target\s*===\s*maskEl/, 'dialog should only close on mask click target match');
+    });
+
+    it('contains ui polish style token markers in raw merged output', () => {
+      assert.match(rawMergedText, /rgba\(15,23,42,0\.45\)/, 'missing updated dialog mask color token');
+      assert.match(rawMergedText, /\.glc-dialog\s*\{[\s\S]*?border-radius\s*:\s*12px\s*;/, 'missing glc-dialog border radius token');
+      assert.match(rawMergedText, /\.glc-dialog-actions\s+button\s*\{[\s\S]*?border-radius\s*:\s*8px\s*;/, 'missing dialog action button border radius token');
+      assert.match(rawMergedText, /\.glc-dialog-actions\s+button:focus-visible\s*\{/, 'missing focus-visible rule for dialog action buttons');
+    });
+
+    it('contains toast animation and lifecycle markers', () => {
+      const toastPath = path.resolve(__dirname, '../../src/ui/toast.js');
+      const toastText = readRequiredFile(toastPath, 'missing src/ui/toast.js');
+
+      assert.match(rawMergedText, /@keyframes\s+glc-toast-fade-in/, 'missing toast fade-in keyframes');
+      assert.match(rawMergedText, /@keyframes\s+glc-toast-fade-out/, 'missing toast fade-out keyframes');
+      assert.match(toastText, /classList\.add\(\s*[\"\']glc-toast-enter[\"\']\s*\)/, 'toast should add enter animation class');
+      assert.match(toastText, /classList\.add\(\s*[\"\']glc-toast-leave[\"\']\s*\)/, 'toast should add leave animation class');
+    });
+
     it('contains ig platform key in platformEnabled settings', () => {
       const platformEnabledBlock = extractPlatformEnabledBlock(rawMergedText);
       assert.match(platformEnabledBlock, /\big\s*:/, 'missing ig key in platformEnabled settings');
