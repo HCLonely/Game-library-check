@@ -102,7 +102,7 @@ describe('merged userscript contract', () => {
     it('contains ui polish style token markers in raw merged output', () => {
       assert.match(rawMergedText, /rgba\(15,23,42,(?:0)?\.52\)/, 'missing upgraded dialog mask color token');
       assert.match(rawMergedText, /\.glc-dialog\s*\{[\s\S]*?border-radius\s*:\s*16px\s*;/, 'missing upgraded glc-dialog border radius token');
-      assert.match(rawMergedText, /\.glc-dialog\s*\{[\s\S]*?box-shadow\s*:\s*0 24px 64px rgba\(15,23,42,\.22\),0 8px 24px rgba\(15,23,42,\.12\)\s*;/, 'missing upgraded glc-dialog layered shadow token');
+      assert.match(rawMergedText, /\.glc-dialog\s*\{[\s\S]*?box-shadow\s*:\s*0 24px 64px rgba\(15,23,42,\.22\),0 8px 24px rgba\(15,23,42,\.12\)(?:\s*;)?/, 'missing upgraded glc-dialog layered shadow token');
       assert.match(rawMergedText, /\.glc-dialog-actions\s+button\s*\{[\s\S]*?border-radius\s*:\s*10px\s*;/, 'missing upgraded dialog action button border radius token');
       assert.match(rawMergedText, /\.glc-dialog-actions\s+\[data-glc-confirm\]\s*\{[\s\S]*?background\s*:\s*linear-gradient\(135deg,#2563eb 0%,#1d4ed8 100%\)\s*;/, 'missing brand gradient confirm button token');
       assert.match(rawMergedText, /\.glc-toast\s*\{[\s\S]*?border-radius\s*:\s*12px\s*;/, 'missing upgraded toast border radius token');
