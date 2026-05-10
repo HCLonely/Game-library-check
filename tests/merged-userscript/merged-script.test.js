@@ -117,6 +117,41 @@ describe('merged userscript contract', () => {
       });
     });
 
+    it('wires bootstrap through modular controllers and platform factories', () => {
+      const bootstrapPath = path.resolve(__dirname, '../../src/runtime/bootstrap.js');
+      const bootstrapText = readRequiredFile(bootstrapPath, 'missing src/runtime/bootstrap.js');
+
+      assert.match(bootstrapText, /createSettingsController\s*\(/, 'bootstrap should compose settings controller');
+      assert.match(bootstrapText, /createStartupFlow\s*\(/, 'bootstrap should compose startup flow');
+      assert.match(bootstrapText, /createProgressController\s*\(/, 'bootstrap should compose progress controller');
+      assert.match(bootstrapText, /createEpicModule\s*\(/, 'bootstrap should compose epic module');
+      assert.match(bootstrapText, /createGogModule\s*\(/, 'bootstrap should compose gog module');
+      assert.match(bootstrapText, /createItchModule\s*\(/, 'bootstrap should compose itch module');
+      assert.match(bootstrapText, /createCubeModule\s*\(/, 'bootstrap should compose cube module');
+      assert.match(bootstrapText, /createIgModule\s*\(/, 'bootstrap should compose ig module');
+    });
+
+    it('exports non-placeholder module APIs', () => {
+      const sourceContracts = [
+        ['../../src/core/settings.js', /module\.exports\s*=\s*\{[\s\S]*createSettingsController[\s\S]*\}/],
+        ['../../src/core/startup.js', /module\.exports\s*=\s*\{[\s\S]*createStartupFlow[\s\S]*\}/],
+        ['../../src/ui/dialog.js', /module\.exports\s*=\s*\{[\s\S]*showDialog[\s\S]*\}/],
+        ['../../src/ui/toast.js', /module\.exports\s*=\s*\{[\s\S]*showToast[\s\S]*\}/],
+        ['../../src/ui/progress.js', /module\.exports\s*=\s*\{[\s\S]*createProgressController[\s\S]*\}/],
+        ['../../src/platforms/epic.js', /module\.exports\s*=\s*\{[\s\S]*createEpicModule[\s\S]*\}/],
+        ['../../src/platforms/gog.js', /module\.exports\s*=\s*\{[\s\S]*createGogModule[\s\S]*\}/],
+        ['../../src/platforms/itch.js', /module\.exports\s*=\s*\{[\s\S]*createItchModule[\s\S]*\}/],
+        ['../../src/platforms/cube.js', /module\.exports\s*=\s*\{[\s\S]*createCubeModule[\s\S]*\}/],
+        ['../../src/platforms/ig.js', /module\.exports\s*=\s*\{[\s\S]*createIgModule[\s\S]*\}/],
+      ];
+
+      sourceContracts.forEach(([relativePath, matcher]) => {
+        const absolute = path.resolve(__dirname, relativePath);
+        const source = readRequiredFile(absolute, `missing ${relativePath}`);
+        assert.match(source, matcher, `module export contract failed: ${relativePath}`);
+      });
+    });
+
     it('runs merged build through esbuild raw generation first', () => {
       const packageJsonPath = path.resolve(__dirname, '../../package.json');
       const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
