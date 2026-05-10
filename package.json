@@ -10,7 +10,7 @@
     "epic": "node ./tools/epic.js",
     "cube": "node ./tools/cube.js",
     "test:merged": "node --test tests/merged-userscript/merged-script.test.js",
-    "merged": "node ./tools/merged.js",
+    "merged": "node ./tools/build-merged-esbuild.js && node ./tools/merged.js",
     "build": "npm run itch && npm run gog && npm run epic && npm run cube && npm run merged"
   },
   "repository": {
@@ -28,6 +28,7 @@
     "@babel/preset-env": "^7.16.11",
     "axios": "^0.28.0",
     "babel-eslint": "^10.1.0",
+    "esbuild": "^0.25.0",
     "eslint": "^8.10.0"
   }
 }
