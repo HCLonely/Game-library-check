@@ -11,8 +11,14 @@ function showToast(message, type = 'info') {
   const el = document.createElement('div');
   el.className = `glc-toast glc-toast-${type}`;
   el.textContent = message;
+  el.classList.add('glc-toast-enter');
   createToastContainer().appendChild(el);
-  window.setTimeout(() => el.remove(), 4000);
+
+  window.setTimeout(() => {
+    el.classList.remove('glc-toast-enter');
+    el.classList.add('glc-toast-leave');
+    window.setTimeout(() => el.remove(), 140);
+  }, 4000);
 }
 
 module.exports = {
