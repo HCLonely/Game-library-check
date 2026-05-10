@@ -21,6 +21,8 @@ function showDialog({ title, bodyHtml, trustedBodyHtml = false, bodyText = '', b
         </div>
       </div>
     </div>`;
+  const maskEl = root.querySelector('.glc-mask');
+  const dialogEl = root.querySelector('.glc-dialog');
   const titleEl = root.querySelector('.glc-dialog-title');
   const bodyEl = root.querySelector('.glc-dialog-body');
   const cancelBtn = root.querySelector('[data-glc-cancel]');
@@ -46,7 +48,34 @@ function showDialog({ title, bodyHtml, trustedBodyHtml = false, bodyText = '', b
     denyBtn.style.display = denyText ? '' : 'none';
   }
   if (confirmBtn) confirmBtn.textContent = confirmText;
-  const close = () => { root.innerHTML = ''; };
+
+  let closed = false;
+  const onKeydown = (event) => {
+    if (event.key === 'Escape') {
+      if (typeof onCancel === 'function') onCancel(root);
+      close();
+    }
+  };
+
+  const onMaskClick = (event) => {
+    if (event.target === maskEl) {
+      if (typeof onCancel === 'function') onCancel(root);
+      close();
+    }
+  };
+
+  const close = () => {
+    if (closed) return;
+    closed = true;
+    document.removeEventListener('keydown', onKeydown);
+    maskEl?.removeEventListener('click', onMaskClick);
+    root.innerHTML = '';
+  };
+
+  document.addEventListener('keydown', onKeydown);
+  maskEl?.addEventListener('click', onMaskClick);
+  dialogEl?.addEventListener('click', (event) => event.stopPropagation());
+
   cancelBtn?.addEventListener('click', () => {
     if (typeof onCancel === 'function') onCancel(root);
     close();
