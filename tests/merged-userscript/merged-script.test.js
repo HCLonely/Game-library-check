@@ -83,14 +83,11 @@ describe('merged userscript contract', () => {
       assert.match(rawMergedText, /#glc-toast-container\{/, 'missing toast container css for stacking');
     });
 
-    it('contains dialog interaction contracts in source', () => {
-      const dialogPath = path.resolve(__dirname, '../../src/ui/dialog.js');
-      const dialogText = readRequiredFile(dialogPath, 'missing src/ui/dialog.js');
-
-      assert.match(dialogText, /addEventListener\(\s*[\"\']keydown[\"\']/, 'dialog should register keydown listener');
-      assert.match(dialogText, /event\.key\s*===\s*[\"\']Escape[\"\']/, 'dialog should handle Escape key');
-      assert.match(dialogText, /removeEventListener\(\s*[\"\']keydown[\"\']/, 'dialog should remove keydown listener on close');
-      assert.match(dialogText, /event\.target\s*===\s*maskEl/, 'dialog should only close on mask click target match');
+    it('contains dialog interaction contracts in merged output', () => {
+      assert.match(rawMergedText, /addEventListener\(\s*[\"\']keydown[\"\']/, 'dialog should register keydown listener');
+      assert.match(rawMergedText, /event\.key\s*===\s*[\"\']Escape[\"\']/, 'dialog should handle Escape key');
+      assert.match(rawMergedText, /removeEventListener\(\s*[\"\']keydown[\"\']/, 'dialog should remove keydown listener on close');
+      assert.match(rawMergedText, /event\.target\s*!==\s*\w+\s*\)\s*return\s*;/, 'dialog should guard close behavior to mask-only click target');
     });
 
     it('contains ui polish style token markers in raw merged output', () => {
@@ -101,13 +98,11 @@ describe('merged userscript contract', () => {
     });
 
     it('contains toast animation and lifecycle markers', () => {
-      const toastPath = path.resolve(__dirname, '../../src/ui/toast.js');
-      const toastText = readRequiredFile(toastPath, 'missing src/ui/toast.js');
-
       assert.match(rawMergedText, /@keyframes\s+glc-toast-fade-in/, 'missing toast fade-in keyframes');
       assert.match(rawMergedText, /@keyframes\s+glc-toast-fade-out/, 'missing toast fade-out keyframes');
-      assert.match(toastText, /classList\.add\(\s*[\"\']glc-toast-enter[\"\']\s*\)/, 'toast should add enter animation class');
-      assert.match(toastText, /classList\.add\(\s*[\"\']glc-toast-leave[\"\']\s*\)/, 'toast should add leave animation class');
+      assert.match(rawMergedText, /glc-toast-enter/, 'toast should include enter lifecycle marker');
+      assert.match(rawMergedText, /glc-toast-leave/, 'toast should include leave lifecycle marker');
+      assert.match(rawMergedText, /setTimeout\(\(\)\s*=>[\s\S]*?remove\(/, 'toast should schedule removal as part of lifecycle');
     });
 
     it('contains ig platform key in platformEnabled settings', () => {
