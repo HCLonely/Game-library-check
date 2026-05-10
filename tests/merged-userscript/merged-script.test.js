@@ -91,7 +91,7 @@ describe('merged userscript contract', () => {
     });
 
     it('contains ui polish style token markers in raw merged output', () => {
-      assert.match(rawMergedText, /rgba\(15,23,42,0\.45\)/, 'missing updated dialog mask color token');
+      assert.match(rawMergedText, /rgba\(15,23,42,(?:0)?\.45\)/, 'missing updated dialog mask color token');
       assert.match(rawMergedText, /\.glc-dialog\s*\{[\s\S]*?border-radius\s*:\s*12px\s*;/, 'missing glc-dialog border radius token');
       assert.match(rawMergedText, /\.glc-dialog-actions\s+button\s*\{[\s\S]*?border-radius\s*:\s*8px\s*;/, 'missing dialog action button border radius token');
       assert.match(rawMergedText, /\.glc-dialog-actions\s+button:focus-visible\s*\{/, 'missing focus-visible rule for dialog action buttons');
