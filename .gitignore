@@ -4,3 +4,13 @@ node_modules
 
 .claude
 docs
+
+# Generated single-platform build artifacts
+Itch-Game-Library-Check.user.js
+Itch-Game-Library-Check.all.user.js
+Gog-Game-Library-Check.user.js
+Gog-Game-Library-Check.all.user.js
+Epic-Game-Library-Check.user.js
+Epic-Game-Library-Check.all.user.js
+Cube-Game-Library-Check.user.js
+Cube-Game-Library-Check.all.user.js
