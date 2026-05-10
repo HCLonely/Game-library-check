@@ -100,10 +100,15 @@ describe('merged userscript contract', () => {
     });
 
     it('contains ui polish style token markers in raw merged output', () => {
-      assert.match(rawMergedText, /rgba\(15,23,42,(?:0)?\.45\)/, 'missing updated dialog mask color token');
-      assert.match(rawMergedText, /\.glc-dialog\s*\{[\s\S]*?border-radius\s*:\s*12px\s*;/, 'missing glc-dialog border radius token');
-      assert.match(rawMergedText, /\.glc-dialog-actions\s+button\s*\{[\s\S]*?border-radius\s*:\s*8px\s*;/, 'missing dialog action button border radius token');
-      assert.match(rawMergedText, /\.glc-dialog-actions\s+button:focus-visible\s*\{/, 'missing focus-visible rule for dialog action buttons');
+      assert.match(rawMergedText, /rgba\(15,23,42,(?:0)?\.52\)/, 'missing upgraded dialog mask color token');
+      assert.match(rawMergedText, /\.glc-dialog\s*\{[\s\S]*?border-radius\s*:\s*16px\s*;/, 'missing upgraded glc-dialog border radius token');
+      assert.match(rawMergedText, /\.glc-dialog\s*\{[\s\S]*?box-shadow\s*:\s*0 24px 64px rgba\(15,23,42,\.22\),0 8px 24px rgba\(15,23,42,\.12\)\s*;/, 'missing upgraded glc-dialog layered shadow token');
+      assert.match(rawMergedText, /\.glc-dialog-actions\s+button\s*\{[\s\S]*?border-radius\s*:\s*10px\s*;/, 'missing upgraded dialog action button border radius token');
+      assert.match(rawMergedText, /\.glc-dialog-actions\s+\[data-glc-confirm\]\s*\{[\s\S]*?background\s*:\s*linear-gradient\(135deg,#2563eb 0%,#1d4ed8 100%\)\s*;/, 'missing brand gradient confirm button token');
+      assert.match(rawMergedText, /\.glc-toast\s*\{[\s\S]*?border-radius\s*:\s*12px\s*;/, 'missing upgraded toast border radius token');
+      assert.match(rawMergedText, /@keyframes\s+glc-toast-fade-in\{from\{opacity:0;transform:translateY\(6px\)\}to\{opacity:1;transform:translateY\(0\)\}\}/, 'missing upgraded toast fade-in movement token');
+      assert.match(rawMergedText, /\.glc-progress-list\s+li\s*\{[\s\S]*?border-radius\s*:\s*10px\s*;/, 'missing upgraded progress row card token');
+      assert.match(rawMergedText, /\.glc-dialog-actions\s+button:focus-visible\s*\{[\s\S]*?outline\s*:\s*2px solid #93c5fd\s*;/, 'missing focus-visible rule for dialog action buttons');
     });
 
     it('contains toast animation and lifecycle markers', () => {
