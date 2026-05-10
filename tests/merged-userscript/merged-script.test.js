@@ -51,6 +51,15 @@ describe('merged userscript contract', () => {
       assert.match(rawMergedText, /GM_registerMenuCommand\([^)]*openPlatformSwitchDialog/, 'missing menu binding for platform switch');
     });
 
+    it('uses unified update menu command and removes per-platform update menu commands', () => {
+      assert.match(rawMergedText, /GM_registerMenuCommand\([^)]*["']更新游戏库["']/, 'missing unified update menu command');
+      assert.doesNotMatch(rawMergedText, /GM_registerMenuCommand\([^)]*["']更新Epic已拥有游戏数据["']/, 'deprecated epic update menu command should be removed');
+      assert.doesNotMatch(rawMergedText, /GM_registerMenuCommand\([^)]*["']更新gog游戏库["']/, 'deprecated gog update menu command should be removed');
+      assert.doesNotMatch(rawMergedText, /GM_registerMenuCommand\([^)]*["']更新itch游戏库["']/, 'deprecated itch update menu command should be removed');
+      assert.doesNotMatch(rawMergedText, /GM_registerMenuCommand\([^)]*["']更新cube游戏库["']/, 'deprecated cube update menu command should be removed');
+      assert.doesNotMatch(rawMergedText, /GM_registerMenuCommand\([^)]*["']更新IG游戏库["']/, 'deprecated ig update menu command should be removed');
+    });
+
     it('does not include deprecated UI/polyfill dependencies in merged raw metadata', () => {
       assert.doesNotMatch(rawMergedText, /@require\s+.*jquery/i, 'should remove jquery requires');
       assert.doesNotMatch(rawMergedText, /@require\s+.*sweetalert2/i, 'should remove sweetalert2 require');
