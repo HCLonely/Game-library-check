@@ -400,6 +400,53 @@
             }
           });
         }
+        function getSelectedPlatformKeys(root) {
+          return Array.from(root.querySelectorAll("input[data-platform]:checked:not(:disabled)")).map((el) => el.getAttribute("data-platform"));
+        }
+        function updateManualUpdateConfirmState(root) {
+          if (!root) return;
+          const confirmButton = root.querySelector("[data-glc-confirm]");
+          if (confirmButton) confirmButton.disabled = getSelectedPlatformKeys(root).length === 0;
+        }
+        function buildPlatformCheckboxBody(modules, onSelectionChange) {
+          const bodyNode = document.createElement("div");
+          modules.forEach((module2, index) => {
+            const label = document.createElement("label");
+            const input = document.createElement("input");
+            const enabled = module2.enabled();
+            input.type = "checkbox";
+            input.dataset.platform = module2.key;
+            input.checked = enabled;
+            input.disabled = !enabled;
+            label.appendChild(input);
+            label.appendChild(document.createTextNode(` ${module2.key.toUpperCase()}`));
+            bodyNode.appendChild(label);
+            if (index < modules.length - 1) bodyNode.appendChild(document.createElement("br"));
+          });
+          bodyNode.addEventListener("change", () => {
+            if (typeof onSelectionChange === "function") onSelectionChange(document.getElementById("glc-modal-root"));
+          });
+          return bodyNode;
+        }
+        function openManualUpdateDialogAndRun(modules) {
+          const enabledModules = modules.filter((module2) => module2.enabled());
+          const bodyNode = buildPlatformCheckboxBody(modules, updateManualUpdateConfirmState);
+          showDialog({
+            title: "更新游戏库",
+            bodyNode,
+            confirmText: "开始更新",
+            cancelText: "取消",
+            onConfirm: async (root) => {
+              const selectedKeys = getSelectedPlatformKeys(root);
+              if (selectedKeys.length === 0) {
+                showToast("请至少选择一个平台", "warning");
+                return;
+              }
+              await batchUpdateSelectedModules(enabledModules, selectedKeys);
+            }
+          });
+          updateManualUpdateConfirmState(document.getElementById("glc-modal-root"));
+        }
         async function batchUpdateSelectedModules(enabledModules, selectedKeys) {
           const state = Object.fromEntries(selectedKeys.map((key) => [key, "waiting"]));
           let interruptedByAuthExpired = false;
@@ -467,6 +514,7 @@
           collectEmptyCaches,
           showEmptyCacheAggregationDialog,
           batchUpdateSelectedModules,
+          openManualUpdateDialogAndRun,
           runInitialFlow,
           showUpdateStep,
           showUpdateResult
@@ -833,12 +881,6 @@
               });
             }
             updateLibrary = updateEpicOwnedGames;
-            GM_registerMenuCommand("更新Epic已拥有游戏数据", async () => {
-              const result = await updateEpicOwnedGames();
-              if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
-                showLoginExpiredDialog(result.platformName, result.loginUrl);
-              }
-            });
             GM_addStyle(`
 .epic-game-link-owned {
   color:#ffffff !important;
@@ -975,12 +1017,6 @@
               });
             }
             updateLibrary = updateGogGameLibrary;
-            GM_registerMenuCommand("更新gog游戏库", async () => {
-              const result = await updateGogGameLibrary();
-              if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
-                showLoginExpiredDialog(result.platformName, result.loginUrl);
-              }
-            });
             GM_addStyle(".gog-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}");
           }
         };
@@ -1113,12 +1149,6 @@
               });
             }
             updateLibrary = updateItchGameLibrary;
-            GM_registerMenuCommand("更新itch游戏库", async () => {
-              const result = await updateItchGameLibrary();
-              if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
-                showLoginExpiredDialog(result.platformName, result.loginUrl);
-              }
-            });
             GM_addStyle(".itch-io-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}");
             unsafeWindow.checkItchGame = checkItchGame;
           }
@@ -1253,12 +1283,6 @@
               });
             }
             updateLibrary = updateCubeGameLibrary;
-            GM_registerMenuCommand("更新cube游戏库", async () => {
-              const result = await updateCubeGameLibrary();
-              if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
-                showLoginExpiredDialog(result.platformName, result.loginUrl);
-              }
-            });
             GM_addStyle(".cube-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}");
           }
         };
@@ -1387,12 +1411,6 @@
               childList: true,
               subtree: true
             });
-            GM_registerMenuCommand("更新IG游戏库", async () => {
-              const result = await updateIgGameLibrary();
-              if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
-                showLoginExpiredDialog(result.platformName, result.loginUrl);
-              }
-            });
             GM_addStyle(".ig-owned{color:#ffffff !important;background:#5c8a00 !important}");
           }
         };
@@ -1449,7 +1467,8 @@
         const {
           runInitialFlow,
           showUpdateStep,
-          showUpdateResult
+          showUpdateResult,
+          openManualUpdateDialogAndRun
         } = createStartupFlow({
           showDialog,
           showProgressPanel,
@@ -1481,6 +1500,9 @@
           createCubeModule(moduleContext),
           createIgModule(moduleContext)
         ];
+        GM_registerMenuCommand("更新游戏库", () => {
+          openManualUpdateDialogAndRun(modules);
+        });
         runInitialFlow(modules);
       }
       module.exports = { bootstrapMergedRuntime: bootstrapMergedRuntime2 };

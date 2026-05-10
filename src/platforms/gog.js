@@ -117,12 +117,6 @@ function createGogModule(context) {
       }
 
       updateLibrary = updateGogGameLibrary;
-      GM_registerMenuCommand('更新gog游戏库', async () => {
-        const result = await updateGogGameLibrary();
-        if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
-          showLoginExpiredDialog(result.platformName, result.loginUrl);
-        }
-      });
 
       GM_addStyle('.gog-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}');
     }

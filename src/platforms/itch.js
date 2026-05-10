@@ -123,12 +123,6 @@ function createItchModule(context) {
       }
 
       updateLibrary = updateItchGameLibrary;
-      GM_registerMenuCommand('更新itch游戏库', async () => {
-        const result = await updateItchGameLibrary();
-        if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
-          showLoginExpiredDialog(result.platformName, result.loginUrl);
-        }
-      });
 
       GM_addStyle('.itch-io-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}');
       unsafeWindow.checkItchGame = checkItchGame;

@@ -327,12 +327,6 @@ function createEpicModule(context) {
       }
 
       updateLibrary = updateEpicOwnedGames;
-      GM_registerMenuCommand('更新Epic已拥有游戏数据', async () => {
-        const result = await updateEpicOwnedGames();
-        if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
-          showLoginExpiredDialog(result.platformName, result.loginUrl);
-        }
-      });
 
       GM_addStyle(`
 .epic-game-link-owned {

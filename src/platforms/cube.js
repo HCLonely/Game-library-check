@@ -123,12 +123,6 @@ function createCubeModule(context) {
       }
 
       updateLibrary = updateCubeGameLibrary;
-      GM_registerMenuCommand('更新cube游戏库', async () => {
-        const result = await updateCubeGameLibrary();
-        if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
-          showLoginExpiredDialog(result.platformName, result.loginUrl);
-        }
-      });
 
       GM_addStyle('.cube-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}');
     }

@@ -123,12 +123,6 @@ function createIgModule(context) {
         childList: true,
         subtree: true
       });
-      GM_registerMenuCommand('更新IG游戏库', async () => {
-        const result = await updateIgGameLibrary();
-        if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
-          showLoginExpiredDialog(result.platformName, result.loginUrl);
-        }
-      });
       GM_addStyle('.ig-owned{color:#ffffff !important;background:#5c8a00 !important}');
     }
   };
