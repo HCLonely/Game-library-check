@@ -1,3 +1,5 @@
+let activeDialogClose = null;
+
 function createModalRoot() {
   let root = document.getElementById('glc-modal-root');
   if (root) return root;
@@ -8,6 +10,10 @@ function createModalRoot() {
 }
 
 function showDialog({ title, bodyHtml, trustedBodyHtml = false, bodyText = '', bodyNode, confirmText = '确定', cancelText = '取消', onConfirm, onCancel, denyText, onDeny, hideCancel = false }) {
+  if (typeof activeDialogClose === 'function') {
+    activeDialogClose();
+  }
+
   const root = createModalRoot();
   root.innerHTML = `
     <div class="glc-mask">
@@ -22,7 +28,6 @@ function showDialog({ title, bodyHtml, trustedBodyHtml = false, bodyText = '', b
       </div>
     </div>`;
   const maskEl = root.querySelector('.glc-mask');
-  const dialogEl = root.querySelector('.glc-dialog');
   const titleEl = root.querySelector('.glc-dialog-title');
   const bodyEl = root.querySelector('.glc-dialog-body');
   const cancelBtn = root.querySelector('[data-glc-cancel]');
@@ -55,6 +60,9 @@ function showDialog({ title, bodyHtml, trustedBodyHtml = false, bodyText = '', b
     closed = true;
     document.removeEventListener('keydown', onKeydown);
     maskEl?.removeEventListener('click', onMaskClick);
+    if (activeDialogClose === close) {
+      activeDialogClose = null;
+    }
     root.innerHTML = '';
   };
 
@@ -73,12 +81,13 @@ function showDialog({ title, bodyHtml, trustedBodyHtml = false, bodyText = '', b
 
   const onMaskClick = (event) => {
     if (closed) return;
-    if (event.target === maskEl) runAndClose(onCancel);
+    if (event.target !== maskEl) return;
+    runAndClose(onCancel);
   };
 
+  activeDialogClose = close;
   document.addEventListener('keydown', onKeydown);
   maskEl?.addEventListener('click', onMaskClick);
-  dialogEl?.addEventListener('click', (event) => event.stopPropagation());
 
   cancelBtn?.addEventListener('click', () => {
     if (closed) return;
