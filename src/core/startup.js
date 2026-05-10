@@ -34,6 +34,58 @@ function createStartupFlow({ showDialog, showProgressPanel, clearProgressPanel, 
     });
   }
 
+  function getSelectedPlatformKeys(root) {
+    return Array.from(root.querySelectorAll('input[data-platform]:checked:not(:disabled)'))
+      .map((el) => el.getAttribute('data-platform'));
+  }
+
+  function updateManualUpdateConfirmState(root) {
+    if (!root) return;
+    const confirmButton = root.querySelector('[data-glc-confirm]');
+    if (confirmButton) confirmButton.disabled = getSelectedPlatformKeys(root).length === 0;
+  }
+
+  function buildPlatformCheckboxBody(modules, onSelectionChange) {
+    const bodyNode = document.createElement('div');
+    modules.forEach((module, index) => {
+      const label = document.createElement('label');
+      const input = document.createElement('input');
+      const enabled = module.enabled();
+      input.type = 'checkbox';
+      input.dataset.platform = module.key;
+      input.checked = enabled;
+      input.disabled = !enabled;
+      label.appendChild(input);
+      label.appendChild(document.createTextNode(` ${module.key.toUpperCase()}`));
+      bodyNode.appendChild(label);
+      if (index < modules.length - 1) bodyNode.appendChild(document.createElement('br'));
+    });
+    bodyNode.addEventListener('change', () => {
+      if (typeof onSelectionChange === 'function') onSelectionChange(document.getElementById('glc-modal-root'));
+    });
+    return bodyNode;
+  }
+
+  function openManualUpdateDialogAndRun(modules) {
+    const enabledModules = modules.filter((module) => module.enabled());
+    const bodyNode = buildPlatformCheckboxBody(modules, updateManualUpdateConfirmState);
+    showDialog({
+      title: '更新游戏库',
+      bodyNode,
+      confirmText: '开始更新',
+      cancelText: '取消',
+      onConfirm: async (root) => {
+        const selectedKeys = getSelectedPlatformKeys(root);
+        if (selectedKeys.length === 0) {
+          showToast('请至少选择一个平台', 'warning');
+          return;
+        }
+        await batchUpdateSelectedModules(enabledModules, selectedKeys);
+      }
+    });
+    updateManualUpdateConfirmState(document.getElementById('glc-modal-root'));
+  }
+
   async function batchUpdateSelectedModules(enabledModules, selectedKeys) {
     const state = Object.fromEntries(selectedKeys.map((key) => [key, 'waiting']));
     let interruptedByAuthExpired = false;
@@ -105,6 +157,7 @@ function createStartupFlow({ showDialog, showProgressPanel, clearProgressPanel, 
     collectEmptyCaches,
     showEmptyCacheAggregationDialog,
     batchUpdateSelectedModules,
+    openManualUpdateDialogAndRun,
     runInitialFlow,
     showUpdateStep,
     showUpdateResult

@@ -49,7 +49,8 @@ function bootstrapMergedRuntime() {
   const {
     runInitialFlow,
     showUpdateStep,
-    showUpdateResult
+    showUpdateResult,
+    openManualUpdateDialogAndRun
   } = createStartupFlow({
     showDialog,
     showProgressPanel,
@@ -85,6 +86,10 @@ function bootstrapMergedRuntime() {
     createCubeModule(moduleContext),
     createIgModule(moduleContext)
   ];
+
+  GM_registerMenuCommand('更新游戏库', () => {
+    openManualUpdateDialogAndRun(modules);
+  });
 
   runInitialFlow(modules);
 }
