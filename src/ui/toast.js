@@ -18,7 +18,7 @@ function showToast(message, type = 'info') {
     el.classList.remove('glc-toast-enter');
     el.classList.add('glc-toast-leave');
     window.setTimeout(() => el.remove(), 140);
-  }, 4000);
+  }, 6000);
 }
 
 module.exports = {
