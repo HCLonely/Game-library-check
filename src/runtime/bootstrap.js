@@ -3,6 +3,7 @@ const { showToast } = require('../ui/toast');
 const { createProgressController } = require('../ui/progress');
 const { createSettingsController } = require('../core/settings');
 const { createStartupFlow } = require('../core/startup');
+const { createGistSyncController } = require('../core/gist-sync');
 const { UPDATE_STATUS, BASE_STYLE } = require('../shared/constants');
 const { createEpicModule } = require('../platforms/epic');
 const { createGogModule } = require('../platforms/gog');
@@ -19,6 +20,11 @@ function bootstrapMergedRuntime() {
     openPlatformSwitchDialog,
     isUrlEnabled
   } = createSettingsController({ showDialog });
+
+  const { openGistSyncDialog } = createGistSyncController({
+    showDialog,
+    showToast
+  });
 
   function queryLinks(selector) {
     return Array.from(document.querySelectorAll(selector));
@@ -75,6 +81,7 @@ function bootstrapMergedRuntime() {
 
   GM_registerMenuCommand('设置', setting);
   GM_registerMenuCommand('平台开关', openPlatformSwitchDialog);
+  GM_registerMenuCommand('数据同步设置', openGistSyncDialog);
   GM_addStyle(BASE_STYLE);
 
   if (!isUrlEnabled(window.location.href)) return;

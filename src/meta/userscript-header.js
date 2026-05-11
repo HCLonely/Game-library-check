@@ -16,7 +16,6 @@ module.exports = `// ==UserScript==
 // @exclude        *://itch.io/login
 // @exclude        *://account.cubejoy.com/html/login.html
 // @require        https://greasyfork.org/scripts/418102-tm-request/code/TM_request.js?version=902218
-// @require        https://greasyfork.org/scripts/426803-gistsync/code/gistSync.js?version=957824
 // @grant          GM_setValue
 // @grant          GM_getValue
 // @grant          GM_deleteValue

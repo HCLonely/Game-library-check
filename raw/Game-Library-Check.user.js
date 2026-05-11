@@ -16,7 +16,6 @@
 // @exclude        *://itch.io/login
 // @exclude        *://account.cubejoy.com/html/login.html
 // @require        https://greasyfork.org/scripts/418102-tm-request/code/TM_request.js?version=902218
-// @require        https://greasyfork.org/scripts/426803-gistsync/code/gistSync.js?version=957824
 // @grant          GM_setValue
 // @grant          GM_getValue
 // @grant          GM_deleteValue
@@ -575,6 +574,195 @@
     }
   });
 
+  // src/core/gist-sync.js
+  var require_gist_sync = __commonJS({
+    "src/core/gist-sync.js"(exports, module) {
+      var GIST_CONF_KEY = "gistConf";
+      function getGistConf() {
+        const conf = GM_getValue(GIST_CONF_KEY) || {};
+        return {
+          TOKEN: conf.TOKEN || "",
+          GIST_ID: conf.GIST_ID || "",
+          FILE_NAME: conf.FILE_NAME || ""
+        };
+      }
+      function setGistConf(conf) {
+        GM_setValue(GIST_CONF_KEY, conf);
+      }
+      function setGistData(token, gistId, fileName, content) {
+        const data = JSON.stringify({
+          files: {
+            [fileName]: {
+              content: JSON.stringify(content)
+            }
+          }
+        });
+        return TM_request({
+          url: `https://api.github.com/gists/${gistId}`,
+          headers: {
+            Accept: "application/vnd.github.v3+json",
+            Authorization: `token ${token}`
+          },
+          data,
+          responseType: "json",
+          method: "PATCH",
+          timeout: 3e4,
+          retry: 3
+        }).then((response) => {
+          const body = response?.response;
+          const remoteContent = body?.files?.[fileName]?.content;
+          return response.status === 200 && remoteContent === JSON.stringify(content);
+        }).catch((error) => {
+          console.error(error);
+          return false;
+        });
+      }
+      function getGistData(token, gistId, fileName) {
+        return TM_request({
+          url: `https://api.github.com/gists/${gistId}`,
+          headers: {
+            Accept: "application/vnd.github.v3+json",
+            Authorization: `token ${token}`
+          },
+          responseType: "json",
+          method: "GET",
+          timeout: 3e4,
+          retry: 3
+        }).then((response) => {
+          if (response.status !== 200) return false;
+          const content = response?.response?.files?.[fileName]?.content;
+          if (!content) return false;
+          return JSON.parse(content);
+        }).catch((error) => {
+          console.error(error);
+          return false;
+        });
+      }
+      function createLabeledInput(labelText, value, placeholder, type = "text") {
+        const wrapper = document.createElement("label");
+        wrapper.className = "glc-form-field";
+        const text = document.createElement("div");
+        text.className = "glc-input-label";
+        text.textContent = labelText;
+        const input = document.createElement("input");
+        input.className = "glc-input";
+        input.type = type;
+        input.placeholder = placeholder;
+        input.value = value;
+        wrapper.appendChild(text);
+        wrapper.appendChild(input);
+        return { wrapper, input };
+      }
+      function createGistSyncController({ showDialog, showToast }) {
+        function validateConf(conf) {
+          return Boolean(conf.TOKEN && conf.GIST_ID && conf.FILE_NAME);
+        }
+        function buildUploadPayload() {
+          const payload = {};
+          const keys = GM_listValues();
+          keys.forEach((key) => {
+            if (key === GIST_CONF_KEY) return;
+            payload[key] = GM_getValue(key);
+          });
+          return payload;
+        }
+        async function uploadData(conf) {
+          if (!validateConf(conf)) {
+            showToast("请先保存配置并测试", "error");
+            return;
+          }
+          const payload = buildUploadPayload();
+          const ok = await setGistData(conf.TOKEN, conf.GIST_ID, conf.FILE_NAME, payload);
+          if (ok) {
+            showToast("同步到 Gist 成功", "success");
+            return;
+          }
+          showToast("同步到 Gist 失败，请查看控制台错误", "error");
+        }
+        async function downloadData(conf) {
+          if (!validateConf(conf)) {
+            showToast("请先保存配置并测试", "error");
+            return;
+          }
+          const remoteData = await getGistData(conf.TOKEN, conf.GIST_ID, conf.FILE_NAME);
+          if (!remoteData || typeof remoteData !== "object") {
+            showToast("未检测到远程数据，请检查配置", "error");
+            return;
+          }
+          Object.entries(remoteData).forEach(([key, value]) => {
+            if (key === GIST_CONF_KEY) return;
+            GM_setValue(key, value);
+          });
+          showToast("从 Gist 同步成功", "success");
+        }
+        function openGistSyncDialog() {
+          const conf = getGistConf();
+          const bodyNode = document.createElement("div");
+          const tokenField = createLabeledInput("Github Token", conf.TOKEN, "Github Token");
+          const gistIdField = createLabeledInput("Gist ID", conf.GIST_ID, "Gist ID");
+          const fileNameField = createLabeledInput("文件名", conf.FILE_NAME, "文件名");
+          bodyNode.appendChild(tokenField.wrapper);
+          bodyNode.appendChild(gistIdField.wrapper);
+          bodyNode.appendChild(fileNameField.wrapper);
+          const actionRow = document.createElement("div");
+          actionRow.className = "glc-inline-actions";
+          const uploadButton = document.createElement("button");
+          uploadButton.type = "button";
+          uploadButton.className = "glc-inline-button";
+          uploadButton.textContent = "同步到Gist";
+          const downloadButton = document.createElement("button");
+          downloadButton.type = "button";
+          downloadButton.className = "glc-inline-button";
+          downloadButton.textContent = "从Gist同步";
+          actionRow.appendChild(uploadButton);
+          actionRow.appendChild(downloadButton);
+          bodyNode.appendChild(actionRow);
+          const readConfFromInputs = () => ({
+            TOKEN: tokenField.input.value.trim(),
+            GIST_ID: gistIdField.input.value.trim(),
+            FILE_NAME: fileNameField.input.value.trim()
+          });
+          uploadButton.addEventListener("click", () => {
+            uploadData(readConfFromInputs());
+          });
+          downloadButton.addEventListener("click", () => {
+            downloadData(readConfFromInputs());
+          });
+          showDialog({
+            title: "Gist 设置",
+            bodyNode,
+            confirmText: "保存配置并测试",
+            cancelText: "关闭",
+            onConfirm: async () => {
+              const nextConf = readConfFromInputs();
+              setGistConf(nextConf);
+              if (!validateConf(nextConf)) {
+                showToast("配置不完整，请填写 Token、Gist ID 和文件名", "error");
+                return;
+              }
+              const ok = await getGistData(nextConf.TOKEN, nextConf.GIST_ID, nextConf.FILE_NAME);
+              if (ok !== false) {
+                showToast("测试成功", "success");
+                return;
+              }
+              showToast("测试失败，请检查配置", "error");
+            }
+          });
+        }
+        return {
+          openGistSyncDialog
+        };
+      }
+      module.exports = {
+        createGistSyncController,
+        getGistConf,
+        setGistConf,
+        getGistData,
+        setGistData
+      };
+    }
+  });
+
   // src/shared/constants.js
   var require_constants = __commonJS({
     "src/shared/constants.js"(exports, module) {
@@ -595,6 +783,12 @@
 .glc-dialog-actions [data-glc-confirm]{border-color:#2563eb;background:#2563eb;color:#fff;box-shadow:0 6px 16px rgba(37,99,235,.24)}
 .glc-dialog-actions [data-glc-confirm]:hover{border-color:#1d4ed8;background:#1d4ed8}
 .glc-textarea{width:100%;min-height:160px;box-sizing:border-box;border:1px solid #d0dbe8;border-radius:10px;padding:10px 12px;color:#0f172a;background:#fff}
+.glc-form-field{display:block;margin-bottom:10px}
+.glc-input-label{margin-bottom:6px;color:#334155}
+.glc-input{width:100%;box-sizing:border-box;border:1px solid #d0dbe8;border-radius:8px;padding:8px 10px;color:#0f172a;background:#fff}
+.glc-inline-actions{display:flex;gap:10px;margin-top:8px}
+.glc-inline-button{border:1px solid #e2e8f0;border-radius:8px;background:#fff;color:#0f172a;padding:8px 14px;cursor:pointer;transition:background-color .14s ease,border-color .14s ease}
+.glc-inline-button:hover{background:#f8fbff;border-color:#c6d4e8}
 #glc-toast-container{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:2147483647;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none}
 .glc-toast{background:#f8fafc;color:#0f172a;padding:11px 15px;border-radius:12px;border:1px solid #e2e8f0;box-shadow:0 12px 30px rgba(15,23,42,.12);pointer-events:auto;max-width:420px;word-break:break-word;opacity:1}
 .glc-toast-success{background:#f0fdf4;color:#166534;border-color:#86efac}
@@ -1514,6 +1708,7 @@
       var { createProgressController } = require_progress();
       var { createSettingsController } = require_settings();
       var { createStartupFlow } = require_startup();
+      var { createGistSyncController } = require_gist_sync();
       var { UPDATE_STATUS, BASE_STYLE } = require_constants();
       var { createEpicModule } = require_epic();
       var { createGogModule } = require_gog();
@@ -1528,6 +1723,10 @@
           openPlatformSwitchDialog,
           isUrlEnabled
         } = createSettingsController({ showDialog });
+        const { openGistSyncDialog } = createGistSyncController({
+          showDialog,
+          showToast
+        });
         function queryLinks(selector) {
           return Array.from(document.querySelectorAll(selector));
         }
@@ -1576,6 +1775,7 @@
         };
         GM_registerMenuCommand("设置", setting);
         GM_registerMenuCommand("平台开关", openPlatformSwitchDialog);
+        GM_registerMenuCommand("数据同步设置", openGistSyncDialog);
         GM_addStyle(BASE_STYLE);
         if (!isUrlEnabled(window.location.href)) return;
         const modules = [
