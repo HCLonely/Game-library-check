@@ -11,7 +11,7 @@ const BASE_STYLE = `
 .glc-dialog-body{line-height:1.6;color:#334155}
 .glc-dialog-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid #f1f5f9}
 .glc-dialog-actions button{border:1px solid #e2e8f0;border-radius:8px;background:#fff;color:#0f172a;padding:8px 14px;cursor:pointer;transition:background-color .14s ease,border-color .14s ease,box-shadow .14s ease}
-.glc-dialog-actions button:hover{background:#f8fbff;border-color:#c6d4e8;transform:translateY(-1px)}
+.glc-dialog-actions button:hover{background:#f8fbff;border-color:#c6d4e8}
 .glc-dialog-actions button:focus-visible{outline:2px solid #93c5fd;outline-offset:2px}
 .glc-dialog-actions [data-glc-confirm]{border-color:#2563eb;background:#2563eb;color:#fff;box-shadow:0 6px 16px rgba(37,99,235,.24)}
 .glc-dialog-actions [data-glc-confirm]:hover{border-color:#1d4ed8;background:#1d4ed8}
