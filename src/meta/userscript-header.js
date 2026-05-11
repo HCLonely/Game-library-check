@@ -15,7 +15,6 @@ module.exports = `// ==UserScript==
 // @exclude        *://www.gog.com/*
 // @exclude        *://itch.io/login
 // @exclude        *://account.cubejoy.com/html/login.html
-// @require        https://greasyfork.org/scripts/418102-tm-request/code/TM_request.js?version=902218
 // @grant          GM_setValue
 // @grant          GM_getValue
 // @grant          GM_deleteValue

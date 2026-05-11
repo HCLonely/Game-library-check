@@ -15,7 +15,6 @@
 // @exclude        *://www.gog.com/*
 // @exclude        *://itch.io/login
 // @exclude        *://account.cubejoy.com/html/login.html
-// @require        https://greasyfork.org/scripts/418102-tm-request/code/TM_request.js?version=902218
 // @grant          GM_setValue
 // @grant          GM_getValue
 // @grant          GM_deleteValue
@@ -589,6 +588,21 @@
       function setGistConf(conf) {
         GM_setValue(GIST_CONF_KEY, conf);
       }
+      function requestWithRetry(options, retry = 0) {
+        return new Promise((resolve, reject) => {
+          GM_xmlhttpRequest({
+            ...options,
+            onerror: reject,
+            ontimeout: reject,
+            onload: (response) => {
+              response.status >= 200 && response.status < 400 ? resolve(response) : reject(response);
+            }
+          });
+        }).catch((error) => {
+          if (retry <= 0) throw error;
+          return requestWithRetry(options, retry - 1);
+        });
+      }
       function setGistData(token, gistId, fileName, content) {
         const data = JSON.stringify({
           files: {
@@ -597,7 +611,7 @@
             }
           }
         });
-        return TM_request({
+        return requestWithRetry({
           url: `https://api.github.com/gists/${gistId}`,
           headers: {
             Accept: "application/vnd.github.v3+json",
@@ -606,9 +620,8 @@
           data,
           responseType: "json",
           method: "PATCH",
-          timeout: 3e4,
-          retry: 3
-        }).then((response) => {
+          timeout: 3e4
+        }, 3).then((response) => {
           const body = response?.response;
           const remoteContent = body?.files?.[fileName]?.content;
           return response.status === 200 && remoteContent === JSON.stringify(content);
@@ -618,7 +631,7 @@
         });
       }
       function getGistData(token, gistId, fileName) {
-        return TM_request({
+        return requestWithRetry({
           url: `https://api.github.com/gists/${gistId}`,
           headers: {
             Accept: "application/vnd.github.v3+json",
@@ -626,9 +639,8 @@
           },
           responseType: "json",
           method: "GET",
-          timeout: 3e4,
-          retry: 3
-        }).then((response) => {
+          timeout: 3e4
+        }, 3).then((response) => {
           if (response.status !== 200) return false;
           const content = response?.response?.files?.[fileName]?.content;
           if (!content) return false;
@@ -1616,12 +1628,18 @@
           });
         }
         async function requestIgShowcasePage(page, cookies) {
-          return TM_request({
-            url: `https://www.indiegala.com/library/showcase/${page}`,
-            method: "GET",
-            timeout: 3e4,
-            retry: 3,
-            headers: { cookie: cookies }
+          return new Promise((resolve, reject) => {
+            GM_xmlhttpRequest({
+              url: `https://www.indiegala.com/library/showcase/${page}`,
+              method: "GET",
+              timeout: 3e4,
+              headers: { cookie: cookies },
+              onerror: reject,
+              ontimeout: reject,
+              onload: (response) => {
+                response.status === 200 ? resolve(response) : reject(response);
+              }
+            });
           });
         }
         function parseIgShowcase(responseText, page) {

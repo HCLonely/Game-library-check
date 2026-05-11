@@ -49,12 +49,18 @@ function createIgModule(context) {
   }
 
   async function requestIgShowcasePage(page, cookies) {
-    return TM_request({
-      url: `https://www.indiegala.com/library/showcase/${page}`,
-      method: 'GET',
-      timeout: 30000,
-      retry: 3,
-      headers: { cookie: cookies }
+    return new Promise((resolve, reject) => {
+      GM_xmlhttpRequest({
+        url: `https://www.indiegala.com/library/showcase/${page}`,
+        method: 'GET',
+        timeout: 30000,
+        headers: { cookie: cookies },
+        onerror: reject,
+        ontimeout: reject,
+        onload: (response) => {
+          response.status === 200 ? resolve(response) : reject(response);
+        }
+      });
     });
   }
 

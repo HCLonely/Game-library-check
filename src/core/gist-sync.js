@@ -13,6 +13,22 @@ function setGistConf(conf) {
   GM_setValue(GIST_CONF_KEY, conf);
 }
 
+function requestWithRetry(options, retry = 0) {
+  return new Promise((resolve, reject) => {
+    GM_xmlhttpRequest({
+      ...options,
+      onerror: reject,
+      ontimeout: reject,
+      onload: (response) => {
+        response.status >= 200 && response.status < 400 ? resolve(response) : reject(response);
+      }
+    });
+  }).catch((error) => {
+    if (retry <= 0) throw error;
+    return requestWithRetry(options, retry - 1);
+  });
+}
+
 function setGistData(token, gistId, fileName, content) {
   const data = JSON.stringify({
     files: {
@@ -22,7 +38,7 @@ function setGistData(token, gistId, fileName, content) {
     }
   });
 
-  return TM_request({
+  return requestWithRetry({
     url: `https://api.github.com/gists/${gistId}`,
     headers: {
       Accept: 'application/vnd.github.v3+json',
@@ -31,9 +47,8 @@ function setGistData(token, gistId, fileName, content) {
     data,
     responseType: 'json',
     method: 'PATCH',
-    timeout: 30000,
-    retry: 3
-  }).then((response) => {
+    timeout: 30000
+  }, 3).then((response) => {
     const body = response?.response;
     const remoteContent = body?.files?.[fileName]?.content;
     return response.status === 200 && remoteContent === JSON.stringify(content);
@@ -44,7 +59,7 @@ function setGistData(token, gistId, fileName, content) {
 }
 
 function getGistData(token, gistId, fileName) {
-  return TM_request({
+  return requestWithRetry({
     url: `https://api.github.com/gists/${gistId}`,
     headers: {
       Accept: 'application/vnd.github.v3+json',
@@ -52,9 +67,8 @@ function getGistData(token, gistId, fileName) {
     },
     responseType: 'json',
     method: 'GET',
-    timeout: 30000,
-    retry: 3
-  }).then((response) => {
+    timeout: 30000
+  }, 3).then((response) => {
     if (response.status !== 200) return false;
     const content = response?.response?.files?.[fileName]?.content;
     if (!content) return false;

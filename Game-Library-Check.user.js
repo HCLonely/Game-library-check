@@ -33,7 +33,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 // @exclude        *://www.gog.com/*
 // @exclude        *://itch.io/login
 // @exclude        *://account.cubejoy.com/html/login.html
-// @require        https://greasyfork.org/scripts/418102-tm-request/code/TM_request.js?version=902218
 // @grant          GM_setValue
 // @grant          GM_getValue
 // @grant          GM_deleteValue
@@ -814,13 +813,28 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       function setGistConf(conf) {
         GM_setValue(GIST_CONF_KEY, conf);
       }
+      function requestWithRetry(options) {
+        var retry = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+        return new Promise(function (resolve, reject) {
+          GM_xmlhttpRequest(_objectSpread(_objectSpread({}, options), {}, {
+            onerror: reject,
+            ontimeout: reject,
+            onload: function onload(response) {
+              response.status >= 200 && response.status < 400 ? resolve(response) : reject(response);
+            }
+          }));
+        })["catch"](function (error) {
+          if (retry <= 0) throw error;
+          return requestWithRetry(options, retry - 1);
+        });
+      }
       function setGistData(token, gistId, fileName, content) {
         var data = JSON.stringify({
           files: _defineProperty({}, fileName, {
             content: JSON.stringify(content)
           })
         });
-        return TM_request({
+        return requestWithRetry({
           url: "https://api.github.com/gists/".concat(gistId),
           headers: {
             Accept: "application/vnd.github.v3+json",
@@ -829,9 +843,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           data: data,
           responseType: "json",
           method: "PATCH",
-          timeout: 3e4,
-          retry: 3
-        }).then(function (response) {
+          timeout: 3e4
+        }, 3).then(function (response) {
           var _body$files, _body$files$fileName;
           var body = response === null || response === void 0 ? void 0 : response.response;
           var remoteContent = body === null || body === void 0 ? void 0 : (_body$files = body.files) === null || _body$files === void 0 ? void 0 : (_body$files$fileName = _body$files[fileName]) === null || _body$files$fileName === void 0 ? void 0 : _body$files$fileName.content;
@@ -842,7 +855,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         });
       }
       function getGistData(token, gistId, fileName) {
-        return TM_request({
+        return requestWithRetry({
           url: "https://api.github.com/gists/".concat(gistId),
           headers: {
             Accept: "application/vnd.github.v3+json",
@@ -850,9 +863,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           },
           responseType: "json",
           method: "GET",
-          timeout: 3e4,
-          retry: 3
-        }).then(function (response) {
+          timeout: 3e4
+        }, 3).then(function (response) {
           var _response$response, _response$response$fi, _response$response$fi2;
           if (response.status !== 200) return false;
           var content = response === null || response === void 0 ? void 0 : (_response$response = response.response) === null || _response$response === void 0 ? void 0 : (_response$response$fi = _response$response.files) === null || _response$response$fi === void 0 ? void 0 : (_response$response$fi2 = _response$response$fi[fileName]) === null || _response$response$fi2 === void 0 ? void 0 : _response$response$fi2.content;
@@ -2493,14 +2505,20 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
               while (1) {
                 switch (_context28.prev = _context28.next) {
                   case 0:
-                    return _context28.abrupt("return", TM_request({
-                      url: "https://www.indiegala.com/library/showcase/".concat(page),
-                      method: "GET",
-                      timeout: 3e4,
-                      retry: 3,
-                      headers: {
-                        cookie: cookies
-                      }
+                    return _context28.abrupt("return", new Promise(function (resolve, reject) {
+                      GM_xmlhttpRequest({
+                        url: "https://www.indiegala.com/library/showcase/".concat(page),
+                        method: "GET",
+                        timeout: 3e4,
+                        headers: {
+                          cookie: cookies
+                        },
+                        onerror: reject,
+                        ontimeout: reject,
+                        onload: function onload(response) {
+                          response.status === 200 ? resolve(response) : reject(response);
+                        }
+                      });
                     }));
                   case 1:
                   case "end":
