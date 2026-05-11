@@ -86,6 +86,27 @@ function createStartupFlow({ showDialog, showProgressPanel, clearProgressPanel, 
     updateManualUpdateConfirmState(document.getElementById('glc-modal-root'));
   }
 
+  function extractFailureReason(failure) {
+    if (!failure) return '未知错误';
+    if (typeof failure === 'string') return failure;
+    if (failure instanceof Error && failure.message) return failure.message;
+    if (typeof failure.message === 'string' && failure.message.trim()) return failure.message;
+    if (typeof failure.reason === 'string' && failure.reason.trim()) return failure.reason;
+    if (typeof failure.error === 'string' && failure.error.trim()) return failure.error;
+    return '未知错误';
+  }
+
+  function showUpdateFailureDialog(key, failure) {
+    const platform = key.toUpperCase();
+    const reason = extractFailureReason(failure);
+    showDialog({
+      title: '平台更新失败',
+      bodyText: `${platform} 更新失败：${reason}`,
+      confirmText: '我知道了',
+      hideCancel: true
+    });
+  }
+
   async function batchUpdateSelectedModules(enabledModules, selectedKeys) {
     const state = Object.fromEntries(selectedKeys.map((key) => [key, 'waiting']));
     let interruptedByAuthExpired = false;
@@ -109,12 +130,12 @@ function createStartupFlow({ showDialog, showProgressPanel, clearProgressPanel, 
             break;
           } else {
             state[key] = 'error';
-            showToast(`${key.toUpperCase()} 更新失败`, 'error');
+            showUpdateFailureDialog(key, updateResult);
           }
         } catch (error) {
           console.error(error);
           state[key] = 'error';
-          showToast(`${key.toUpperCase()} 更新失败`, 'error');
+          showUpdateFailureDialog(key, error);
         }
         if (!interruptedByAuthExpired) showProgressPanel({ [key]: state[key] });
       }
@@ -149,6 +170,15 @@ function createStartupFlow({ showDialog, showProgressPanel, clearProgressPanel, 
 
   function showUpdateResult(title, type) {
     if (!inBatchUpdateFlow) clearProgressPanel();
+    if (type === 'error') {
+      showDialog({
+        title: '平台更新失败',
+        bodyText: title,
+        confirmText: '我知道了',
+        hideCancel: true
+      });
+      return Promise.resolve(true);
+    }
     showToast(title, type);
     return Promise.resolve(true);
   }

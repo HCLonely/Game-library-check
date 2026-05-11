@@ -171,7 +171,7 @@
           el.classList.remove("glc-toast-enter");
           el.classList.add("glc-toast-leave");
           window.setTimeout(() => el.remove(), 140);
-        }, 4e3);
+        }, 6e3);
       }
       module.exports = {
         createToastContainer,
@@ -447,6 +447,25 @@
           });
           updateManualUpdateConfirmState(document.getElementById("glc-modal-root"));
         }
+        function extractFailureReason(failure) {
+          if (!failure) return "未知错误";
+          if (typeof failure === "string") return failure;
+          if (failure instanceof Error && failure.message) return failure.message;
+          if (typeof failure.message === "string" && failure.message.trim()) return failure.message;
+          if (typeof failure.reason === "string" && failure.reason.trim()) return failure.reason;
+          if (typeof failure.error === "string" && failure.error.trim()) return failure.error;
+          return "未知错误";
+        }
+        function showUpdateFailureDialog(key, failure) {
+          const platform = key.toUpperCase();
+          const reason = extractFailureReason(failure);
+          showDialog({
+            title: "平台更新失败",
+            bodyText: `${platform} 更新失败：${reason}`,
+            confirmText: "我知道了",
+            hideCancel: true
+          });
+        }
         async function batchUpdateSelectedModules(enabledModules, selectedKeys) {
           const state = Object.fromEntries(selectedKeys.map((key) => [key, "waiting"]));
           let interruptedByAuthExpired = false;
@@ -470,12 +489,12 @@
                   break;
                 } else {
                   state[key] = "error";
-                  showToast(`${key.toUpperCase()} 更新失败`, "error");
+                  showUpdateFailureDialog(key, updateResult);
                 }
               } catch (error) {
                 console.error(error);
                 state[key] = "error";
-                showToast(`${key.toUpperCase()} 更新失败`, "error");
+                showUpdateFailureDialog(key, error);
               }
               if (!interruptedByAuthExpired) showProgressPanel({ [key]: state[key] });
             }
@@ -507,6 +526,15 @@
         }
         function showUpdateResult(title, type) {
           if (!inBatchUpdateFlow) clearProgressPanel();
+          if (type === "error") {
+            showDialog({
+              title: "平台更新失败",
+              bodyText: title,
+              confirmText: "我知道了",
+              hideCancel: true
+            });
+            return Promise.resolve(true);
+          }
           showToast(title, type);
           return Promise.resolve(true);
         }
@@ -546,7 +574,7 @@
 .glc-dialog-actions [data-glc-confirm]{border-color:#2563eb;background:#2563eb;color:#fff;box-shadow:0 6px 16px rgba(37,99,235,.24)}
 .glc-dialog-actions [data-glc-confirm]:hover{border-color:#1d4ed8;background:#1d4ed8}
 .glc-textarea{width:100%;min-height:160px;box-sizing:border-box;border:1px solid #d0dbe8;border-radius:10px;padding:10px 12px;color:#0f172a;background:#fff}
-#glc-toast-container{position:fixed;right:18px;bottom:18px;z-index:2147483647;display:flex;flex-direction:column;gap:10px;align-items:flex-end;pointer-events:none}
+#glc-toast-container{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:2147483647;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none}
 .glc-toast{background:#f8fafc;color:#0f172a;padding:11px 15px;border-radius:12px;border:1px solid #e2e8f0;box-shadow:0 12px 30px rgba(15,23,42,.12);pointer-events:auto;max-width:420px;word-break:break-word;opacity:1}
 .glc-toast-success{background:#f0fdf4;color:#166534;border-color:#86efac}
 .glc-toast-error{background:#fef2f2;color:#991b1b;border-color:#fecaca}
