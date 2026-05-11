@@ -11,7 +11,7 @@
     "cube": "node ./tools/cube.js",
     "test:merged": "node --test tests/merged-userscript/merged-script.test.js",
     "merged": "node ./tools/build-merged-esbuild.js && node ./tools/merged.js",
-    "build": "npm run itch && npm run gog && npm run epic && npm run cube && npm run merged"
+    "build": "npm run merged"
   },
   "repository": {
     "type": "git",
