@@ -21,6 +21,7 @@ function createProgressController(createModalRoot) {
     if (listEl) {
       Object.entries(progressPanelStateMap).forEach(([platform, state]) => {
         const li = document.createElement('li');
+        li.className = 'glc-progress-row';
         const platformEl = document.createElement('span');
         platformEl.className = 'glc-progress-platform';
         platformEl.textContent = String(platform).toUpperCase();

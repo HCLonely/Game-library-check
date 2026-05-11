@@ -108,6 +108,14 @@ describe('merged userscript contract', () => {
       assert.match(rawMergedText, /\.glc-progress-list\s+li\s*\{[\s\S]*?border\s*:\s*1px solid #e2e8f0\s*;/, 'missing modern progress row border token');
     });
 
+    it('contains semantic ui class hooks in raw merged output', () => {
+      assert.match(rawMergedText, /glc-dialog-shell/, 'missing glc-dialog-shell semantic class hook');
+      assert.match(rawMergedText, /glc-dialog-header/, 'missing glc-dialog-header semantic class hook');
+      assert.match(rawMergedText, /glc-dialog-content/, 'missing glc-dialog-content semantic class hook');
+      assert.match(rawMergedText, /glc-progress-row/, 'missing glc-progress-row semantic class hook');
+      assert.match(rawMergedText, /glc-toast-content/, 'missing glc-toast-content semantic class hook');
+    });
+
     it('contains toast animation and lifecycle markers', () => {
       assert.match(rawMergedText, /@keyframes\s+glc-toast-fade-in/, 'missing toast fade-in keyframes');
       assert.match(rawMergedText, /@keyframes\s+glc-toast-fade-out/, 'missing toast fade-out keyframes');

@@ -9,7 +9,7 @@ function createToastContainer() {
 
 function showToast(message, type = 'info') {
   const el = document.createElement('div');
-  el.className = `glc-toast glc-toast-${type}`;
+  el.className = `glc-toast glc-toast-content glc-toast-${type}`;
   el.textContent = message;
   el.classList.add('glc-toast-enter');
   createToastContainer().appendChild(el);

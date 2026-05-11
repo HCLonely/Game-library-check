@@ -17,9 +17,9 @@ function showDialog({ title, bodyHtml, trustedBodyHtml = false, bodyText = '', b
   const root = createModalRoot();
   root.innerHTML = `
     <div class="glc-mask">
-      <div class="glc-dialog" role="dialog" aria-modal="true">
-        <h3 class="glc-dialog-title"></h3>
-        <div class="glc-dialog-body"></div>
+      <div class="glc-dialog glc-dialog-shell" role="dialog" aria-modal="true">
+        <h3 class="glc-dialog-title glc-dialog-header"></h3>
+        <div class="glc-dialog-body glc-dialog-content"></div>
         <div class="glc-dialog-actions">
           <button type="button" data-glc-cancel></button>
           <button type="button" data-glc-deny></button>
