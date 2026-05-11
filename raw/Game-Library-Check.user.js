@@ -161,17 +161,38 @@
         document.body.appendChild(container);
         return container;
       }
-      function showToast(message, type = "info") {
+      function showToast(message, type = "info", options = {}) {
         const el = document.createElement("div");
         el.className = `glc-toast glc-toast-content glc-toast-${type}`;
         el.textContent = message;
+        if (options?.link?.href) {
+          const link = document.createElement("a");
+          link.href = options.link.href;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = options.link.text || options.link.href;
+          link.className = "glc-toast-link";
+          el.appendChild(document.createTextNode(" "));
+          el.appendChild(link);
+        }
+        if (options?.closable) {
+          const closeButton = document.createElement("button");
+          closeButton.type = "button";
+          closeButton.className = "glc-toast-close";
+          closeButton.textContent = "×";
+          closeButton.addEventListener("click", () => el.remove());
+          el.appendChild(document.createTextNode(" "));
+          el.appendChild(closeButton);
+        }
         el.classList.add("glc-toast-enter");
         createToastContainer().appendChild(el);
+        const duration = typeof options.duration === "number" ? options.duration : 6e3;
+        if (duration <= 0) return;
         window.setTimeout(() => {
           el.classList.remove("glc-toast-enter");
           el.classList.add("glc-toast-leave");
           window.setTimeout(() => el.remove(), 140);
-        }, 6e3);
+        }, duration);
       }
       module.exports = {
         createToastContainer,
@@ -578,6 +599,9 @@
 .glc-toast{background:#f8fafc;color:#0f172a;padding:11px 15px;border-radius:12px;border:1px solid #e2e8f0;box-shadow:0 12px 30px rgba(15,23,42,.12);pointer-events:auto;max-width:420px;word-break:break-word;opacity:1}
 .glc-toast-success{background:#f0fdf4;color:#166534;border-color:#86efac}
 .glc-toast-error{background:#fef2f2;color:#991b1b;border-color:#fecaca}
+.glc-toast-link{color:#1d4ed8;text-decoration:underline;font-weight:600}
+.glc-toast-error .glc-toast-link{color:#b91c1c}
+.glc-toast-close{margin-left:8px;border:0;background:transparent;color:inherit;cursor:pointer;font-weight:700;line-height:1}
 .glc-toast-enter{animation:glc-toast-fade-in .16s ease}
 .glc-toast-leave{animation:glc-toast-fade-out .16s ease forwards}
 @keyframes glc-toast-fade-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
@@ -606,6 +630,7 @@
           showUpdateStep,
           showUpdateResult,
           showLoginExpiredDialog,
+          showToast,
           UPDATE_STATUS
         } = context;
         let updateLibrary;
@@ -652,7 +677,13 @@
               const excludedClass = again ? "epic-game-checked" : "epic-game-link-owned";
               const epicLink = queryLinks('a[href*="www.epicgames.com/store/"],a[href*="store.epicgames.com/"]').filter((el) => !el.classList.contains(excludedClass));
               if (epicLink.length === 0) return;
-              if (first) updateEpicOwnedGames(false);
+              if (first) {
+                updateEpicOwnedGames(false).then((result) => {
+                  if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
+                    showToast("Epic 登录状态已过期，请先登录", "error", { duration: 0, closable: true, link: { href: result.loginUrl, text: "去登录" } });
+                  }
+                });
+              }
               epicLink.forEach((el) => {
                 addClass(el, "epic-game-checked");
                 let href = getHref(el);
@@ -940,6 +971,7 @@
           showUpdateStep,
           showUpdateResult,
           showLoginExpiredDialog,
+          showToast,
           UPDATE_STATUS
         } = context;
         let updateLibrary;
@@ -976,7 +1008,13 @@
               const excludedClass = again ? "gog-game-checked" : "gog-game-link-owned";
               const gogLink = queryLinks('a[href*="www.gog.com/"]').filter((el) => !el.classList.contains(excludedClass));
               if (gogLink.length === 0) return;
-              if (first) updateGogGameLibrary(false);
+              if (first) {
+                updateGogGameLibrary(false).then((result) => {
+                  if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
+                    showToast("GOG 登录状态已过期，请先登录", "error", { duration: 0, closable: true, link: { href: result.loginUrl, text: "去登录" } });
+                  }
+                });
+              }
               gogLink.forEach((el) => {
                 addClass(el, "gog-game-checked");
                 let href = getHref(el);
@@ -1068,6 +1106,7 @@
           showUpdateStep,
           showUpdateResult,
           showLoginExpiredDialog,
+          showToast,
           UPDATE_STATUS
         } = context;
         let updateLibrary;
@@ -1104,7 +1143,13 @@
               const excludedClass = again ? "itch-io-game-checked" : "itch-io-game-link-owned";
               const itchLink = queryLinks('a[href*=".itch.io/"]').filter((el) => !el.classList.contains(excludedClass));
               if (itchLink.length === 0) return;
-              if (first) updateItchGameLibrary(false);
+              if (first) {
+                updateItchGameLibrary(false).then((result) => {
+                  if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
+                    showToast("itch.io 登录状态已过期，请先登录", "error", { duration: 0, closable: true, link: { href: result.loginUrl, text: "去登录" } });
+                  }
+                });
+              }
               itchLink.forEach((el) => {
                 addClass(el, "itch-io-game-checked");
                 let href = getHref(el);
@@ -1200,6 +1245,7 @@
           showUpdateStep,
           showUpdateResult,
           showLoginExpiredDialog,
+          showToast,
           UPDATE_STATUS
         } = context;
         let updateLibrary;
@@ -1236,7 +1282,13 @@
               const excludedClass = again ? "cube-game-checked" : "cube-game-link-owned";
               const cubeLink = queryLinks('a[href*="store.cubejoy.com/html/en/store/goodsdetail/detail"]').filter((el) => !el.classList.contains(excludedClass));
               if (cubeLink.length === 0) return;
-              if (first) updateCubeGameLibrary(false);
+              if (first) {
+                updateCubeGameLibrary(false).then((result) => {
+                  if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
+                    showToast("方块 登录状态已过期，请先登录", "error", { duration: 0, closable: true, link: { href: result.loginUrl, text: "去登录" } });
+                  }
+                });
+              }
               cubeLink.forEach((el) => {
                 addClass(el, "cube-game-checked");
                 let href = getHref(el);
@@ -1334,6 +1386,7 @@
           showUpdateStep,
           showUpdateResult,
           showLoginExpiredDialog,
+          showToast,
           UPDATE_STATUS
         } = context;
         let started = false;
@@ -1429,6 +1482,11 @@
             if (started) return;
             started = true;
             markIgLinks();
+            updateIgGameLibrary().then((result) => {
+              if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
+                showToast("IG 登录状态已过期，请先登录", "error", { duration: 0, closable: true, link: { href: result.loginUrl, text: "去登录" } });
+              }
+            });
             const observer = new MutationObserver(() => {
               markIgLinks();
             });

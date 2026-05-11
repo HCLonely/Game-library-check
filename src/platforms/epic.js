@@ -7,6 +7,7 @@ function createEpicModule(context) {
     showUpdateStep,
     showUpdateResult,
     showLoginExpiredDialog,
+    showToast,
     UPDATE_STATUS
   } = context;
 
@@ -57,7 +58,13 @@ function createEpicModule(context) {
         const epicLink = queryLinks('a[href*="www.epicgames.com/store/"],a[href*="store.epicgames.com/"]')
           .filter((el) => !el.classList.contains(excludedClass));
         if (epicLink.length === 0) return;
-        if (first) updateEpicOwnedGames(false);
+        if (first) {
+          updateEpicOwnedGames(false).then((result) => {
+            if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
+              showToast('Epic 登录状态已过期，请先登录', 'error', { duration: 0, closable: true, link: { href: result.loginUrl, text: '去登录' } });
+            }
+          });
+        }
         epicLink.forEach((el) => {
           addClass(el, 'epic-game-checked');
           let href = getHref(el);

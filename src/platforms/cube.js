@@ -7,6 +7,7 @@ function createCubeModule(context) {
     showUpdateStep,
     showUpdateResult,
     showLoginExpiredDialog,
+    showToast,
     UPDATE_STATUS
   } = context;
 
@@ -46,7 +47,13 @@ function createCubeModule(context) {
         const cubeLink = queryLinks('a[href*="store.cubejoy.com/html/en/store/goodsdetail/detail"]')
           .filter((el) => !el.classList.contains(excludedClass));
         if (cubeLink.length === 0) return;
-        if (first) updateCubeGameLibrary(false);
+        if (first) {
+          updateCubeGameLibrary(false).then((result) => {
+            if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
+              showToast('方块 登录状态已过期，请先登录', 'error', { duration: 0, closable: true, link: { href: result.loginUrl, text: '去登录' } });
+            }
+          });
+        }
         cubeLink.forEach((el) => {
           addClass(el, 'cube-game-checked');
           let href = getHref(el);

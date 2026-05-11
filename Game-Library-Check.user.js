@@ -190,19 +190,44 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         return container;
       }
       function showToast(message) {
+        var _options$link;
         var type = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : "info";
+        var options = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
         var el = document.createElement("div");
         el.className = "glc-toast glc-toast-content glc-toast-".concat(type);
         el.textContent = message;
+        if (options !== null && options !== void 0 && (_options$link = options.link) !== null && _options$link !== void 0 && _options$link.href) {
+          var link = document.createElement("a");
+          link.href = options.link.href;
+          link.target = "_blank";
+          link.rel = "noopener noreferrer";
+          link.textContent = options.link.text || options.link.href;
+          link.className = "glc-toast-link";
+          el.appendChild(document.createTextNode(" "));
+          el.appendChild(link);
+        }
+        if (options !== null && options !== void 0 && options.closable) {
+          var closeButton = document.createElement("button");
+          closeButton.type = "button";
+          closeButton.className = "glc-toast-close";
+          closeButton.textContent = "×";
+          closeButton.addEventListener("click", function () {
+            return el.remove();
+          });
+          el.appendChild(document.createTextNode(" "));
+          el.appendChild(closeButton);
+        }
         el.classList.add("glc-toast-enter");
         createToastContainer().appendChild(el);
+        var duration = typeof options.duration === "number" ? options.duration : 6e3;
+        if (duration <= 0) return;
         window.setTimeout(function () {
           el.classList.remove("glc-toast-enter");
           el.classList.add("glc-toast-leave");
           window.setTimeout(function () {
             return el.remove();
           }, 140);
-        }, 6e3);
+        }, duration);
       }
       module.exports = {
         createToastContainer: createToastContainer,
@@ -783,7 +808,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         ERROR: "error",
         AUTH_EXPIRED: "auth_expired"
       };
-      var BASE_STYLE = "\n.glc-mask{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:2147483646;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box}\n.glc-dialog{background:#fff;color:#0f172a;border:1px solid #e2e8f0;padding:20px;border-radius:12px;min-width:360px;max-width:580px;font-size:14px;box-shadow:0 14px 36px rgba(15,23,42,.16),0 4px 14px rgba(15,23,42,.08)}\n.glc-dialog-title{margin:0 0 12px;font-size:18px;line-height:1.35;color:#0f172a;font-weight:700}\n.glc-dialog-body{line-height:1.6;color:#334155}\n.glc-dialog-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid #f1f5f9}\n.glc-dialog-actions button{border:1px solid #e2e8f0;border-radius:8px;background:#fff;color:#0f172a;padding:8px 14px;cursor:pointer;transition:background-color .14s ease,border-color .14s ease,box-shadow .14s ease}\n.glc-dialog-actions button:hover{background:#f8fbff;border-color:#c6d4e8}\n.glc-dialog-actions button:focus-visible{outline:2px solid #93c5fd;outline-offset:2px}\n.glc-dialog-actions [data-glc-confirm]{border-color:#2563eb;background:#2563eb;color:#fff;box-shadow:0 6px 16px rgba(37,99,235,.24)}\n.glc-dialog-actions [data-glc-confirm]:hover{border-color:#1d4ed8;background:#1d4ed8}\n.glc-textarea{width:100%;min-height:160px;box-sizing:border-box;border:1px solid #d0dbe8;border-radius:10px;padding:10px 12px;color:#0f172a;background:#fff}\n#glc-toast-container{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:2147483647;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none}\n.glc-toast{background:#f8fafc;color:#0f172a;padding:11px 15px;border-radius:12px;border:1px solid #e2e8f0;box-shadow:0 12px 30px rgba(15,23,42,.12);pointer-events:auto;max-width:420px;word-break:break-word;opacity:1}\n.glc-toast-success{background:#f0fdf4;color:#166534;border-color:#86efac}\n.glc-toast-error{background:#fef2f2;color:#991b1b;border-color:#fecaca}\n.glc-toast-enter{animation:glc-toast-fade-in .16s ease}\n.glc-toast-leave{animation:glc-toast-fade-out .16s ease forwards}\n@keyframes glc-toast-fade-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}\n@keyframes glc-toast-fade-out{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(6px)}}\n.glc-progress-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}\n.glc-progress-list li{display:flex;justify-content:space-between;gap:16px;padding:10px 12px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc}\n.glc-progress-platform{font-weight:700;color:#0f172a}\n.glc-progress-state{color:#334155}\n";
+      var BASE_STYLE = "\n.glc-mask{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:2147483646;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box}\n.glc-dialog{background:#fff;color:#0f172a;border:1px solid #e2e8f0;padding:20px;border-radius:12px;min-width:360px;max-width:580px;font-size:14px;box-shadow:0 14px 36px rgba(15,23,42,.16),0 4px 14px rgba(15,23,42,.08)}\n.glc-dialog-title{margin:0 0 12px;font-size:18px;line-height:1.35;color:#0f172a;font-weight:700}\n.glc-dialog-body{line-height:1.6;color:#334155}\n.glc-dialog-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid #f1f5f9}\n.glc-dialog-actions button{border:1px solid #e2e8f0;border-radius:8px;background:#fff;color:#0f172a;padding:8px 14px;cursor:pointer;transition:background-color .14s ease,border-color .14s ease,box-shadow .14s ease}\n.glc-dialog-actions button:hover{background:#f8fbff;border-color:#c6d4e8}\n.glc-dialog-actions button:focus-visible{outline:2px solid #93c5fd;outline-offset:2px}\n.glc-dialog-actions [data-glc-confirm]{border-color:#2563eb;background:#2563eb;color:#fff;box-shadow:0 6px 16px rgba(37,99,235,.24)}\n.glc-dialog-actions [data-glc-confirm]:hover{border-color:#1d4ed8;background:#1d4ed8}\n.glc-textarea{width:100%;min-height:160px;box-sizing:border-box;border:1px solid #d0dbe8;border-radius:10px;padding:10px 12px;color:#0f172a;background:#fff}\n#glc-toast-container{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:2147483647;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none}\n.glc-toast{background:#f8fafc;color:#0f172a;padding:11px 15px;border-radius:12px;border:1px solid #e2e8f0;box-shadow:0 12px 30px rgba(15,23,42,.12);pointer-events:auto;max-width:420px;word-break:break-word;opacity:1}\n.glc-toast-success{background:#f0fdf4;color:#166534;border-color:#86efac}\n.glc-toast-error{background:#fef2f2;color:#991b1b;border-color:#fecaca}\n.glc-toast-link{color:#1d4ed8;text-decoration:underline;font-weight:600}\n.glc-toast-error .glc-toast-link{color:#b91c1c}\n.glc-toast-close{margin-left:8px;border:0;background:transparent;color:inherit;cursor:pointer;font-weight:700;line-height:1}\n.glc-toast-enter{animation:glc-toast-fade-in .16s ease}\n.glc-toast-leave{animation:glc-toast-fade-out .16s ease forwards}\n@keyframes glc-toast-fade-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}\n@keyframes glc-toast-fade-out{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(6px)}}\n.glc-progress-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}\n.glc-progress-list li{display:flex;justify-content:space-between;gap:16px;padding:10px 12px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc}\n.glc-progress-platform{font-weight:700;color:#0f172a}\n.glc-progress-state{color:#334155}\n";
       module.exports = {
         UPDATE_STATUS: UPDATE_STATUS,
         BASE_STYLE: BASE_STYLE
@@ -802,6 +827,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           showUpdateStep = context.showUpdateStep,
           showUpdateResult = context.showUpdateResult,
           showLoginExpiredDialog = context.showLoginExpiredDialog,
+          showToast = context.showToast,
           UPDATE_STATUS = context.UPDATE_STATUS;
         var _updateLibrary;
         var started = false;
@@ -1369,7 +1395,20 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                   }
                                   return _context10.abrupt("return");
                                 case 12:
-                                  if (first) updateEpicOwnedGames(false);
+                                  if (first) {
+                                    updateEpicOwnedGames(false).then(function (result) {
+                                      if ((result === null || result === void 0 ? void 0 : result.status) === UPDATE_STATUS.AUTH_EXPIRED) {
+                                        showToast("Epic 登录状态已过期，请先登录", "error", {
+                                          duration: 0,
+                                          closable: true,
+                                          link: {
+                                            href: result.loginUrl,
+                                            text: "去登录"
+                                          }
+                                        });
+                                      }
+                                    });
+                                  }
                                   epicLink.forEach(function (el) {
                                     var _href$match, _href$match$, _href$match2, _href$match2$;
                                     addClass(el, "epic-game-checked");
@@ -1464,6 +1503,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           showUpdateStep = context.showUpdateStep,
           showUpdateResult = context.showUpdateResult,
           showLoginExpiredDialog = context.showLoginExpiredDialog,
+          showToast = context.showToast,
           UPDATE_STATUS = context.UPDATE_STATUS;
         var _updateLibrary3;
         var started = false;
@@ -1507,7 +1547,20 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 return !el.classList.contains(excludedClass);
               });
               if (gogLink.length === 0) return;
-              if (first) updateGogGameLibrary(false);
+              if (first) {
+                updateGogGameLibrary(false).then(function (result) {
+                  if ((result === null || result === void 0 ? void 0 : result.status) === UPDATE_STATUS.AUTH_EXPIRED) {
+                    showToast("GOG 登录状态已过期，请先登录", "error", {
+                      duration: 0,
+                      closable: true,
+                      link: {
+                        href: result.loginUrl,
+                        text: "去登录"
+                      }
+                    });
+                  }
+                });
+              }
               gogLink.forEach(function (el) {
                 var _href$match3, _href$match3$;
                 addClass(el, "gog-game-checked");
@@ -1670,6 +1723,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           showUpdateStep = context.showUpdateStep,
           showUpdateResult = context.showUpdateResult,
           showLoginExpiredDialog = context.showLoginExpiredDialog,
+          showToast = context.showToast,
           UPDATE_STATUS = context.UPDATE_STATUS;
         var _updateLibrary4;
         var started = false;
@@ -1713,7 +1767,20 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 return !el.classList.contains(excludedClass);
               });
               if (itchLink.length === 0) return;
-              if (first) updateItchGameLibrary(false);
+              if (first) {
+                updateItchGameLibrary(false).then(function (result) {
+                  if ((result === null || result === void 0 ? void 0 : result.status) === UPDATE_STATUS.AUTH_EXPIRED) {
+                    showToast("itch.io 登录状态已过期，请先登录", "error", {
+                      duration: 0,
+                      closable: true,
+                      link: {
+                        href: result.loginUrl,
+                        text: "去登录"
+                      }
+                    });
+                  }
+                });
+              }
               itchLink.forEach(function (el) {
                 var _href$match4;
                 addClass(el, "itch-io-game-checked");
@@ -1876,6 +1943,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           showUpdateStep = context.showUpdateStep,
           showUpdateResult = context.showUpdateResult,
           showLoginExpiredDialog = context.showLoginExpiredDialog,
+          showToast = context.showToast,
           UPDATE_STATUS = context.UPDATE_STATUS;
         var _updateLibrary5;
         var started = false;
@@ -1919,7 +1987,20 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 return !el.classList.contains(excludedClass);
               });
               if (cubeLink.length === 0) return;
-              if (first) updateCubeGameLibrary(false);
+              if (first) {
+                updateCubeGameLibrary(false).then(function (result) {
+                  if ((result === null || result === void 0 ? void 0 : result.status) === UPDATE_STATUS.AUTH_EXPIRED) {
+                    showToast("方块 登录状态已过期，请先登录", "error", {
+                      duration: 0,
+                      closable: true,
+                      link: {
+                        href: result.loginUrl,
+                        text: "去登录"
+                      }
+                    });
+                  }
+                });
+              }
               cubeLink.forEach(function (el) {
                 var _href$match5;
                 addClass(el, "cube-game-checked");
@@ -2085,6 +2166,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           showUpdateStep = context.showUpdateStep,
           showUpdateResult = context.showUpdateResult,
           showLoginExpiredDialog = context.showLoginExpiredDialog,
+          showToast = context.showToast,
           UPDATE_STATUS = context.UPDATE_STATUS;
         var started = false;
         function getIgOwnedGames() {
@@ -2265,6 +2347,18 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             if (started) return;
             started = true;
             markIgLinks();
+            updateIgGameLibrary().then(function (result) {
+              if ((result === null || result === void 0 ? void 0 : result.status) === UPDATE_STATUS.AUTH_EXPIRED) {
+                showToast("IG 登录状态已过期，请先登录", "error", {
+                  duration: 0,
+                  closable: true,
+                  link: {
+                    href: result.loginUrl,
+                    text: "去登录"
+                  }
+                });
+              }
+            });
             var observer = new MutationObserver(function () {
               markIgLinks();
             });

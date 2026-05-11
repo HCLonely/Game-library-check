@@ -20,6 +20,9 @@ const BASE_STYLE = `
 .glc-toast{background:#f8fafc;color:#0f172a;padding:11px 15px;border-radius:12px;border:1px solid #e2e8f0;box-shadow:0 12px 30px rgba(15,23,42,.12);pointer-events:auto;max-width:420px;word-break:break-word;opacity:1}
 .glc-toast-success{background:#f0fdf4;color:#166534;border-color:#86efac}
 .glc-toast-error{background:#fef2f2;color:#991b1b;border-color:#fecaca}
+.glc-toast-link{color:#1d4ed8;text-decoration:underline;font-weight:600}
+.glc-toast-error .glc-toast-link{color:#b91c1c}
+.glc-toast-close{margin-left:8px;border:0;background:transparent;color:inherit;cursor:pointer;font-weight:700;line-height:1}
 .glc-toast-enter{animation:glc-toast-fade-in .16s ease}
 .glc-toast-leave{animation:glc-toast-fade-out .16s ease forwards}
 @keyframes glc-toast-fade-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}

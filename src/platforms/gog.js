@@ -7,6 +7,7 @@ function createGogModule(context) {
     showUpdateStep,
     showUpdateResult,
     showLoginExpiredDialog,
+    showToast,
     UPDATE_STATUS
   } = context;
 
@@ -46,7 +47,13 @@ function createGogModule(context) {
         const gogLink = queryLinks('a[href*="www.gog.com/"]')
           .filter((el) => !el.classList.contains(excludedClass));
         if (gogLink.length === 0) return;
-        if (first) updateGogGameLibrary(false);
+        if (first) {
+          updateGogGameLibrary(false).then((result) => {
+            if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
+              showToast('GOG 登录状态已过期，请先登录', 'error', { duration: 0, closable: true, link: { href: result.loginUrl, text: '去登录' } });
+            }
+          });
+        }
         gogLink.forEach((el) => {
           addClass(el, 'gog-game-checked');
           let href = getHref(el);
