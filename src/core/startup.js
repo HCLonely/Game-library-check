@@ -1,5 +1,50 @@
 function createStartupFlow({ showDialog, showProgressPanel, clearProgressPanel, showToast, showLoginExpiredDialog, updateStatus }) {
   let inBatchUpdateFlow = false;
+  const PLATFORM_UPDATE_RATE_KEY = 'platformUpdateRate';
+  const PLATFORM_LAST_UPDATE_AT_KEY = 'platformLastUpdateAt';
+  const TEN_MINUTES_MS = 10 * 60 * 1000;
+  const ONE_HOUR_MS = 60 * 60 * 1000;
+
+  function sanitizePlatformRateMap(raw, now = Date.now()) {
+    if (!raw || typeof raw !== 'object') return {};
+    const oneHourAgo = now - ONE_HOUR_MS;
+    const result = {};
+    Object.keys(raw).forEach((key) => {
+      const list = Array.isArray(raw[key]) ? raw[key] : [];
+      result[key] = list.filter((ts) => Number.isFinite(ts) && ts >= oneHourAgo && ts <= now);
+    });
+    return result;
+  }
+
+  function canRunAutoUpdate(platformKey, now = Date.now()) {
+    const rateMap = sanitizePlatformRateMap(GM_getValue(PLATFORM_UPDATE_RATE_KEY) || {}, now);
+    const history = Array.isArray(rateMap[platformKey]) ? rateMap[platformKey] : [];
+    const tenMinutesAgo = now - TEN_MINUTES_MS;
+    const oneHourAgo = now - ONE_HOUR_MS;
+    const countIn10Minutes = history.filter((ts) => ts >= tenMinutesAgo).length;
+    const countIn1Hour = history.filter((ts) => ts >= oneHourAgo).length;
+    GM_setValue(PLATFORM_UPDATE_RATE_KEY, rateMap);
+    return countIn10Minutes < 5 && countIn1Hour < 30;
+  }
+
+  function recordAutoUpdateSuccess(platformKey, now = Date.now()) {
+    const rateMap = sanitizePlatformRateMap(GM_getValue(PLATFORM_UPDATE_RATE_KEY) || {}, now);
+    const history = Array.isArray(rateMap[platformKey]) ? rateMap[platformKey] : [];
+    rateMap[platformKey] = history.concat(now).filter((ts) => ts >= now - ONE_HOUR_MS);
+    GM_setValue(PLATFORM_UPDATE_RATE_KEY, rateMap);
+
+    const lastUpdateMap = GM_getValue(PLATFORM_LAST_UPDATE_AT_KEY) || {};
+    lastUpdateMap[platformKey] = now;
+    GM_setValue(PLATFORM_LAST_UPDATE_AT_KEY, lastUpdateMap);
+  }
+
+  async function runAutoUpdateWithRateLimit(module, autoUpdateRunner) {
+    if (!module?.key || typeof autoUpdateRunner !== 'function') return false;
+    if (!canRunAutoUpdate(module.key)) return false;
+    const result = await autoUpdateRunner();
+    if (result === true) recordAutoUpdateSuccess(module.key);
+    return result;
+  }
 
   function collectEmptyCaches(enabledModules) {
     return enabledModules.filter((module) => module.isCacheEmpty()).map((module) => module.key);
@@ -190,7 +235,8 @@ function createStartupFlow({ showDialog, showProgressPanel, clearProgressPanel, 
     openManualUpdateDialogAndRun,
     runInitialFlow,
     showUpdateStep,
-    showUpdateResult
+    showUpdateResult,
+    runAutoUpdateWithRateLimit
   };
 }
 

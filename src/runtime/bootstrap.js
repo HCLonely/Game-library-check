@@ -56,7 +56,8 @@ function bootstrapMergedRuntime() {
     runInitialFlow,
     showUpdateStep,
     showUpdateResult,
-    openManualUpdateDialogAndRun
+    openManualUpdateDialogAndRun,
+    runAutoUpdateWithRateLimit
   } = createStartupFlow({
     showDialog,
     showProgressPanel,
@@ -76,6 +77,7 @@ function bootstrapMergedRuntime() {
     showUpdateStep,
     showUpdateResult,
     showLoginExpiredDialog,
+    runAutoUpdateWithRateLimit,
     UPDATE_STATUS
   };
 

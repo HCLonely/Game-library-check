@@ -9,6 +9,7 @@ function createItchModule(context) {
     showUpdateResult,
     showLoginExpiredDialog,
     showToast,
+    runAutoUpdateWithRateLimit,
     UPDATE_STATUS
   } = context;
 
@@ -49,7 +50,12 @@ function createItchModule(context) {
           .filter((el) => !el.classList.contains(excludedClass));
         if (itchLink.length === 0) return;
         if (first) {
-          updateItchGameLibrary(false).then((result) => {
+          const autoUpdate = () => updateItchGameLibrary(false);
+          let runner = autoUpdate;
+          if (typeof runAutoUpdateWithRateLimit === 'function') {
+            runner = () => runAutoUpdateWithRateLimit(moduleApi, autoUpdate);
+          }
+          runner().then((result) => {
             if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
               showToast('itch.io 登录状态已过期，请先登录', 'error', { duration: 0, closable: true, link: { href: result.loginUrl, text: '去登录' } });
             }

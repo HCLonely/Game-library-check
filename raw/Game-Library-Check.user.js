@@ -391,6 +391,46 @@
     "src/core/startup.js"(exports, module) {
       function createStartupFlow({ showDialog, showProgressPanel, clearProgressPanel, showToast, showLoginExpiredDialog, updateStatus }) {
         let inBatchUpdateFlow = false;
+        const PLATFORM_UPDATE_RATE_KEY = "platformUpdateRate";
+        const PLATFORM_LAST_UPDATE_AT_KEY = "platformLastUpdateAt";
+        const TEN_MINUTES_MS = 10 * 60 * 1e3;
+        const ONE_HOUR_MS = 60 * 60 * 1e3;
+        function sanitizePlatformRateMap(raw, now = Date.now()) {
+          if (!raw || typeof raw !== "object") return {};
+          const oneHourAgo = now - ONE_HOUR_MS;
+          const result = {};
+          Object.keys(raw).forEach((key) => {
+            const list = Array.isArray(raw[key]) ? raw[key] : [];
+            result[key] = list.filter((ts) => Number.isFinite(ts) && ts >= oneHourAgo && ts <= now);
+          });
+          return result;
+        }
+        function canRunAutoUpdate(platformKey, now = Date.now()) {
+          const rateMap = sanitizePlatformRateMap(GM_getValue(PLATFORM_UPDATE_RATE_KEY) || {}, now);
+          const history = Array.isArray(rateMap[platformKey]) ? rateMap[platformKey] : [];
+          const tenMinutesAgo = now - TEN_MINUTES_MS;
+          const oneHourAgo = now - ONE_HOUR_MS;
+          const countIn10Minutes = history.filter((ts) => ts >= tenMinutesAgo).length;
+          const countIn1Hour = history.filter((ts) => ts >= oneHourAgo).length;
+          GM_setValue(PLATFORM_UPDATE_RATE_KEY, rateMap);
+          return countIn10Minutes < 5 && countIn1Hour < 30;
+        }
+        function recordAutoUpdateSuccess(platformKey, now = Date.now()) {
+          const rateMap = sanitizePlatformRateMap(GM_getValue(PLATFORM_UPDATE_RATE_KEY) || {}, now);
+          const history = Array.isArray(rateMap[platformKey]) ? rateMap[platformKey] : [];
+          rateMap[platformKey] = history.concat(now).filter((ts) => ts >= now - ONE_HOUR_MS);
+          GM_setValue(PLATFORM_UPDATE_RATE_KEY, rateMap);
+          const lastUpdateMap = GM_getValue(PLATFORM_LAST_UPDATE_AT_KEY) || {};
+          lastUpdateMap[platformKey] = now;
+          GM_setValue(PLATFORM_LAST_UPDATE_AT_KEY, lastUpdateMap);
+        }
+        async function runAutoUpdateWithRateLimit(module2, autoUpdateRunner) {
+          if (!module2?.key || typeof autoUpdateRunner !== "function") return false;
+          if (!canRunAutoUpdate(module2.key)) return false;
+          const result = await autoUpdateRunner();
+          if (result === true) recordAutoUpdateSuccess(module2.key);
+          return result;
+        }
         function collectEmptyCaches(enabledModules) {
           return enabledModules.filter((module2) => module2.isCacheEmpty()).map((module2) => module2.key);
         }
@@ -566,7 +606,8 @@
           openManualUpdateDialogAndRun,
           runInitialFlow,
           showUpdateStep,
-          showUpdateResult
+          showUpdateResult,
+          runAutoUpdateWithRateLimit
         };
       }
       module.exports = {
@@ -839,16 +880,17 @@
           showUpdateResult,
           showLoginExpiredDialog,
           showToast,
+          runAutoUpdateWithRateLimit,
           UPDATE_STATUS
         } = context;
         let updateLibrary;
         let started = false;
-        const moduleApi = {
+        const moduleApi2 = {
           key: "epic",
           enabled: () => settings.platformEnabled.epic,
           isCacheEmpty: () => (GM_getValue("ownedGames") || []).length === 0,
           updateLibrary: async () => {
-            if (!updateLibrary) await moduleApi.start();
+            if (!updateLibrary) await moduleApi2.start();
             return updateLibrary();
           },
           start: async () => {
@@ -886,7 +928,12 @@
               const epicLink = queryLinks('a[href*="www.epicgames.com/store/"],a[href*="store.epicgames.com/"]').filter((el) => !el.classList.contains(excludedClass));
               if (epicLink.length === 0) return;
               if (first) {
-                updateEpicOwnedGames(false).then((result) => {
+                const autoUpdate = () => updateEpicOwnedGames(false);
+                let runner = autoUpdate;
+                if (typeof runAutoUpdateWithRateLimit === "function") {
+                  runner = () => runAutoUpdateWithRateLimit(moduleApi2, autoUpdate);
+                }
+                runner().then((result) => {
                   if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
                     showToast("Epic 登录状态已过期，请先登录", "error", { duration: 0, closable: true, link: { href: result.loginUrl, text: "去登录" } });
                   }
@@ -1209,7 +1256,7 @@
 }`);
           }
         };
-        return moduleApi;
+        return moduleApi2;
       }
       module.exports = {
         createEpicModule
@@ -1230,16 +1277,17 @@
           showUpdateResult,
           showLoginExpiredDialog,
           showToast,
+          runAutoUpdateWithRateLimit,
           UPDATE_STATUS
         } = context;
         let updateLibrary;
         let started = false;
-        const moduleApi = {
+        const moduleApi2 = {
           key: "gog",
           enabled: () => settings.platformEnabled.gog,
           isCacheEmpty: () => (GM_getValue("gogGames") || []).length === 0,
           updateLibrary: () => {
-            if (!updateLibrary) moduleApi.start();
+            if (!updateLibrary) moduleApi2.start();
             return updateLibrary();
           },
           start: () => {
@@ -1267,7 +1315,12 @@
               const gogLink = queryLinks('a[href*="www.gog.com/"]').filter((el) => !el.classList.contains(excludedClass));
               if (gogLink.length === 0) return;
               if (first) {
-                updateGogGameLibrary(false).then((result) => {
+                const autoUpdate = () => updateGogGameLibrary(false);
+                let runner = autoUpdate;
+                if (typeof runAutoUpdateWithRateLimit === "function") {
+                  runner = () => runAutoUpdateWithRateLimit(moduleApi2, autoUpdate);
+                }
+                runner().then((result) => {
                   if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
                     showToast("GOG 登录状态已过期，请先登录", "error", { duration: 0, closable: true, link: { href: result.loginUrl, text: "去登录" } });
                   }
@@ -1343,7 +1396,7 @@
             GM_addStyle(".gog-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}");
           }
         };
-        return moduleApi;
+        return moduleApi2;
       }
       module.exports = {
         createGogModule
@@ -1365,16 +1418,17 @@
           showUpdateResult,
           showLoginExpiredDialog,
           showToast,
+          runAutoUpdateWithRateLimit,
           UPDATE_STATUS
         } = context;
         let updateLibrary;
         let started = false;
-        const moduleApi = {
+        const moduleApi2 = {
           key: "itch",
           enabled: () => settings.platformEnabled.itch,
           isCacheEmpty: () => (GM_getValue("itchGames") || []).length === 0,
           updateLibrary: () => {
-            if (!updateLibrary) moduleApi.start();
+            if (!updateLibrary) moduleApi2.start();
             return updateLibrary();
           },
           start: () => {
@@ -1402,7 +1456,12 @@
               const itchLink = queryLinks('a[href*=".itch.io/"]').filter((el) => !el.classList.contains(excludedClass));
               if (itchLink.length === 0) return;
               if (first) {
-                updateItchGameLibrary(false).then((result) => {
+                const autoUpdate = () => updateItchGameLibrary(false);
+                let runner = autoUpdate;
+                if (typeof runAutoUpdateWithRateLimit === "function") {
+                  runner = () => runAutoUpdateWithRateLimit(moduleApi2, autoUpdate);
+                }
+                runner().then((result) => {
                   if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
                     showToast("itch.io 登录状态已过期，请先登录", "error", { duration: 0, closable: true, link: { href: result.loginUrl, text: "去登录" } });
                   }
@@ -1483,7 +1542,7 @@
             unsafeWindow.checkItchGame = checkItchGame;
           }
         };
-        return moduleApi;
+        return moduleApi2;
       }
       module.exports = {
         createItchModule
@@ -1505,6 +1564,7 @@
           showUpdateResult,
           showLoginExpiredDialog,
           showToast,
+          runAutoUpdateWithRateLimit,
           UPDATE_STATUS
         } = context;
         let started = false;
@@ -1616,7 +1676,12 @@
             if (started) return;
             started = true;
             markIgLinks();
-            updateIgGameLibrary(false).then((result) => {
+            const autoUpdate = () => updateIgGameLibrary(false);
+            let runner = autoUpdate;
+            if (typeof runAutoUpdateWithRateLimit === "function") {
+              runner = () => runAutoUpdateWithRateLimit(moduleApi, autoUpdate);
+            }
+            runner().then((result) => {
               if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
                 showToast("IG 登录状态已过期，请先登录", "error", { duration: 0, closable: true, link: { href: result.loginUrl, text: "去登录" } });
               }
@@ -1691,7 +1756,8 @@
           runInitialFlow,
           showUpdateStep,
           showUpdateResult,
-          openManualUpdateDialogAndRun
+          openManualUpdateDialogAndRun,
+          runAutoUpdateWithRateLimit
         } = createStartupFlow({
           showDialog,
           showProgressPanel,
@@ -1710,6 +1776,7 @@
           showUpdateStep,
           showUpdateResult,
           showLoginExpiredDialog,
+          runAutoUpdateWithRateLimit,
           UPDATE_STATUS
         };
         GM_registerMenuCommand("设置", setting);
