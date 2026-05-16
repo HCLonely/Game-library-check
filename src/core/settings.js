@@ -35,7 +35,7 @@ function createSettingsController({ showDialog }) {
       ['glc-epic', 'Epic', current.epic],
       ['glc-gog', 'GOG', current.gog],
       ['glc-itch', 'Itch', current.itch],
-      ['glc-cube', 'Cube', current.cube],
+      // ['glc-cube', 'Cube', current.cube],
       ['glc-ig', 'IG', current.ig]
     ].forEach(([id, labelText, checked], index) => {
       const label = document.createElement('label');
@@ -58,7 +58,7 @@ function createSettingsController({ showDialog }) {
           epic: root.querySelector('#glc-epic').checked,
           gog: root.querySelector('#glc-gog').checked,
           itch: root.querySelector('#glc-itch').checked,
-          cube: root.querySelector('#glc-cube').checked,
+          // cube: root.querySelector('#glc-cube').checked,
           ig: root.querySelector('#glc-ig').checked
         };
         setGlobalSettings(settings);

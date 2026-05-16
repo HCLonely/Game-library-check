@@ -8,7 +8,7 @@ const { UPDATE_STATUS, BASE_STYLE } = require('../shared/constants');
 const { createEpicModule } = require('../platforms/epic');
 const { createGogModule } = require('../platforms/gog');
 const { createItchModule } = require('../platforms/itch');
-const { createCubeModule } = require('../platforms/cube');
+// const { createCubeModule } = require('../platforms/cube');
 const { createIgModule } = require('../platforms/ig');
 
 function bootstrapMergedRuntime() {
@@ -90,7 +90,7 @@ function bootstrapMergedRuntime() {
     createEpicModule(moduleContext),
     createGogModule(moduleContext),
     createItchModule(moduleContext),
-    createCubeModule(moduleContext),
+    // createCubeModule(moduleContext),
     createIgModule(moduleContext)
   ];
 

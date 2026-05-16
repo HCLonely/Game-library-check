@@ -79,9 +79,11 @@ function createIgModule(context) {
     return { pages, games };
   }
 
-  async function updateIgGameLibrary() {
+  async function updateIgGameLibrary(loop = true) {
     try {
-      showUpdateStep('ig', '第 1 页');
+      if (loop) {
+        showUpdateStep('ig', '第 1 页');
+      }
       const cookies = await getIgCookies();
       const firstPageResponse = await requestIgShowcasePage(1, cookies);
       if (new URL(firstPageResponse.finalUrl).pathname === '/login') {
@@ -94,6 +96,13 @@ function createIgModule(context) {
 
       const firstParsed = parseIgShowcase(firstPageResponse.responseText, 1);
       let allGames = [...firstParsed.games];
+
+      if (!loop) {
+        allGames = Array.from(new Set(allGames)).filter(Boolean);
+        GM_setValue('IG-Owned', { time: Date.now(), games: allGames });
+        markIgLinks();
+        return true;
+      }
 
       for (let page = 2; page <= firstParsed.pages; page += 1) {
         showUpdateStep('ig', `第 ${page} 页`);
@@ -109,7 +118,9 @@ function createIgModule(context) {
       return true;
     } catch (error) {
       console.error(error);
-      await showUpdateResult('IG游戏库数据更新失败', 'error');
+      if (loop) {
+        await showUpdateResult('IG游戏库数据更新失败', 'error');
+      }
       return false;
     }
   }
@@ -123,7 +134,7 @@ function createIgModule(context) {
       if (started) return;
       started = true;
       markIgLinks();
-      updateIgGameLibrary().then((result) => {
+      updateIgGameLibrary(false).then((result) => {
         if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
           showToast('IG 登录状态已过期，请先登录', 'error', { duration: 0, closable: true, link: { href: result.loginUrl, text: '去登录' } });
         }

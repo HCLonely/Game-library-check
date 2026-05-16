@@ -11,7 +11,9 @@ module.exports = `// ==UserScript==
 // @supportURL     https://github.com/HCLonely/Game-library-check/issues
 // @updateURL      https://github.com/HCLonely/Game-library-check/raw/master/Game-Library-Check.user.js
 // @include        *
-// @exclude        *://*.epicgames.com/*
+// @include        *://accounts.epicgames.com/*
+// @exclude        *://www.epicgames.com/*
+// @exclude        *://store.epicgames.com/*
 // @exclude        *://www.gog.com/*
 // @exclude        *://itch.io/login
 // @exclude        *://account.cubejoy.com/html/login.html

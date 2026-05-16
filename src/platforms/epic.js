@@ -69,12 +69,20 @@ function createEpicModule(context) {
           addClass(el, 'epic-game-checked');
           let href = getHref(el);
           if (!/\/$/.test(href)) href += '/';
-          const epicGameName = href.match(/https?:\/\/www\.epicgames\.com\/store\/.*?\/p(roduct)?\/([^?/]+)/i)?.[2]?.toLowerCase() ||
-            href.match(/https?:\/\/store\.epicgames\.com\/.*?\/p(roduct)?\/([^?/]+)/i)?.[2]?.toLowerCase();
+          const epicGameName = href.match(/https?:\/\/(www|store)\.epicgames\.com(\/.*?)?\/p(roduct)?\/([^?/]+)/i)?.[4]?.toLowerCase();
           if (epicGameName) {
             if (ownedGames.find((game) => game.pageSlug.includes(epicGameName))) {
               addClass(el, 'epic-game-link-owned');
             } else if (wishlistGames.find((game) => game.pageSlug.includes(epicGameName))) {
+              addClass(el, 'epic-game-link-wishlist');
+            }
+            return;
+          }
+          const epicGameOfferId = href.match(/https?:\/\/(store|www)\.epicgames\.com\/purchase\?offers=([\w-]+)/i)?.[2]?.toLowerCase();
+          if (epicGameOfferId) {
+            if (ownedGames.find((game) => epicGameOfferId.includes(game.offerId))) {
+              addClass(el, 'epic-game-link-owned');
+            } else if (wishlistGames.find((game) => epicGameOfferId.includes(game.offerId))) {
               addClass(el, 'epic-game-link-wishlist');
             }
           }
@@ -90,7 +98,7 @@ function createEpicModule(context) {
         return new Promise((resolve, reject) => {
           GM_xmlhttpRequest({
             method: 'GET',
-            url: 'https://store.epicgames.com/zh-CN/p/grand-theft-auto-v',
+            url: 'https://store.epicgames.com/p/grand-theft-auto-v?lang=zh-CN',
             timeout: 30000,
             fetch: true,
             headers: {
@@ -249,23 +257,66 @@ function createEpicModule(context) {
         return true;
       }
 
-      function updateEpicOwnedGames(loop = true, i = 0, games = GM_getValue('ownedGames') || [], nextPageToken = '') {
+      function getEpicCookies(name) {
+        return new Promise((resolve, reject) => {
+          GM_cookie.list({ url: 'https://accounts.epicgames.com/', name }, (cookies, error) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(cookies[0]?.value || 'null');
+          });
+        });
+      }
+
+      function getAllEpicCookies() {
+        return new Promise((resolve, reject) => {
+          GM_cookie.list({ url: 'https://accounts.epicgames.com/' }, (cookies, error) => {
+            if (error) {
+              reject(error);
+              return;
+            }
+            resolve(cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join(';'));
+          });
+        });
+      }
+
+      async function updateEpicOwnedGames(loop = true, i = 0, games = GM_getValue('ownedGames') || [], nextPageToken = '') {
         console.log('[EGLC] updateEpicOwnedGames...');
         if (!loop && i !== 0) {
           GM_setValue('ownedGames', games);
           checkEpicGame(false);
           return;
         }
+        const xsrfToken = await getEpicCookies('XSRF-AM-TOKEN');
+        const allCookies = await getAllEpicCookies();
         return new Promise((resolve, reject) => {
           if (loop) {
             showUpdateStep('epic', `第 ${i + 1} 页`);
           }
           GM_xmlhttpRequest({
             method: 'GET',
-            url: `https://accounts.epicgames.com/account/v2/payment/ajaxGetOrderHistory?sortDir=DESC&sortBy=DATE&locale=${locale}${nextPageToken ? `&nextPageToken=${encodeURIComponent(nextPageToken)}` : ''}`,
+            url: `https://accounts.epicgames.com/account/v2/payment/ajaxGetOrderHistory?count=10&sortDir=DESC&sortBy=DATE&locale=${locale}${nextPageToken ? `&nextPageToken=${encodeURIComponent(nextPageToken)}` : ''}`,
             timeout: 30000,
             nocache: true,
             responseType: 'json',
+            headers: {
+              referer: 'https://accounts.epicgames.com/',
+              dnt: 1,
+              pragma: 'no-cache',
+              priority: 'u=1, i',
+              'sec-ch-ua': '"Chromium";v="146", "Not-A.Brand";v="24", "Microsoft Edge";v="146"',
+              'sec-ch-ua-mobile': '?0',
+              'sec-ch-ua-platform': '"Windows"',
+              'sec-fetch-dest': 'empty',
+              'sec-fetch-mode': 'cors',
+              'sec-fetch-site': 'same-origin',
+              'sec-gpc': '1',
+              'x-csrf-token': 'null',
+              'x-xsrf-token': xsrfToken,
+              cookie: allCookies
+            },
+            fetch: true,
             onerror: reject,
             ontimeout: reject,
             onload: (response) => {
@@ -283,10 +334,15 @@ function createEpicModule(context) {
           const ordersLength = response.response?.orders?.length || 0;
           if (ordersLength >= 0) {
             const orderedGames = response.response.orders.map((e) => e?.items?.[0] || null).filter((e) => e);
+            // console.info(orderedGames);
             await Promise.all(orderedGames.map(async (item) => {
+              // console.info(item);
+              // const ttt = games.find((game) => game.namespace === item.namespace && game.offerId === item.offerId);
               if (games.find((game) => game.namespace === item.namespace && game.offerId === item.offerId)) {
+                // console.info(item.namespace, ttt);
                 return true;
               }
+              console.info('pageSlug');
               const pageSlug = await getPagePlug(item.namespace, item.offerId);
               console.log(`[EGLC] pageSlug: ${pageSlug}`);
               if (pageSlug) {
@@ -345,7 +401,7 @@ function createEpicModule(context) {
   background:#007399 !important
 }`);
 
-      void updateEpicAuth;
+      // void updateEpicAuth;
     }
   };
   return moduleApi;

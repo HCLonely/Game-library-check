@@ -11,7 +11,9 @@
 // @supportURL     https://github.com/HCLonely/Game-library-check/issues
 // @updateURL      https://github.com/HCLonely/Game-library-check/raw/master/Game-Library-Check.user.js
 // @include        *
-// @exclude        *://*.epicgames.com/*
+// @include        *://accounts.epicgames.com/*
+// @exclude        *://www.epicgames.com/*
+// @exclude        *://store.epicgames.com/*
 // @exclude        *://www.gog.com/*
 // @exclude        *://itch.io/login
 // @exclude        *://account.cubejoy.com/html/login.html
@@ -288,7 +290,7 @@
             ["glc-epic", "Epic", current.epic],
             ["glc-gog", "GOG", current.gog],
             ["glc-itch", "Itch", current.itch],
-            ["glc-cube", "Cube", current.cube],
+            // ['glc-cube', 'Cube', current.cube],
             ["glc-ig", "IG", current.ig]
           ].forEach(([id, labelText, checked], index) => {
             const label = document.createElement("label");
@@ -311,7 +313,7 @@
                 epic: root.querySelector("#glc-epic").checked,
                 gog: root.querySelector("#glc-gog").checked,
                 itch: root.querySelector("#glc-itch").checked,
-                cube: root.querySelector("#glc-cube").checked,
+                // cube: root.querySelector('#glc-cube').checked,
                 ig: root.querySelector("#glc-ig").checked
               };
               setGlobalSettings(settings);
@@ -894,11 +896,20 @@
                 addClass(el, "epic-game-checked");
                 let href = getHref(el);
                 if (!/\/$/.test(href)) href += "/";
-                const epicGameName = href.match(/https?:\/\/www\.epicgames\.com\/store\/.*?\/p(roduct)?\/([^?/]+)/i)?.[2]?.toLowerCase() || href.match(/https?:\/\/store\.epicgames\.com\/.*?\/p(roduct)?\/([^?/]+)/i)?.[2]?.toLowerCase();
+                const epicGameName = href.match(/https?:\/\/(www|store)\.epicgames\.com(\/.*?)?\/p(roduct)?\/([^?/]+)/i)?.[4]?.toLowerCase();
                 if (epicGameName) {
                   if (ownedGames.find((game) => game.pageSlug.includes(epicGameName))) {
                     addClass(el, "epic-game-link-owned");
                   } else if (wishlistGames.find((game) => game.pageSlug.includes(epicGameName))) {
+                    addClass(el, "epic-game-link-wishlist");
+                  }
+                  return;
+                }
+                const epicGameOfferId = href.match(/https?:\/\/(store|www)\.epicgames\.com\/purchase\?offers=([\w-]+)/i)?.[2]?.toLowerCase();
+                if (epicGameOfferId) {
+                  if (ownedGames.find((game) => epicGameOfferId.includes(game.offerId))) {
+                    addClass(el, "epic-game-link-owned");
+                  } else if (wishlistGames.find((game) => epicGameOfferId.includes(game.offerId))) {
                     addClass(el, "epic-game-link-wishlist");
                   }
                 }
@@ -912,7 +923,7 @@
               return new Promise((resolve, reject) => {
                 GM_xmlhttpRequest({
                   method: "GET",
-                  url: "https://store.epicgames.com/zh-CN/p/grand-theft-auto-v",
+                  url: "https://store.epicgames.com/p/grand-theft-auto-v?lang=zh-CN",
                   timeout: 3e4,
                   fetch: true,
                   headers: {
@@ -1063,23 +1074,64 @@
               }
               return true;
             }
-            function updateEpicOwnedGames(loop = true, i = 0, games = GM_getValue("ownedGames") || [], nextPageToken = "") {
+            function getEpicCookies(name) {
+              return new Promise((resolve, reject) => {
+                GM_cookie.list({ url: "https://accounts.epicgames.com/", name }, (cookies, error) => {
+                  if (error) {
+                    reject(error);
+                    return;
+                  }
+                  resolve(cookies[0]?.value || "null");
+                });
+              });
+            }
+            function getAllEpicCookies() {
+              return new Promise((resolve, reject) => {
+                GM_cookie.list({ url: "https://accounts.epicgames.com/" }, (cookies, error) => {
+                  if (error) {
+                    reject(error);
+                    return;
+                  }
+                  resolve(cookies.map((cookie) => `${cookie.name}=${cookie.value}`).join(";"));
+                });
+              });
+            }
+            async function updateEpicOwnedGames(loop = true, i = 0, games = GM_getValue("ownedGames") || [], nextPageToken = "") {
               console.log("[EGLC] updateEpicOwnedGames...");
               if (!loop && i !== 0) {
                 GM_setValue("ownedGames", games);
                 checkEpicGame(false);
                 return;
               }
+              const xsrfToken = await getEpicCookies("XSRF-AM-TOKEN");
+              const allCookies = await getAllEpicCookies();
               return new Promise((resolve, reject) => {
                 if (loop) {
                   showUpdateStep("epic", `第 ${i + 1} 页`);
                 }
                 GM_xmlhttpRequest({
                   method: "GET",
-                  url: `https://accounts.epicgames.com/account/v2/payment/ajaxGetOrderHistory?sortDir=DESC&sortBy=DATE&locale=${locale}${nextPageToken ? `&nextPageToken=${encodeURIComponent(nextPageToken)}` : ""}`,
+                  url: `https://accounts.epicgames.com/account/v2/payment/ajaxGetOrderHistory?count=10&sortDir=DESC&sortBy=DATE&locale=${locale}${nextPageToken ? `&nextPageToken=${encodeURIComponent(nextPageToken)}` : ""}`,
                   timeout: 3e4,
                   nocache: true,
                   responseType: "json",
+                  headers: {
+                    referer: "https://accounts.epicgames.com/",
+                    dnt: 1,
+                    pragma: "no-cache",
+                    priority: "u=1, i",
+                    "sec-ch-ua": '"Chromium";v="146", "Not-A.Brand";v="24", "Microsoft Edge";v="146"',
+                    "sec-ch-ua-mobile": "?0",
+                    "sec-ch-ua-platform": '"Windows"',
+                    "sec-fetch-dest": "empty",
+                    "sec-fetch-mode": "cors",
+                    "sec-fetch-site": "same-origin",
+                    "sec-gpc": "1",
+                    "x-csrf-token": "null",
+                    "x-xsrf-token": xsrfToken,
+                    cookie: allCookies
+                  },
+                  fetch: true,
                   onerror: reject,
                   ontimeout: reject,
                   onload: (response) => {
@@ -1101,6 +1153,7 @@
                     if (games.find((game) => game.namespace === item.namespace && game.offerId === item.offerId)) {
                       return true;
                     }
+                    console.info("pageSlug");
                     const pageSlug = await getPagePlug(item.namespace, item.offerId);
                     console.log(`[EGLC] pageSlug: ${pageSlug}`);
                     if (pageSlug) {
@@ -1154,7 +1207,6 @@
   color:#ffffff !important;
   background:#007399 !important
 }`);
-            void updateEpicAuth;
           }
         };
         return moduleApi;
@@ -1439,146 +1491,6 @@
     }
   });
 
-  // src/platforms/cube.js
-  var require_cube = __commonJS({
-    "src/platforms/cube.js"(exports, module) {
-      function createCubeModule(context) {
-        const {
-          settings,
-          queryLinks,
-          addClass,
-          getHref,
-          showUpdateStep,
-          showUpdateResult,
-          showLoginExpiredDialog,
-          showToast,
-          UPDATE_STATUS
-        } = context;
-        let updateLibrary;
-        let started = false;
-        const moduleApi = {
-          key: "cube",
-          enabled: () => settings.platformEnabled.cube,
-          isCacheEmpty: () => (GM_getValue("cubeGames") || []).length === 0,
-          updateLibrary: () => {
-            if (!updateLibrary) moduleApi.start();
-            return updateLibrary();
-          },
-          start: () => {
-            if (started) return;
-            started = true;
-            let loadTimes = 0;
-            checkCubeGame();
-            const observer = new MutationObserver(() => {
-              checkCubeGame(false, true);
-            });
-            observer.observe(document.documentElement, {
-              attributes: false,
-              characterData: false,
-              childList: true,
-              subtree: true
-            });
-            function checkCubeGame(first = true, again = false) {
-              loadTimes++;
-              if (loadTimes > 1e3) {
-                observer.disconnect();
-                return;
-              }
-              const cubeGames = getCubeGameLibrary();
-              const excludedClass = again ? "cube-game-checked" : "cube-game-link-owned";
-              const cubeLink = queryLinks('a[href*="store.cubejoy.com/html/en/store/goodsdetail/detail"]').filter((el) => !el.classList.contains(excludedClass));
-              if (cubeLink.length === 0) return;
-              if (first) {
-                updateCubeGameLibrary(false).then((result) => {
-                  if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
-                    showToast("方块 登录状态已过期，请先登录", "error", { duration: 0, closable: true, link: { href: result.loginUrl, text: "去登录" } });
-                  }
-                });
-              }
-              cubeLink.forEach((el) => {
-                addClass(el, "cube-game-checked");
-                let href = getHref(el);
-                if (!/\/$/.test(href)) href += "/";
-                const cubeGameId = href.match(/https?:\/\/store\.cubejoy\.com\/html\/en\/store\/goodsdetail\/detail([\d]+).html/i)?.[1];
-                if (cubeGameId && cubeGames.includes(parseInt(cubeGameId, 10))) {
-                  addClass(el, "cube-game-link-owned");
-                }
-              });
-            }
-            function getCubeGameLibrary() {
-              return GM_getValue("cubeGames") || [];
-            }
-            function updateCubeGameLibrary(loop = true, i = 1, games = []) {
-              if (!loop && i !== 1) {
-                GM_setValue("cubeGames", [.../* @__PURE__ */ new Set([...getCubeGameLibrary(), ...games])]);
-                checkCubeGame(false);
-                return;
-              }
-              return new Promise((resolve, reject) => {
-                if (loop) {
-                  showUpdateStep("cube", `第 ${i} 页`);
-                }
-                GM_xmlhttpRequest({
-                  method: "POST",
-                  url: `https://account.cubejoy.com/Comment/MyGameReq?pageIndex=${i}&pageSize=24`,
-                  timeout: 15e3,
-                  nocache: true,
-                  responseType: "json",
-                  headers: {
-                    Accept: "application/json, text/plain, */*",
-                    Host: "account.cubejoy.com",
-                    Origin: "https://account.cubejoy.com",
-                    Referer: "https://account.cubejoy.com/Comment/MyGame"
-                  },
-                  onerror: reject,
-                  ontimeout: reject,
-                  onload: (response) => {
-                    response.status === 200 ? resolve(response) : reject(response);
-                  }
-                });
-              }).then(async (response) => {
-                if (response.response?.resultCode === 0) {
-                  return {
-                    status: UPDATE_STATUS.AUTH_EXPIRED,
-                    platformName: "方块",
-                    loginUrl: "https://account.cubejoy.com/html/login.html"
-                  };
-                } else if (response.response?.result?.list?.length) {
-                  games = [...games, ...response.response.result.list.map((e) => e.S_Id)];
-                  if (response.response?.result.total > i * 24) {
-                    return await updateCubeGameLibrary(loop, ++i, games);
-                  } else if (loop) {
-                    GM_setValue("cubeGames", [...new Set(games)].filter((e) => e));
-                    await showUpdateResult("cube游戏库数据更新完成", "success");
-                    return true;
-                  }
-                  GM_setValue("cubeGames", [.../* @__PURE__ */ new Set([...getCubeGameLibrary(), ...games])].filter((e) => e));
-                  checkCubeGame(false);
-                  return true;
-                } else if (response.response?.result?.list?.length !== 0) {
-                  console.error(response);
-                  await showUpdateResult("方块游戏库数据更新失败", "error");
-                  return false;
-                }
-                return false;
-              }).catch(async (error) => {
-                console.error(error);
-                await showUpdateResult("方块游戏库数据更新失败", "error");
-                return false;
-              });
-            }
-            updateLibrary = updateCubeGameLibrary;
-            GM_addStyle(".cube-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}");
-          }
-        };
-        return moduleApi;
-      }
-      module.exports = {
-        createCubeModule
-      };
-    }
-  });
-
   // src/platforms/ig.js
   var require_ig = __commonJS({
     "src/platforms/ig.js"(exports, module) {
@@ -1654,9 +1566,11 @@
           const games = Array.from(doc.querySelectorAll("a.library-showcase-title")).map((el) => el.getAttribute("href")?.match(/https?:\/\/.*?\.indiegala\.com\/(.*)/)?.[1]?.toLowerCase()).filter(Boolean);
           return { pages, games };
         }
-        async function updateIgGameLibrary() {
+        async function updateIgGameLibrary(loop = true) {
           try {
-            showUpdateStep("ig", "第 1 页");
+            if (loop) {
+              showUpdateStep("ig", "第 1 页");
+            }
             const cookies = await getIgCookies();
             const firstPageResponse = await requestIgShowcasePage(1, cookies);
             if (new URL(firstPageResponse.finalUrl).pathname === "/login") {
@@ -1668,6 +1582,12 @@
             }
             const firstParsed = parseIgShowcase(firstPageResponse.responseText, 1);
             let allGames = [...firstParsed.games];
+            if (!loop) {
+              allGames = Array.from(new Set(allGames)).filter(Boolean);
+              GM_setValue("IG-Owned", { time: Date.now(), games: allGames });
+              markIgLinks();
+              return true;
+            }
             for (let page = 2; page <= firstParsed.pages; page += 1) {
               showUpdateStep("ig", `第 ${page} 页`);
               const response = await requestIgShowcasePage(page, cookies);
@@ -1681,7 +1601,9 @@
             return true;
           } catch (error) {
             console.error(error);
-            await showUpdateResult("IG游戏库数据更新失败", "error");
+            if (loop) {
+              await showUpdateResult("IG游戏库数据更新失败", "error");
+            }
             return false;
           }
         }
@@ -1694,7 +1616,7 @@
             if (started) return;
             started = true;
             markIgLinks();
-            updateIgGameLibrary().then((result) => {
+            updateIgGameLibrary(false).then((result) => {
               if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
                 showToast("IG 登录状态已过期，请先登录", "error", { duration: 0, closable: true, link: { href: result.loginUrl, text: "去登录" } });
               }
@@ -1731,7 +1653,6 @@
       var { createEpicModule } = require_epic();
       var { createGogModule } = require_gog();
       var { createItchModule } = require_itch();
-      var { createCubeModule } = require_cube();
       var { createIgModule } = require_ig();
       function bootstrapMergedRuntime2() {
         const { showProgressPanel, clearProgressPanel } = createProgressController(createModalRoot);
@@ -1800,7 +1721,7 @@
           createEpicModule(moduleContext),
           createGogModule(moduleContext),
           createItchModule(moduleContext),
-          createCubeModule(moduleContext),
+          // createCubeModule(moduleContext),
           createIgModule(moduleContext)
         ];
         GM_registerMenuCommand("更新游戏库", () => {
