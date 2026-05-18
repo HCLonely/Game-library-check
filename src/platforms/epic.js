@@ -322,6 +322,7 @@ function createEpicModule(context) {
               'x-xsrf-token': xsrfToken,
               cookie: allCookies
             },
+            redirect: 'follow',
             fetch: true,
             onerror: reject,
             ontimeout: reject,

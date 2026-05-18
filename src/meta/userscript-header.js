@@ -29,6 +29,7 @@ module.exports = `// ==UserScript==
 // @grant          unsafeWindow
 // @connect        store.epicgames.com
 // @connect        www.epicgames.com
+// @connect        epicgames.com
 // @connect        accounts.epicgames.com
 // @connect        www.gog.com
 // @connect        itch.io

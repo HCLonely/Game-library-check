@@ -29,6 +29,7 @@
 // @grant          unsafeWindow
 // @connect        store.epicgames.com
 // @connect        www.epicgames.com
+// @connect        epicgames.com
 // @connect        accounts.epicgames.com
 // @connect        www.gog.com
 // @connect        itch.io
@@ -1178,6 +1179,7 @@
                     "x-xsrf-token": xsrfToken,
                     cookie: allCookies
                   },
+                  redirect: "follow",
                   fetch: true,
                   onerror: reject,
                   ontimeout: reject,

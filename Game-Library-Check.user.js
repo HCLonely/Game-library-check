@@ -47,6 +47,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
 // @grant          unsafeWindow
 // @connect        store.epicgames.com
 // @connect        www.epicgames.com
+// @connect        epicgames.com
 // @connect        accounts.epicgames.com
 // @connect        www.gog.com
 // @connect        itch.io
@@ -1308,6 +1309,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                         "x-xsrf-token": xsrfToken,
                                         cookie: allCookies
                                       },
+                                      redirect: "follow",
                                       fetch: true,
                                       onerror: reject,
                                       ontimeout: reject,
