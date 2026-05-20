@@ -1,7 +1,8 @@
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+function _toArray(arr) { return _arrayWithHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableRest(); }
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
 function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e2) { throw _e2; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e3) { didErr = true; err = _e3; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return exports; }; var exports = {}, Op = Object.prototype, hasOwn = Op.hasOwnProperty, $Symbol = "function" == typeof Symbol ? Symbol : {}, iteratorSymbol = $Symbol.iterator || "@@iterator", asyncIteratorSymbol = $Symbol.asyncIterator || "@@asyncIterator", toStringTagSymbol = $Symbol.toStringTag || "@@toStringTag"; function define(obj, key, value) { return Object.defineProperty(obj, key, { value: value, enumerable: !0, configurable: !0, writable: !0 }), obj[key]; } try { define({}, ""); } catch (err) { define = function define(obj, key, value) { return obj[key] = value; }; } function wrap(innerFn, outerFn, self, tryLocsList) { var protoGenerator = outerFn && outerFn.prototype instanceof Generator ? outerFn : Generator, generator = Object.create(protoGenerator.prototype), context = new Context(tryLocsList || []); return generator._invoke = function (innerFn, self, context) { var state = "suspendedStart"; return function (method, arg) { if ("executing" === state) throw new Error("Generator is already running"); if ("completed" === state) { if ("throw" === method) throw arg; return doneResult(); } for (context.method = method, context.arg = arg;;) { var delegate = context.delegate; if (delegate) { var delegateResult = maybeInvokeDelegate(delegate, context); if (delegateResult) { if (delegateResult === ContinueSentinel) continue; return delegateResult; } } if ("next" === context.method) context.sent = context._sent = context.arg;else if ("throw" === context.method) { if ("suspendedStart" === state) throw state = "completed", context.arg; context.dispatchException(context.arg); } else "return" === context.method && context.abrupt("return", context.arg); state = "executing"; var record = tryCatch(innerFn, self, context); if ("normal" === record.type) { if (state = context.done ? "completed" : "suspendedYield", record.arg === ContinueSentinel) continue; return { value: record.arg, done: context.done }; } "throw" === record.type && (state = "completed", context.method = "throw", context.arg = record.arg); } }; }(innerFn, self, context), generator; } function tryCatch(fn, obj, arg) { try { return { type: "normal", arg: fn.call(obj, arg) }; } catch (err) { return { type: "throw", arg: err }; } } exports.wrap = wrap; var ContinueSentinel = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var IteratorPrototype = {}; define(IteratorPrototype, iteratorSymbol, function () { return this; }); var getProto = Object.getPrototypeOf, NativeIteratorPrototype = getProto && getProto(getProto(values([]))); NativeIteratorPrototype && NativeIteratorPrototype !== Op && hasOwn.call(NativeIteratorPrototype, iteratorSymbol) && (IteratorPrototype = NativeIteratorPrototype); var Gp = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(IteratorPrototype); function defineIteratorMethods(prototype) { ["next", "throw", "return"].forEach(function (method) { define(prototype, method, function (arg) { return this._invoke(method, arg); }); }); } function AsyncIterator(generator, PromiseImpl) { function invoke(method, arg, resolve, reject) { var record = tryCatch(generator[method], generator, arg); if ("throw" !== record.type) { var result = record.arg, value = result.value; return value && "object" == _typeof(value) && hasOwn.call(value, "__await") ? PromiseImpl.resolve(value.__await).then(function (value) { invoke("next", value, resolve, reject); }, function (err) { invoke("throw", err, resolve, reject); }) : PromiseImpl.resolve(value).then(function (unwrapped) { result.value = unwrapped, resolve(result); }, function (error) { return invoke("throw", error, resolve, reject); }); } reject(record.arg); } var previousPromise; this._invoke = function (method, arg) { function callInvokeWithMethodAndArg() { return new PromiseImpl(function (resolve, reject) { invoke(method, arg, resolve, reject); }); } return previousPromise = previousPromise ? previousPromise.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); }; } function maybeInvokeDelegate(delegate, context) { var method = delegate.iterator[context.method]; if (undefined === method) { if (context.delegate = null, "throw" === context.method) { if (delegate.iterator["return"] && (context.method = "return", context.arg = undefined, maybeInvokeDelegate(delegate, context), "throw" === context.method)) return ContinueSentinel; context.method = "throw", context.arg = new TypeError("The iterator does not provide a 'throw' method"); } return ContinueSentinel; } var record = tryCatch(method, delegate.iterator, context.arg); if ("throw" === record.type) return context.method = "throw", context.arg = record.arg, context.delegate = null, ContinueSentinel; var info = record.arg; return info ? info.done ? (context[delegate.resultName] = info.value, context.next = delegate.nextLoc, "return" !== context.method && (context.method = "next", context.arg = undefined), context.delegate = null, ContinueSentinel) : info : (context.method = "throw", context.arg = new TypeError("iterator result is not an object"), context.delegate = null, ContinueSentinel); } function pushTryEntry(locs) { var entry = { tryLoc: locs[0] }; 1 in locs && (entry.catchLoc = locs[1]), 2 in locs && (entry.finallyLoc = locs[2], entry.afterLoc = locs[3]), this.tryEntries.push(entry); } function resetTryEntry(entry) { var record = entry.completion || {}; record.type = "normal", delete record.arg, entry.completion = record; } function Context(tryLocsList) { this.tryEntries = [{ tryLoc: "root" }], tryLocsList.forEach(pushTryEntry, this), this.reset(!0); } function values(iterable) { if (iterable) { var iteratorMethod = iterable[iteratorSymbol]; if (iteratorMethod) return iteratorMethod.call(iterable); if ("function" == typeof iterable.next) return iterable; if (!isNaN(iterable.length)) { var i = -1, next = function next() { for (; ++i < iterable.length;) { if (hasOwn.call(iterable, i)) return next.value = iterable[i], next.done = !1, next; } return next.value = undefined, next.done = !0, next; }; return next.next = next; } } return { next: doneResult }; } function doneResult() { return { value: undefined, done: !0 }; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, define(Gp, "constructor", GeneratorFunctionPrototype), define(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, toStringTagSymbol, "GeneratorFunction"), exports.isGeneratorFunction = function (genFun) { var ctor = "function" == typeof genFun && genFun.constructor; return !!ctor && (ctor === GeneratorFunction || "GeneratorFunction" === (ctor.displayName || ctor.name)); }, exports.mark = function (genFun) { return Object.setPrototypeOf ? Object.setPrototypeOf(genFun, GeneratorFunctionPrototype) : (genFun.__proto__ = GeneratorFunctionPrototype, define(genFun, toStringTagSymbol, "GeneratorFunction")), genFun.prototype = Object.create(Gp), genFun; }, exports.awrap = function (arg) { return { __await: arg }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, asyncIteratorSymbol, function () { return this; }), exports.AsyncIterator = AsyncIterator, exports.async = function (innerFn, outerFn, self, tryLocsList, PromiseImpl) { void 0 === PromiseImpl && (PromiseImpl = Promise); var iter = new AsyncIterator(wrap(innerFn, outerFn, self, tryLocsList), PromiseImpl); return exports.isGeneratorFunction(outerFn) ? iter : iter.next().then(function (result) { return result.done ? result.value : iter.next(); }); }, defineIteratorMethods(Gp), define(Gp, toStringTagSymbol, "Generator"), define(Gp, iteratorSymbol, function () { return this; }), define(Gp, "toString", function () { return "[object Generator]"; }), exports.keys = function (object) { var keys = []; for (var key in object) { keys.push(key); } return keys.reverse(), function next() { for (; keys.length;) { var key = keys.pop(); if (key in object) return next.value = key, next.done = !1, next; } return next.done = !0, next; }; }, exports.values = values, Context.prototype = { constructor: Context, reset: function reset(skipTempReset) { if (this.prev = 0, this.next = 0, this.sent = this._sent = undefined, this.done = !1, this.delegate = null, this.method = "next", this.arg = undefined, this.tryEntries.forEach(resetTryEntry), !skipTempReset) for (var name in this) { "t" === name.charAt(0) && hasOwn.call(this, name) && !isNaN(+name.slice(1)) && (this[name] = undefined); } }, stop: function stop() { this.done = !0; var rootRecord = this.tryEntries[0].completion; if ("throw" === rootRecord.type) throw rootRecord.arg; return this.rval; }, dispatchException: function dispatchException(exception) { if (this.done) throw exception; var context = this; function handle(loc, caught) { return record.type = "throw", record.arg = exception, context.next = loc, caught && (context.method = "next", context.arg = undefined), !!caught; } for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i], record = entry.completion; if ("root" === entry.tryLoc) return handle("end"); if (entry.tryLoc <= this.prev) { var hasCatch = hasOwn.call(entry, "catchLoc"), hasFinally = hasOwn.call(entry, "finallyLoc"); if (hasCatch && hasFinally) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } else if (hasCatch) { if (this.prev < entry.catchLoc) return handle(entry.catchLoc, !0); } else { if (!hasFinally) throw new Error("try statement without catch or finally"); if (this.prev < entry.finallyLoc) return handle(entry.finallyLoc); } } } }, abrupt: function abrupt(type, arg) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc <= this.prev && hasOwn.call(entry, "finallyLoc") && this.prev < entry.finallyLoc) { var finallyEntry = entry; break; } } finallyEntry && ("break" === type || "continue" === type) && finallyEntry.tryLoc <= arg && arg <= finallyEntry.finallyLoc && (finallyEntry = null); var record = finallyEntry ? finallyEntry.completion : {}; return record.type = type, record.arg = arg, finallyEntry ? (this.method = "next", this.next = finallyEntry.finallyLoc, ContinueSentinel) : this.complete(record); }, complete: function complete(record, afterLoc) { if ("throw" === record.type) throw record.arg; return "break" === record.type || "continue" === record.type ? this.next = record.arg : "return" === record.type ? (this.rval = this.arg = record.arg, this.method = "return", this.next = "end") : "normal" === record.type && afterLoc && (this.next = afterLoc), ContinueSentinel; }, finish: function finish(finallyLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.finallyLoc === finallyLoc) return this.complete(entry.completion, entry.afterLoc), resetTryEntry(entry), ContinueSentinel; } }, "catch": function _catch(tryLoc) { for (var i = this.tryEntries.length - 1; i >= 0; --i) { var entry = this.tryEntries[i]; if (entry.tryLoc === tryLoc) { var record = entry.completion; if ("throw" === record.type) { var thrown = record.arg; resetTryEntry(entry); } return thrown; } } throw new Error("illegal catch attempt"); }, delegateYield: function delegateYield(iterable, resultName, nextLoc) { return this.delegate = { iterator: values(iterable), resultName: resultName, nextLoc: nextLoc }, "next" === this.method && (this.arg = undefined), ContinueSentinel; } }, exports; }
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
@@ -1208,7 +1209,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           UPDATE_STATUS = context.UPDATE_STATUS;
         var _updateLibrary;
         var started = false;
-        var moduleApi2 = {
+        var moduleApi = {
           key: "epic",
           enabled: function enabled() {
             return settings.platformEnabled.epic;
@@ -1227,7 +1228,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                         break;
                       }
                       _context10.next = 3;
-                      return moduleApi2.start();
+                      return moduleApi.start();
                     case 3:
                       return _context10.abrupt("return", _updateLibrary());
                     case 4:
@@ -1243,101 +1244,92 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             return updateLibrary;
           }(),
           start: function () {
-            var _start = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee22() {
-              var loadTimes, catalogOfferSha256Hash, locale, observer, checkEpicGame, _checkEpicGame, getEpicOwnedGames, getSha256Hash, _getSha256Hash, getPagePlug, _getPagePlug, updateEpicAuth, _updateEpicAuth, getEpicCookies, getAllEpicCookies, updateEpicOwnedGames, _updateEpicOwnedGames;
-              return _regeneratorRuntime().wrap(function _callee22$(_context23) {
+            var _start = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee19() {
+              var loadTimes, catalogOfferSha256Hash, locale, observer, checkEpicGame, _checkEpicGame, getEpicOwnedGames, getSha256Hash, _getSha256Hash, getPagePlug, _getPagePlug, getEpicCookies, getAllEpicCookies, parseSetCookieHeader, extractAndSetCookies, getLocationHeader, requestWithRedirect, _requestWithRedirect, updateEpicOwnedGames, _updateEpicOwnedGames;
+              return _regeneratorRuntime().wrap(function _callee19$(_context20) {
                 while (1) {
-                  switch (_context23.prev = _context23.next) {
+                  switch (_context20.prev = _context20.next) {
                     case 0:
                       _updateEpicOwnedGames = function _updateEpicOwnedGames3() {
-                        _updateEpicOwnedGames = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee21() {
+                        _updateEpicOwnedGames = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee18() {
                           var loop,
                             i,
                             games,
                             nextPageToken,
                             xsrfToken,
                             allCookies,
-                            _args22 = arguments;
-                          return _regeneratorRuntime().wrap(function _callee21$(_context22) {
+                            _args19 = arguments;
+                          return _regeneratorRuntime().wrap(function _callee18$(_context19) {
                             while (1) {
-                              switch (_context22.prev = _context22.next) {
+                              switch (_context19.prev = _context19.next) {
                                 case 0:
-                                  loop = _args22.length > 0 && _args22[0] !== undefined ? _args22[0] : true;
-                                  i = _args22.length > 1 && _args22[1] !== undefined ? _args22[1] : 0;
-                                  games = _args22.length > 2 && _args22[2] !== undefined ? _args22[2] : GM_getValue("ownedGames") || [];
-                                  nextPageToken = _args22.length > 3 && _args22[3] !== undefined ? _args22[3] : "";
+                                  loop = _args19.length > 0 && _args19[0] !== undefined ? _args19[0] : true;
+                                  i = _args19.length > 1 && _args19[1] !== undefined ? _args19[1] : 0;
+                                  games = _args19.length > 2 && _args19[2] !== undefined ? _args19[2] : GM_getValue("ownedGames") || [];
+                                  nextPageToken = _args19.length > 3 && _args19[3] !== undefined ? _args19[3] : "";
                                   console.log("[EGLC] updateEpicOwnedGames...");
                                   if (!(!loop && i !== 0)) {
-                                    _context22.next = 9;
+                                    _context19.next = 9;
                                     break;
                                   }
                                   GM_setValue("ownedGames", games);
                                   checkEpicGame(false);
-                                  return _context22.abrupt("return");
+                                  return _context19.abrupt("return");
                                 case 9:
-                                  _context22.next = 11;
+                                  _context19.next = 11;
                                   return getEpicCookies("XSRF-AM-TOKEN");
                                 case 11:
-                                  xsrfToken = _context22.sent;
-                                  _context22.next = 14;
+                                  xsrfToken = _context19.sent;
+                                  _context19.next = 14;
                                   return getAllEpicCookies();
                                 case 14:
-                                  allCookies = _context22.sent;
-                                  return _context22.abrupt("return", new Promise(function (resolve, reject) {
-                                    if (loop) {
-                                      showUpdateStep("epic", "\u7B2C ".concat(i + 1, " \u9875"));
+                                  allCookies = _context19.sent;
+                                  if (loop) {
+                                    showUpdateStep("epic", "\u7B2C ".concat(i + 1, " \u9875"));
+                                  }
+                                  return _context19.abrupt("return", requestWithRedirect("https://accounts.epicgames.com/account/v2/payment/ajaxGetOrderHistory?count=10&sortDir=DESC&sortBy=DATE&locale=".concat(locale).concat(nextPageToken ? "&nextPageToken=".concat(encodeURIComponent(nextPageToken)) : ""), {
+                                    method: "GET",
+                                    timeout: 3e4,
+                                    nocache: true,
+                                    responseType: "json",
+                                    fetch: true,
+                                    headers: {
+                                      referer: "https://accounts.epicgames.com/",
+                                      dnt: 1,
+                                      pragma: "no-cache",
+                                      priority: "u=1, i",
+                                      "sec-ch-ua": '"Chromium";v="146", "Not-A.Brand";v="24", "Microsoft Edge";v="146"',
+                                      "sec-ch-ua-mobile": "?0",
+                                      "sec-ch-ua-platform": '"Windows"',
+                                      "sec-fetch-dest": "empty",
+                                      "sec-fetch-mode": "cors",
+                                      "sec-fetch-site": "same-origin",
+                                      "sec-gpc": "1",
+                                      "x-csrf-token": "null",
+                                      "x-xsrf-token": xsrfToken,
+                                      cookie: allCookies
                                     }
-                                    GM_xmlhttpRequest({
-                                      method: "GET",
-                                      url: "https://accounts.epicgames.com/account/v2/payment/ajaxGetOrderHistory?count=10&sortDir=DESC&sortBy=DATE&locale=".concat(locale).concat(nextPageToken ? "&nextPageToken=".concat(encodeURIComponent(nextPageToken)) : ""),
-                                      timeout: 3e4,
-                                      nocache: true,
-                                      responseType: "json",
-                                      headers: {
-                                        referer: "https://accounts.epicgames.com/",
-                                        dnt: 1,
-                                        pragma: "no-cache",
-                                        priority: "u=1, i",
-                                        "sec-ch-ua": '"Chromium";v="146", "Not-A.Brand";v="24", "Microsoft Edge";v="146"',
-                                        "sec-ch-ua-mobile": "?0",
-                                        "sec-ch-ua-platform": '"Windows"',
-                                        "sec-fetch-dest": "empty",
-                                        "sec-fetch-mode": "cors",
-                                        "sec-fetch-site": "same-origin",
-                                        "sec-gpc": "1",
-                                        "x-csrf-token": "null",
-                                        "x-xsrf-token": xsrfToken,
-                                        cookie: allCookies
-                                      },
-                                      redirect: "follow",
-                                      fetch: true,
-                                      onerror: reject,
-                                      ontimeout: reject,
-                                      onload: function onload(response) {
-                                        response.status === 200 ? resolve(response) : reject(response);
-                                      }
-                                    });
                                   }).then(/*#__PURE__*/function () {
-                                    var _ref21 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee19(response) {
-                                      var _response$response4, _response$response4$o, _response$response5, _response$response5$p;
+                                    var _ref18 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee16(response) {
+                                      var _response$response3, _response$response3$o, _response$response4, _response$response4$p;
                                       var ordersLength, orderedGames, nextPageToken2;
-                                      return _regeneratorRuntime().wrap(function _callee19$(_context20) {
+                                      return _regeneratorRuntime().wrap(function _callee16$(_context17) {
                                         while (1) {
-                                          switch (_context20.prev = _context20.next) {
+                                          switch (_context17.prev = _context17.next) {
                                             case 0:
                                               if (!/login/i.test(response.finalUrl)) {
-                                                _context20.next = 2;
+                                                _context17.next = 2;
                                                 break;
                                               }
-                                              return _context20.abrupt("return", {
+                                              return _context17.abrupt("return", {
                                                 status: UPDATE_STATUS.AUTH_EXPIRED,
                                                 platformName: "Epic",
                                                 loginUrl: "https://www.epicgames.com/id/login"
                                               });
                                             case 2:
-                                              ordersLength = ((_response$response4 = response.response) === null || _response$response4 === void 0 ? void 0 : (_response$response4$o = _response$response4.orders) === null || _response$response4$o === void 0 ? void 0 : _response$response4$o.length) || 0;
+                                              ordersLength = ((_response$response3 = response.response) === null || _response$response3 === void 0 ? void 0 : (_response$response3$o = _response$response3.orders) === null || _response$response3$o === void 0 ? void 0 : _response$response3$o.length) || 0;
                                               if (!(ordersLength >= 0)) {
-                                                _context20.next = 28;
+                                                _context17.next = 28;
                                                 break;
                                               }
                                               orderedGames = response.response.orders.map(function (e) {
@@ -1346,27 +1338,27 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                               }).filter(function (e) {
                                                 return e;
                                               });
-                                              _context20.next = 7;
+                                              _context17.next = 7;
                                               return Promise.all(orderedGames.map(/*#__PURE__*/function () {
-                                                var _ref22 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee18(item) {
+                                                var _ref19 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee15(item) {
                                                   var pageSlug;
-                                                  return _regeneratorRuntime().wrap(function _callee18$(_context19) {
+                                                  return _regeneratorRuntime().wrap(function _callee15$(_context16) {
                                                     while (1) {
-                                                      switch (_context19.prev = _context19.next) {
+                                                      switch (_context16.prev = _context16.next) {
                                                         case 0:
                                                           if (!games.find(function (game) {
                                                             return game.namespace === item.namespace && game.offerId === item.offerId;
                                                           })) {
-                                                            _context19.next = 2;
+                                                            _context16.next = 2;
                                                             break;
                                                           }
-                                                          return _context19.abrupt("return", true);
+                                                          return _context16.abrupt("return", true);
                                                         case 2:
                                                           console.info("pageSlug");
-                                                          _context19.next = 5;
+                                                          _context16.next = 5;
                                                           return getPagePlug(item.namespace, item.offerId);
                                                         case 5:
-                                                          pageSlug = _context19.sent;
+                                                          pageSlug = _context16.sent;
                                                           console.log("[EGLC] pageSlug: ".concat(pageSlug));
                                                           if (pageSlug) {
                                                             games.push({
@@ -1376,109 +1368,239 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                                             });
                                                             GM_setValue("ownedGames", games);
                                                           }
-                                                          return _context19.abrupt("return", true);
+                                                          return _context16.abrupt("return", true);
                                                         case 9:
                                                         case "end":
-                                                          return _context19.stop();
+                                                          return _context16.stop();
                                                       }
                                                     }
-                                                  }, _callee18);
+                                                  }, _callee15);
                                                 }));
-                                                return function (_x18) {
-                                                  return _ref22.apply(this, arguments);
+                                                return function (_x16) {
+                                                  return _ref19.apply(this, arguments);
                                                 };
                                               }()));
                                             case 7:
                                               nextPageToken2 = response.response.nextPageToken;
                                               if (!nextPageToken2) {
-                                                _context20.next = 17;
+                                                _context17.next = 17;
                                                 break;
                                               }
                                               if (!loop) {
-                                                _context20.next = 12;
+                                                _context17.next = 12;
                                                 break;
                                               }
-                                              _context20.next = 12;
+                                              _context17.next = 12;
                                               return new Promise(function (resolve) {
                                                 setTimeout(function () {
                                                   resolve(true);
                                                 }, 1e3);
                                               });
                                             case 12:
-                                              _context20.next = 14;
+                                              _context17.next = 14;
                                               return updateEpicOwnedGames(loop, ++i, games, nextPageToken2);
                                             case 14:
-                                              return _context20.abrupt("return", _context20.sent);
+                                              return _context17.abrupt("return", _context17.sent);
                                             case 17:
                                               if (!loop) {
-                                                _context20.next = 22;
+                                                _context17.next = 22;
                                                 break;
                                               }
                                               GM_setValue("ownedGames", games);
-                                              _context20.next = 21;
+                                              _context17.next = 21;
                                               return showUpdateResult("Epic已拥有游戏数据更新完成", "success");
                                             case 21:
-                                              return _context20.abrupt("return", true);
+                                              return _context17.abrupt("return", true);
                                             case 22:
                                               GM_setValue("ownedGames", games);
                                               checkEpicGame(false);
                                               console.log("[EGLC] updateEpicOwnedGames: Finish!");
-                                              return _context20.abrupt("return", true);
+                                              return _context17.abrupt("return", true);
                                             case 28:
-                                              if (!(((_response$response5 = response.response) === null || _response$response5 === void 0 ? void 0 : (_response$response5$p = _response$response5.products) === null || _response$response5$p === void 0 ? void 0 : _response$response5$p.length) !== 0)) {
-                                                _context20.next = 33;
+                                              if (!(((_response$response4 = response.response) === null || _response$response4 === void 0 ? void 0 : (_response$response4$p = _response$response4.products) === null || _response$response4$p === void 0 ? void 0 : _response$response4$p.length) !== 0)) {
+                                                _context17.next = 33;
                                                 break;
                                               }
                                               console.error(response);
-                                              _context20.next = 32;
+                                              _context17.next = 32;
                                               return showUpdateResult("Epic已拥有游戏数据更新失败", "error");
                                             case 32:
-                                              return _context20.abrupt("return", false);
+                                              return _context17.abrupt("return", false);
                                             case 33:
-                                              return _context20.abrupt("return", false);
+                                              return _context17.abrupt("return", false);
                                             case 34:
                                             case "end":
-                                              return _context20.stop();
+                                              return _context17.stop();
                                           }
                                         }
-                                      }, _callee19);
+                                      }, _callee16);
                                     }));
-                                    return function (_x17) {
-                                      return _ref21.apply(this, arguments);
+                                    return function (_x15) {
+                                      return _ref18.apply(this, arguments);
                                     };
                                   }())["catch"](/*#__PURE__*/function () {
-                                    var _ref23 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee20(error) {
-                                      return _regeneratorRuntime().wrap(function _callee20$(_context21) {
+                                    var _ref20 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee17(error) {
+                                      return _regeneratorRuntime().wrap(function _callee17$(_context18) {
                                         while (1) {
-                                          switch (_context21.prev = _context21.next) {
+                                          switch (_context18.prev = _context18.next) {
                                             case 0:
                                               console.error(error);
-                                              _context21.next = 3;
+                                              _context18.next = 3;
                                               return showUpdateResult("Epic已拥有游戏数据更新失败", "error");
                                             case 3:
-                                              return _context21.abrupt("return", false);
+                                              return _context18.abrupt("return", false);
                                             case 4:
                                             case "end":
-                                              return _context21.stop();
+                                              return _context18.stop();
                                           }
                                         }
-                                      }, _callee20);
+                                      }, _callee17);
                                     }));
-                                    return function (_x19) {
-                                      return _ref23.apply(this, arguments);
+                                    return function (_x17) {
+                                      return _ref20.apply(this, arguments);
                                     };
                                   }()));
-                                case 16:
+                                case 17:
                                 case "end":
-                                  return _context22.stop();
+                                  return _context19.stop();
                               }
                             }
-                          }, _callee21);
+                          }, _callee18);
                         }));
                         return _updateEpicOwnedGames.apply(this, arguments);
                       };
                       updateEpicOwnedGames = function _updateEpicOwnedGames2() {
                         return _updateEpicOwnedGames.apply(this, arguments);
+                      };
+                      _requestWithRedirect = function _requestWithRedirect3() {
+                        _requestWithRedirect = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee14(initialUrl, baseOptions) {
+                          var maxRedirects,
+                            currentUrl,
+                            i,
+                            response,
+                            status,
+                            location,
+                            _args15 = arguments;
+                          return _regeneratorRuntime().wrap(function _callee14$(_context15) {
+                            while (1) {
+                              switch (_context15.prev = _context15.next) {
+                                case 0:
+                                  maxRedirects = _args15.length > 2 && _args15[2] !== undefined ? _args15[2] : 10;
+                                  currentUrl = initialUrl;
+                                  i = 0;
+                                case 3:
+                                  if (!(i < maxRedirects)) {
+                                    _context15.next = 22;
+                                    break;
+                                  }
+                                  _context15.next = 6;
+                                  return new Promise(function (res, rej) {
+                                    GM_xmlhttpRequest(_objectSpread(_objectSpread({}, baseOptions), {}, {
+                                      url: currentUrl,
+                                      redirect: "manual",
+                                      onload: res,
+                                      onerror: rej,
+                                      ontimeout: rej
+                                    }));
+                                  });
+                                case 6:
+                                  response = _context15.sent;
+                                  status = response.status;
+                                  if (!(status === 301 || status === 302 || status === 303 || status === 307 || status === 308)) {
+                                    _context15.next = 16;
+                                    break;
+                                  }
+                                  _context15.next = 11;
+                                  return extractAndSetCookies(response.responseHeaders, currentUrl);
+                                case 11:
+                                  location = getLocationHeader(response.responseHeaders);
+                                  if (location) {
+                                    _context15.next = 14;
+                                    break;
+                                  }
+                                  throw new Error("[EGLC] Redirect without Location header");
+                                case 14:
+                                  currentUrl = location;
+                                  return _context15.abrupt("continue", 19);
+                                case 16:
+                                  if (!(status === 200)) {
+                                    _context15.next = 18;
+                                    break;
+                                  }
+                                  return _context15.abrupt("return", response);
+                                case 18:
+                                  throw response;
+                                case 19:
+                                  i++;
+                                  _context15.next = 3;
+                                  break;
+                                case 22:
+                                  throw new Error("[EGLC] Too many redirects");
+                                case 23:
+                                case "end":
+                                  return _context15.stop();
+                              }
+                            }
+                          }, _callee14);
+                        }));
+                        return _requestWithRedirect.apply(this, arguments);
+                      };
+                      requestWithRedirect = function _requestWithRedirect2(_x12, _x13) {
+                        return _requestWithRedirect.apply(this, arguments);
+                      };
+                      getLocationHeader = function _getLocationHeader(responseHeaders) {
+                        var match = responseHeaders === null || responseHeaders === void 0 ? void 0 : responseHeaders.match(/^location:\s*(.+)/im);
+                        return match ? match[1].trim() : null;
+                      };
+                      extractAndSetCookies = function _extractAndSetCookies(responseHeaders, url) {
+                        if (!responseHeaders) return Promise.resolve();
+                        var setCookieLines = responseHeaders.split(/\r?\n/).filter(function (line) {
+                          return /^set-cookie:\s*/i.test(line);
+                        });
+                        if (!setCookieLines.length) return Promise.resolve();
+                        var cookiePromises = setCookieLines.map(function (line) {
+                          var cookieStr = line.replace(/^set-cookie:\s*/i, "");
+                          var cookie = parseSetCookieHeader(cookieStr, url);
+                          return new Promise(function (resolve) {
+                            GM_cookie.set(cookie, function (error) {
+                              if (error) console.error("[EGLC] Cookie set error:", error);
+                              resolve();
+                            });
+                          });
+                        });
+                        return Promise.all(cookiePromises);
+                      };
+                      parseSetCookieHeader = function _parseSetCookieHeader(cookieString, fallbackUrl) {
+                        var parts = cookieString.split(";").map(function (s) {
+                          return s.trim();
+                        });
+                        var _parts = _toArray(parts),
+                          nameValue = _parts[0],
+                          attrs = _parts.slice(1);
+                        var eqIdx = nameValue.indexOf("=");
+                        var name = eqIdx >= 0 ? nameValue.slice(0, eqIdx).trim() : nameValue.trim();
+                        var value = eqIdx >= 0 ? nameValue.slice(eqIdx + 1).trim() : "";
+                        var cookie = {
+                          url: fallbackUrl,
+                          name: name,
+                          value: value || "",
+                          path: "/",
+                          secure: false,
+                          httpOnly: false,
+                          expirationDate: Math.floor(Date.now() / 1e3) + 60 * 60 * 24 * 30
+                        };
+                        attrs.forEach(function (attr) {
+                          var eqIdx2 = attr.indexOf("=");
+                          var key = eqIdx2 >= 0 ? attr.slice(0, eqIdx2).trim().toLowerCase() : attr.trim().toLowerCase();
+                          var val = eqIdx2 >= 0 ? attr.slice(eqIdx2 + 1).trim() : "";
+                          if (key === "domain") cookie.domain = val.startsWith(".") ? val : ".".concat(val);else if (key === "path") cookie.path = val || "/";else if (key === "secure") cookie.secure = true;else if (key === "httponly") cookie.httpOnly = true;else if (key === "expires") {
+                            var exp = new Date(val).getTime();
+                            if (!isNaN(exp)) cookie.expirationDate = Math.floor(exp / 1e3);
+                          } else if (key === "max-age") {
+                            cookie.expirationDate = Math.floor(Date.now() / 1e3) + parseInt(val, 10);
+                          }
+                        });
+                        return cookie;
                       };
                       getAllEpicCookies = function _getAllEpicCookies() {
                         return new Promise(function (resolve, reject) {
@@ -1509,182 +1631,6 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                             resolve(((_cookies$ = cookies[0]) === null || _cookies$ === void 0 ? void 0 : _cookies$.value) || "null");
                           });
                         });
-                      };
-                      _updateEpicAuth = function _updateEpicAuth3() {
-                        _updateEpicAuth = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee17(loop) {
-                          var reputationResult, authenticateResult, refreshCsrfResult;
-                          return _regeneratorRuntime().wrap(function _callee17$(_context18) {
-                            while (1) {
-                              switch (_context18.prev = _context18.next) {
-                                case 0:
-                                  console.log("[EGLC] updateEpicAuth...");
-                                  if (loop) {
-                                    context.showToast("正在更新Epic凭证...", "info");
-                                  }
-                                  _context18.next = 4;
-                                  return new Promise(function (resolve, reject) {
-                                    GM_xmlhttpRequest({
-                                      method: "GET",
-                                      url: "https://www.epicgames.com/id/api/reputation",
-                                      headers: {
-                                        accept: "application/json, text/plain, */*",
-                                        referer: "https://www.epicgames.com/id/login",
-                                        "sec-fetch-site": "same-origin"
-                                      },
-                                      timeout: 3e4,
-                                      nocache: true,
-                                      responseType: "json",
-                                      onerror: reject,
-                                      ontimeout: reject,
-                                      onload: function onload(response) {
-                                        response.status === 200 ? resolve(response) : reject(response);
-                                      }
-                                    });
-                                  }).then(/*#__PURE__*/function () {
-                                    var _ref18 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee14(response) {
-                                      return _regeneratorRuntime().wrap(function _callee14$(_context15) {
-                                        while (1) {
-                                          switch (_context15.prev = _context15.next) {
-                                            case 0:
-                                              return _context15.abrupt("return", response.status === 200);
-                                            case 1:
-                                            case "end":
-                                              return _context15.stop();
-                                          }
-                                        }
-                                      }, _callee14);
-                                    }));
-                                    return function (_x14) {
-                                      return _ref18.apply(this, arguments);
-                                    };
-                                  }())["catch"](function (error) {
-                                    console.error(error);
-                                    return false;
-                                  });
-                                case 4:
-                                  reputationResult = _context18.sent;
-                                  if (reputationResult) {
-                                    _context18.next = 7;
-                                    break;
-                                  }
-                                  return _context18.abrupt("return", false);
-                                case 7:
-                                  _context18.next = 9;
-                                  return new Promise(function (resolve, reject) {
-                                    GM_xmlhttpRequest({
-                                      method: "GET",
-                                      url: "https://www.epicgames.com/id/api/authenticate",
-                                      headers: {
-                                        accept: "application/json, text/plain, */*",
-                                        referer: "https://www.epicgames.com/id/login",
-                                        "x-epic-client-id": "undefined",
-                                        "x-epic-display-mode": "web",
-                                        "x-epic-duration": "700",
-                                        "x-epic-event-action": "null",
-                                        "x-epic-event-category": "null",
-                                        "x-epic-platform": "WEB",
-                                        "x-epic-strategy-flags": "",
-                                        "x-requested-with": "XMLHttpRequest"
-                                      },
-                                      timeout: 3e4,
-                                      nocache: true,
-                                      responseType: "json",
-                                      onerror: reject,
-                                      ontimeout: reject,
-                                      onload: function onload(response) {
-                                        response.status === 200 ? resolve(response) : reject(response);
-                                      }
-                                    });
-                                  }).then(/*#__PURE__*/function () {
-                                    var _ref19 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee15(response) {
-                                      return _regeneratorRuntime().wrap(function _callee15$(_context16) {
-                                        while (1) {
-                                          switch (_context16.prev = _context16.next) {
-                                            case 0:
-                                              return _context16.abrupt("return", response.status === 200);
-                                            case 1:
-                                            case "end":
-                                              return _context16.stop();
-                                          }
-                                        }
-                                      }, _callee15);
-                                    }));
-                                    return function (_x15) {
-                                      return _ref19.apply(this, arguments);
-                                    };
-                                  }())["catch"](function (error) {
-                                    console.error(error);
-                                    return false;
-                                  });
-                                case 9:
-                                  authenticateResult = _context18.sent;
-                                  if (authenticateResult) {
-                                    _context18.next = 12;
-                                    break;
-                                  }
-                                  return _context18.abrupt("return", false);
-                                case 12:
-                                  _context18.next = 14;
-                                  return new Promise(function (resolve, reject) {
-                                    GM_xmlhttpRequest({
-                                      method: "POST",
-                                      url: "https://www.epicgames.com/account/v2/refresh-csrf",
-                                      headers: {
-                                        accept: "application/json, text/plain, */*",
-                                        origin: "https://www.epicgames.com",
-                                        referer: "https://www.epicgames.com/account/personal"
-                                      },
-                                      timeout: 3e4,
-                                      nocache: true,
-                                      responseType: "json",
-                                      onerror: reject,
-                                      ontimeout: reject,
-                                      onload: function onload(response) {
-                                        response.status === 200 ? resolve(response) : reject(response);
-                                      }
-                                    });
-                                  }).then(/*#__PURE__*/function () {
-                                    var _ref20 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee16(response) {
-                                      var _response$response3;
-                                      return _regeneratorRuntime().wrap(function _callee16$(_context17) {
-                                        while (1) {
-                                          switch (_context17.prev = _context17.next) {
-                                            case 0:
-                                              return _context17.abrupt("return", ((_response$response3 = response.response) === null || _response$response3 === void 0 ? void 0 : _response$response3.success) === true);
-                                            case 1:
-                                            case "end":
-                                              return _context17.stop();
-                                          }
-                                        }
-                                      }, _callee16);
-                                    }));
-                                    return function (_x16) {
-                                      return _ref20.apply(this, arguments);
-                                    };
-                                  }())["catch"](function (error) {
-                                    console.error(error);
-                                    return false;
-                                  });
-                                case 14:
-                                  refreshCsrfResult = _context18.sent;
-                                  if (refreshCsrfResult) {
-                                    _context18.next = 17;
-                                    break;
-                                  }
-                                  return _context18.abrupt("return", false);
-                                case 17:
-                                  return _context18.abrupt("return", true);
-                                case 18:
-                                case "end":
-                                  return _context18.stop();
-                              }
-                            }
-                          }, _callee17);
-                        }));
-                        return _updateEpicAuth.apply(this, arguments);
-                      };
-                      updateEpicAuth = function _updateEpicAuth2(_x12) {
-                        return _updateEpicAuth.apply(this, arguments);
                       };
                       _getPagePlug = function _getPagePlug3() {
                         _getPagePlug = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee13(namespace, offerId) {
@@ -1750,7 +1696,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                         }
                                       }, _callee12);
                                     }));
-                                    return function (_x13) {
+                                    return function (_x14) {
                                       return _ref17.apply(this, arguments);
                                     };
                                   }())["catch"](function (error) {
@@ -1864,7 +1810,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                                     runner = autoUpdate;
                                     if (typeof runAutoUpdateWithRateLimit === "function") {
                                       runner = function runner() {
-                                        return runAutoUpdateWithRateLimit(moduleApi2, autoUpdate);
+                                        return runAutoUpdateWithRateLimit(moduleApi, autoUpdate);
                                       };
                                     }
                                     runner().then(function (result) {
@@ -1924,11 +1870,11 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                         return _checkEpicGame.apply(this, arguments);
                       };
                       if (!started) {
-                        _context23.next = 15;
+                        _context20.next = 18;
                         break;
                       }
-                      return _context23.abrupt("return");
-                    case 15:
+                      return _context20.abrupt("return");
+                    case 18:
                       started = true;
                       if (!GM_getValue("version")) {
                         GM_deleteValue("epicGamesLibrary");
@@ -1939,9 +1885,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                       loadTimes = 0;
                       catalogOfferSha256Hash = false;
                       locale = "en-US";
-                      _context23.next = 22;
+                      _context20.next = 25;
                       return getSha256Hash();
-                    case 22:
+                    case 25:
                       checkEpicGame();
                       observer = new MutationObserver(function () {
                         checkEpicGame(false, true);
@@ -1954,12 +1900,12 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                       });
                       _updateLibrary = updateEpicOwnedGames;
                       GM_addStyle("\n.epic-game-link-owned {\n  color:#ffffff !important;\n  background:#5c8a00 !important\n}\n.epic-game-link-wishlist {\n  color:#ffffff !important;\n  background:#007399 !important\n}");
-                    case 27:
+                    case 30:
                     case "end":
-                      return _context23.stop();
+                      return _context20.stop();
                   }
                 }
-              }, _callee22);
+              }, _callee19);
             }));
             function start() {
               return _start.apply(this, arguments);
@@ -1967,7 +1913,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             return start;
           }()
         };
-        return moduleApi2;
+        return moduleApi;
       }
       module.exports = {
         createEpicModule: createEpicModule
@@ -1991,7 +1937,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           UPDATE_STATUS = context.UPDATE_STATUS;
         var _updateLibrary3;
         var started = false;
-        var moduleApi2 = {
+        var moduleApi = {
           key: "gog",
           enabled: function enabled() {
             return settings.platformEnabled.gog;
@@ -2000,7 +1946,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             return (GM_getValue("gogGames") || []).length === 0;
           },
           updateLibrary: function updateLibrary() {
-            if (!_updateLibrary3) moduleApi2.start();
+            if (!_updateLibrary3) moduleApi.start();
             return _updateLibrary3();
           },
           start: function start() {
@@ -2038,7 +1984,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 var runner = autoUpdate;
                 if (typeof runAutoUpdateWithRateLimit === "function") {
                   runner = function runner() {
-                    return runAutoUpdateWithRateLimit(moduleApi2, autoUpdate);
+                    return runAutoUpdateWithRateLimit(moduleApi, autoUpdate);
                   };
                 }
                 runner().then(function (result) {
@@ -2096,99 +2042,99 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                   }
                 });
               }).then(/*#__PURE__*/function () {
-                var _ref24 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee23(response) {
-                  var _response$response6, _response$response6$p, _response$response8, _response$response8$p;
-                  var _response$response7;
-                  return _regeneratorRuntime().wrap(function _callee23$(_context24) {
+                var _ref21 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee20(response) {
+                  var _response$response5, _response$response5$p, _response$response7, _response$response7$p;
+                  var _response$response6;
+                  return _regeneratorRuntime().wrap(function _callee20$(_context21) {
                     while (1) {
-                      switch (_context24.prev = _context24.next) {
+                      switch (_context21.prev = _context21.next) {
                         case 0:
                           if (!/openlogin/i.test(response.finalUrl)) {
-                            _context24.next = 4;
+                            _context21.next = 4;
                             break;
                           }
-                          return _context24.abrupt("return", {
+                          return _context21.abrupt("return", {
                             status: UPDATE_STATUS.AUTH_EXPIRED,
                             platformName: "GOG",
                             loginUrl: "https://www.gog.com/#openlogin"
                           });
                         case 4:
-                          if (!((_response$response6 = response.response) !== null && _response$response6 !== void 0 && (_response$response6$p = _response$response6.products) !== null && _response$response6$p !== void 0 && _response$response6$p.length)) {
-                            _context24.next = 22;
+                          if (!((_response$response5 = response.response) !== null && _response$response5 !== void 0 && (_response$response5$p = _response$response5.products) !== null && _response$response5$p !== void 0 && _response$response5$p.length)) {
+                            _context21.next = 22;
                             break;
                           }
                           games = [].concat(_toConsumableArray(games), _toConsumableArray(response.response.products.map(function (e) {
                             var _e$url, _e$url$split, _e$url2;
                             return (e === null || e === void 0 ? void 0 : e.slug) || (e === null || e === void 0 ? void 0 : (_e$url = e.url) === null || _e$url === void 0 ? void 0 : (_e$url$split = _e$url.split("/")) === null || _e$url$split === void 0 ? void 0 : _e$url$split[(e === null || e === void 0 ? void 0 : (_e$url2 = e.url) === null || _e$url2 === void 0 ? void 0 : _e$url2.split("/").length) - 1]);
                           })));
-                          if (!(((_response$response7 = response.response) === null || _response$response7 === void 0 ? void 0 : _response$response7.totalPages) > i)) {
-                            _context24.next = 12;
+                          if (!(((_response$response6 = response.response) === null || _response$response6 === void 0 ? void 0 : _response$response6.totalPages) > i)) {
+                            _context21.next = 12;
                             break;
                           }
-                          _context24.next = 9;
+                          _context21.next = 9;
                           return updateGogGameLibrary(loop, ++i, games);
                         case 9:
-                          return _context24.abrupt("return", _context24.sent);
+                          return _context21.abrupt("return", _context21.sent);
                         case 12:
                           if (!loop) {
-                            _context24.next = 17;
+                            _context21.next = 17;
                             break;
                           }
                           GM_setValue("gogGames", _toConsumableArray(new Set(games)).filter(function (e) {
                             return e;
                           }));
-                          _context24.next = 16;
+                          _context21.next = 16;
                           return showUpdateResult("gog游戏库数据更新完成", "success");
                         case 16:
-                          return _context24.abrupt("return", true);
+                          return _context21.abrupt("return", true);
                         case 17:
                           GM_setValue("gogGames", _toConsumableArray(/* @__PURE__ */new Set([].concat(_toConsumableArray(getGogGameLibrary()), _toConsumableArray(games)))).filter(function (e) {
                             return e;
                           }));
                           checkGogGame(false);
-                          return _context24.abrupt("return", true);
+                          return _context21.abrupt("return", true);
                         case 22:
-                          if (!(((_response$response8 = response.response) === null || _response$response8 === void 0 ? void 0 : (_response$response8$p = _response$response8.products) === null || _response$response8$p === void 0 ? void 0 : _response$response8$p.length) !== 0)) {
-                            _context24.next = 27;
+                          if (!(((_response$response7 = response.response) === null || _response$response7 === void 0 ? void 0 : (_response$response7$p = _response$response7.products) === null || _response$response7$p === void 0 ? void 0 : _response$response7$p.length) !== 0)) {
+                            _context21.next = 27;
                             break;
                           }
                           console.error(response);
-                          _context24.next = 26;
+                          _context21.next = 26;
                           return showUpdateResult("gog游戏库数据更新失败", "error");
                         case 26:
-                          return _context24.abrupt("return", false);
+                          return _context21.abrupt("return", false);
                         case 27:
-                          return _context24.abrupt("return", false);
+                          return _context21.abrupt("return", false);
                         case 28:
                         case "end":
-                          return _context24.stop();
+                          return _context21.stop();
                       }
                     }
-                  }, _callee23);
+                  }, _callee20);
                 }));
-                return function (_x20) {
-                  return _ref24.apply(this, arguments);
+                return function (_x18) {
+                  return _ref21.apply(this, arguments);
                 };
               }())["catch"](/*#__PURE__*/function () {
-                var _ref25 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee24(error) {
-                  return _regeneratorRuntime().wrap(function _callee24$(_context25) {
+                var _ref22 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee21(error) {
+                  return _regeneratorRuntime().wrap(function _callee21$(_context22) {
                     while (1) {
-                      switch (_context25.prev = _context25.next) {
+                      switch (_context22.prev = _context22.next) {
                         case 0:
                           console.error(error);
-                          _context25.next = 3;
+                          _context22.next = 3;
                           return showUpdateResult("gog游戏库数据更新失败", "error");
                         case 3:
-                          return _context25.abrupt("return", false);
+                          return _context22.abrupt("return", false);
                         case 4:
                         case "end":
-                          return _context25.stop();
+                          return _context22.stop();
                       }
                     }
-                  }, _callee24);
+                  }, _callee21);
                 }));
-                return function (_x21) {
-                  return _ref25.apply(this, arguments);
+                return function (_x19) {
+                  return _ref22.apply(this, arguments);
                 };
               }());
             }
@@ -2196,7 +2142,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             GM_addStyle(".gog-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}");
           }
         };
-        return moduleApi2;
+        return moduleApi;
       }
       module.exports = {
         createGogModule: createGogModule
@@ -2221,7 +2167,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           UPDATE_STATUS = context.UPDATE_STATUS;
         var _updateLibrary4;
         var started = false;
-        var moduleApi2 = {
+        var moduleApi = {
           key: "itch",
           enabled: function enabled() {
             return settings.platformEnabled.itch;
@@ -2230,7 +2176,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             return (GM_getValue("itchGames") || []).length === 0;
           },
           updateLibrary: function updateLibrary() {
-            if (!_updateLibrary4) moduleApi2.start();
+            if (!_updateLibrary4) moduleApi.start();
             return _updateLibrary4();
           },
           start: function start() {
@@ -2268,7 +2214,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                 var runner = autoUpdate;
                 if (typeof runAutoUpdateWithRateLimit === "function") {
                   runner = function runner() {
-                    return runAutoUpdateWithRateLimit(moduleApi2, autoUpdate);
+                    return runAutoUpdateWithRateLimit(moduleApi, autoUpdate);
                   };
                 }
                 runner().then(function (result) {
@@ -2324,25 +2270,25 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                   }
                 });
               }).then(/*#__PURE__*/function () {
-                var _ref26 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee25(response) {
-                  var _response$response9, _response$response10;
+                var _ref23 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee22(response) {
+                  var _response$response8, _response$response9;
                   var itchDoc, purchaseLinks;
-                  return _regeneratorRuntime().wrap(function _callee25$(_context26) {
+                  return _regeneratorRuntime().wrap(function _callee22$(_context23) {
                     while (1) {
-                      switch (_context26.prev = _context26.next) {
+                      switch (_context23.prev = _context23.next) {
                         case 0:
                           if (!/https?:\/\/itch.io\/login/i.test(response.finalUrl)) {
-                            _context26.next = 4;
+                            _context23.next = 4;
                             break;
                           }
-                          return _context26.abrupt("return", {
+                          return _context23.abrupt("return", {
                             status: UPDATE_STATUS.AUTH_EXPIRED,
                             platformName: "itch.io",
                             loginUrl: "https://itch.io/login"
                           });
                         case 4:
-                          if (!((_response$response9 = response.response) !== null && _response$response9 !== void 0 && _response$response9.num_items)) {
-                            _context26.next = 24;
+                          if (!((_response$response8 = response.response) !== null && _response$response8 !== void 0 && _response$response8.num_items)) {
+                            _context23.next = 24;
                             break;
                           }
                           itchDoc = parseHtml("<div>".concat(response.response.content, "</div>"));
@@ -2352,73 +2298,73 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                             return (_getHref$match = getHref(el).match(/https?:\/\/(.*?\/.*?)\//i)) === null || _getHref$match === void 0 ? void 0 : _getHref$match[1];
                           })));
                           if (!(response.response.num_items === 50)) {
-                            _context26.next = 14;
+                            _context23.next = 14;
                             break;
                           }
-                          _context26.next = 11;
+                          _context23.next = 11;
                           return updateItchGameLibrary(loop, ++i, games);
                         case 11:
-                          return _context26.abrupt("return", _context26.sent);
+                          return _context23.abrupt("return", _context23.sent);
                         case 14:
                           if (!loop) {
-                            _context26.next = 19;
+                            _context23.next = 19;
                             break;
                           }
                           GM_setValue("itchGames", _toConsumableArray(new Set(games)));
-                          _context26.next = 18;
+                          _context23.next = 18;
                           return showUpdateResult("itch游戏库数据更新完成", "success");
                         case 18:
-                          return _context26.abrupt("return", true);
+                          return _context23.abrupt("return", true);
                         case 19:
                           GM_setValue("itchGames", _toConsumableArray(/* @__PURE__ */new Set([].concat(_toConsumableArray(getItchGameLibrary()), _toConsumableArray(games)))));
                           checkItchGame(false);
-                          return _context26.abrupt("return", true);
+                          return _context23.abrupt("return", true);
                         case 24:
-                          if (!(((_response$response10 = response.response) === null || _response$response10 === void 0 ? void 0 : _response$response10.num_items) === 0)) {
-                            _context26.next = 29;
+                          if (!(((_response$response9 = response.response) === null || _response$response9 === void 0 ? void 0 : _response$response9.num_items) === 0)) {
+                            _context23.next = 29;
                             break;
                           }
                           GM_setValue("itchGames", _toConsumableArray(new Set(games)));
-                          _context26.next = 28;
+                          _context23.next = 28;
                           return showUpdateResult("itch游戏库数据更新完成", "success");
                         case 28:
-                          return _context26.abrupt("return", true);
+                          return _context23.abrupt("return", true);
                         case 29:
                           console.error(response);
-                          _context26.next = 32;
+                          _context23.next = 32;
                           return showUpdateResult("itch游戏库数据更新失败", "error");
                         case 32:
-                          return _context26.abrupt("return", false);
+                          return _context23.abrupt("return", false);
                         case 33:
                         case "end":
-                          return _context26.stop();
+                          return _context23.stop();
                       }
                     }
-                  }, _callee25);
+                  }, _callee22);
                 }));
-                return function (_x22) {
-                  return _ref26.apply(this, arguments);
+                return function (_x20) {
+                  return _ref23.apply(this, arguments);
                 };
               }())["catch"](/*#__PURE__*/function () {
-                var _ref27 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee26(error) {
-                  return _regeneratorRuntime().wrap(function _callee26$(_context27) {
+                var _ref24 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee23(error) {
+                  return _regeneratorRuntime().wrap(function _callee23$(_context24) {
                     while (1) {
-                      switch (_context27.prev = _context27.next) {
+                      switch (_context24.prev = _context24.next) {
                         case 0:
                           console.error(error);
-                          _context27.next = 3;
+                          _context24.next = 3;
                           return showUpdateResult("itch游戏库数据更新失败", "error");
                         case 3:
-                          return _context27.abrupt("return", false);
+                          return _context24.abrupt("return", false);
                         case 4:
                         case "end":
-                          return _context27.stop();
+                          return _context24.stop();
                       }
                     }
-                  }, _callee26);
+                  }, _callee23);
                 }));
-                return function (_x23) {
-                  return _ref27.apply(this, arguments);
+                return function (_x21) {
+                  return _ref24.apply(this, arguments);
                 };
               }());
             }
@@ -2427,7 +2373,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             unsafeWindow.checkItchGame = checkItchGame;
           }
         };
-        return moduleApi2;
+        return moduleApi;
       }
       module.exports = {
         createItchModule: createItchModule
@@ -2489,16 +2435,16 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             });
           });
         }
-        function requestIgShowcasePage(_x24, _x25) {
+        function requestIgShowcasePage(_x22, _x23) {
           return _requestIgShowcasePage.apply(this, arguments);
         }
         function _requestIgShowcasePage() {
-          _requestIgShowcasePage = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee27(page, cookies) {
-            return _regeneratorRuntime().wrap(function _callee27$(_context28) {
+          _requestIgShowcasePage = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee24(page, cookies) {
+            return _regeneratorRuntime().wrap(function _callee24$(_context25) {
               while (1) {
-                switch (_context28.prev = _context28.next) {
+                switch (_context25.prev = _context25.next) {
                   case 0:
-                    return _context28.abrupt("return", new Promise(function (resolve, reject) {
+                    return _context25.abrupt("return", new Promise(function (resolve, reject) {
                       GM_xmlhttpRequest({
                         url: "https://www.indiegala.com/library/showcase/".concat(page),
                         method: "GET",
@@ -2515,10 +2461,10 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                     }));
                   case 1:
                   case "end":
-                    return _context28.stop();
+                    return _context25.stop();
                 }
               }
-            }, _callee27);
+            }, _callee24);
           }));
           return _requestIgShowcasePage.apply(this, arguments);
         }
@@ -2547,7 +2493,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
           return _updateIgGameLibrary.apply(this, arguments);
         }
         function _updateIgGameLibrary() {
-          _updateIgGameLibrary = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee28() {
+          _updateIgGameLibrary = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee25() {
             var loop,
               cookies,
               firstPageResponse,
@@ -2556,29 +2502,29 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
               page,
               response,
               parsed,
-              _args29 = arguments;
-            return _regeneratorRuntime().wrap(function _callee28$(_context29) {
+              _args26 = arguments;
+            return _regeneratorRuntime().wrap(function _callee25$(_context26) {
               while (1) {
-                switch (_context29.prev = _context29.next) {
+                switch (_context26.prev = _context26.next) {
                   case 0:
-                    loop = _args29.length > 0 && _args29[0] !== undefined ? _args29[0] : true;
-                    _context29.prev = 1;
+                    loop = _args26.length > 0 && _args26[0] !== undefined ? _args26[0] : true;
+                    _context26.prev = 1;
                     if (loop) {
                       showUpdateStep("ig", "第 1 页");
                     }
-                    _context29.next = 5;
+                    _context26.next = 5;
                     return getIgCookies();
                   case 5:
-                    cookies = _context29.sent;
-                    _context29.next = 8;
+                    cookies = _context26.sent;
+                    _context26.next = 8;
                     return requestIgShowcasePage(1, cookies);
                   case 8:
-                    firstPageResponse = _context29.sent;
+                    firstPageResponse = _context26.sent;
                     if (!(new URL(firstPageResponse.finalUrl).pathname === "/login")) {
-                      _context29.next = 11;
+                      _context26.next = 11;
                       break;
                     }
-                    return _context29.abrupt("return", {
+                    return _context26.abrupt("return", {
                       status: UPDATE_STATUS.AUTH_EXPIRED,
                       platformName: "IG",
                       loginUrl: "https://www.indiegala.com/login"
@@ -2587,7 +2533,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                     firstParsed = parseIgShowcase(firstPageResponse.responseText, 1);
                     allGames = _toConsumableArray(firstParsed.games);
                     if (loop) {
-                      _context29.next = 18;
+                      _context26.next = 18;
                       break;
                     }
                     allGames = Array.from(new Set(allGames)).filter(Boolean);
@@ -2596,24 +2542,24 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                       games: allGames
                     });
                     markIgLinks();
-                    return _context29.abrupt("return", true);
+                    return _context26.abrupt("return", true);
                   case 18:
                     page = 2;
                   case 19:
                     if (!(page <= firstParsed.pages)) {
-                      _context29.next = 29;
+                      _context26.next = 29;
                       break;
                     }
                     showUpdateStep("ig", "\u7B2C ".concat(page, " \u9875"));
-                    _context29.next = 23;
+                    _context26.next = 23;
                     return requestIgShowcasePage(page, cookies);
                   case 23:
-                    response = _context29.sent;
+                    response = _context26.sent;
                     parsed = parseIgShowcase(response.responseText, page);
                     allGames = allGames.concat(parsed.games);
                   case 26:
                     page += 1;
-                    _context29.next = 19;
+                    _context26.next = 19;
                     break;
                   case 29:
                     allGames = Array.from(new Set(allGames)).filter(Boolean);
@@ -2621,33 +2567,33 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
                       time: Date.now(),
                       games: allGames
                     });
-                    _context29.next = 33;
+                    _context26.next = 33;
                     return showUpdateResult("IG游戏库数据更新完成", "success");
                   case 33:
                     markIgLinks();
-                    return _context29.abrupt("return", true);
+                    return _context26.abrupt("return", true);
                   case 37:
-                    _context29.prev = 37;
-                    _context29.t0 = _context29["catch"](1);
-                    console.error(_context29.t0);
+                    _context26.prev = 37;
+                    _context26.t0 = _context26["catch"](1);
+                    console.error(_context26.t0);
                     if (!loop) {
-                      _context29.next = 43;
+                      _context26.next = 43;
                       break;
                     }
-                    _context29.next = 43;
+                    _context26.next = 43;
                     return showUpdateResult("IG游戏库数据更新失败", "error");
                   case 43:
-                    return _context29.abrupt("return", false);
+                    return _context26.abrupt("return", false);
                   case 44:
                   case "end":
-                    return _context29.stop();
+                    return _context26.stop();
                 }
               }
-            }, _callee28, null, [[1, 37]]);
+            }, _callee25, null, [[1, 37]]);
           }));
           return _updateIgGameLibrary.apply(this, arguments);
         }
-        return {
+        var moduleApi = {
           key: "ig",
           enabled: function enabled() {
             return settings.platformEnabled.ig;
@@ -2695,6 +2641,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             GM_addStyle(".ig-owned{color:#ffffff !important;background:#5c8a00 !important}");
           }
         };
+        return moduleApi;
       }
       module.exports = {
         createIgModule: createIgModule

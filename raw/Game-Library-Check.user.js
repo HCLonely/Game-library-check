@@ -886,12 +886,12 @@
         } = context;
         let updateLibrary;
         let started = false;
-        const moduleApi2 = {
+        const moduleApi = {
           key: "epic",
           enabled: () => settings.platformEnabled.epic,
           isCacheEmpty: () => (GM_getValue("ownedGames") || []).length === 0,
           updateLibrary: async () => {
-            if (!updateLibrary) await moduleApi2.start();
+            if (!updateLibrary) await moduleApi.start();
             return updateLibrary();
           },
           start: async () => {
@@ -932,7 +932,7 @@
                 const autoUpdate = () => updateEpicOwnedGames(false);
                 let runner = autoUpdate;
                 if (typeof runAutoUpdateWithRateLimit === "function") {
-                  runner = () => runAutoUpdateWithRateLimit(moduleApi2, autoUpdate);
+                  runner = () => runAutoUpdateWithRateLimit(moduleApi, autoUpdate);
                 }
                 runner().then((result) => {
                   if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
@@ -1033,95 +1033,6 @@
                 return false;
               });
             }
-            async function updateEpicAuth(loop) {
-              console.log("[EGLC] updateEpicAuth...");
-              if (loop) {
-                context.showToast("正在更新Epic凭证...", "info");
-              }
-              const reputationResult = await new Promise((resolve, reject) => {
-                GM_xmlhttpRequest({
-                  method: "GET",
-                  url: "https://www.epicgames.com/id/api/reputation",
-                  headers: {
-                    accept: "application/json, text/plain, */*",
-                    referer: "https://www.epicgames.com/id/login",
-                    "sec-fetch-site": "same-origin"
-                  },
-                  timeout: 3e4,
-                  nocache: true,
-                  responseType: "json",
-                  onerror: reject,
-                  ontimeout: reject,
-                  onload: (response) => {
-                    response.status === 200 ? resolve(response) : reject(response);
-                  }
-                });
-              }).then(async (response) => response.status === 200).catch((error) => {
-                console.error(error);
-                return false;
-              });
-              if (!reputationResult) {
-                return false;
-              }
-              const authenticateResult = await new Promise((resolve, reject) => {
-                GM_xmlhttpRequest({
-                  method: "GET",
-                  url: "https://www.epicgames.com/id/api/authenticate",
-                  headers: {
-                    accept: "application/json, text/plain, */*",
-                    referer: "https://www.epicgames.com/id/login",
-                    "x-epic-client-id": "undefined",
-                    "x-epic-display-mode": "web",
-                    "x-epic-duration": "700",
-                    "x-epic-event-action": "null",
-                    "x-epic-event-category": "null",
-                    "x-epic-platform": "WEB",
-                    "x-epic-strategy-flags": "",
-                    "x-requested-with": "XMLHttpRequest"
-                  },
-                  timeout: 3e4,
-                  nocache: true,
-                  responseType: "json",
-                  onerror: reject,
-                  ontimeout: reject,
-                  onload: (response) => {
-                    response.status === 200 ? resolve(response) : reject(response);
-                  }
-                });
-              }).then(async (response) => response.status === 200).catch((error) => {
-                console.error(error);
-                return false;
-              });
-              if (!authenticateResult) {
-                return false;
-              }
-              const refreshCsrfResult = await new Promise((resolve, reject) => {
-                GM_xmlhttpRequest({
-                  method: "POST",
-                  url: "https://www.epicgames.com/account/v2/refresh-csrf",
-                  headers: {
-                    accept: "application/json, text/plain, */*",
-                    origin: "https://www.epicgames.com",
-                    referer: "https://www.epicgames.com/account/personal"
-                  },
-                  timeout: 3e4,
-                  nocache: true,
-                  responseType: "json",
-                  onerror: reject,
-                  ontimeout: reject,
-                  onload: (response) => {
-                    response.status === 200 ? resolve(response) : reject(response);
-                  }
-                });
-              }).then(async (response) => response.response?.success === true).catch((error) => {
-                console.error(error);
-                return false;
-              });
-              if (!refreshCsrfResult) {
-                return false;
-              }
-              return true;
-            }
             function getEpicCookies(name) {
               return new Promise((resolve, reject) => {
                 GM_cookie.list({ url: "https://accounts.epicgames.com/", name }, (cookies, error) => {
@@ -1144,6 +1055,86 @@
                 });
               });
             }
+            function parseSetCookieHeader(cookieString, fallbackUrl) {
+              const parts = cookieString.split(";").map((s) => s.trim());
+              const [nameValue, ...attrs] = parts;
+              const eqIdx = nameValue.indexOf("=");
+              const name = eqIdx >= 0 ? nameValue.slice(0, eqIdx).trim() : nameValue.trim();
+              const value = eqIdx >= 0 ? nameValue.slice(eqIdx + 1).trim() : "";
+              const cookie = {
+                url: fallbackUrl,
+                name,
+                value: value || "",
+                path: "/",
+                secure: false,
+                httpOnly: false,
+                expirationDate: Math.floor(Date.now() / 1e3) + 60 * 60 * 24 * 30
+              };
+              attrs.forEach((attr) => {
+                const eqIdx2 = attr.indexOf("=");
+                const key = eqIdx2 >= 0 ? attr.slice(0, eqIdx2).trim().toLowerCase() : attr.trim().toLowerCase();
+                const val = eqIdx2 >= 0 ? attr.slice(eqIdx2 + 1).trim() : "";
+                if (key === "domain") cookie.domain = val.startsWith(".") ? val : `.${val}`;
+                else if (key === "path") cookie.path = val || "/";
+                else if (key === "secure") cookie.secure = true;
+                else if (key === "httponly") cookie.httpOnly = true;
+                else if (key === "expires") {
+                  const exp = new Date(val).getTime();
+                  if (!isNaN(exp)) cookie.expirationDate = Math.floor(exp / 1e3);
+                } else if (key === "max-age") {
+                  cookie.expirationDate = Math.floor(Date.now() / 1e3) + parseInt(val, 10);
+                }
+              });
+              return cookie;
+            }
+            function extractAndSetCookies(responseHeaders, url) {
+              if (!responseHeaders) return Promise.resolve();
+              const setCookieLines = responseHeaders.split(/\r?\n/).filter((line) => /^set-cookie:\s*/i.test(line));
+              if (!setCookieLines.length) return Promise.resolve();
+              const cookiePromises = setCookieLines.map((line) => {
+                const cookieStr = line.replace(/^set-cookie:\s*/i, "");
+                const cookie = parseSetCookieHeader(cookieStr, url);
+                return new Promise((resolve) => {
+                  GM_cookie.set(cookie, (error) => {
+                    if (error) console.error("[EGLC] Cookie set error:", error);
+                    resolve();
+                  });
+                });
+              });
+              return Promise.all(cookiePromises);
+            }
+            function getLocationHeader(responseHeaders) {
+              const match = responseHeaders?.match(/^location:\s*(.+)/im);
+              return match ? match[1].trim() : null;
+            }
+            async function requestWithRedirect(initialUrl, baseOptions, maxRedirects = 10) {
+              let currentUrl = initialUrl;
+              for (let i = 0; i < maxRedirects; i++) {
+                const response = await new Promise((res, rej) => {
+                  GM_xmlhttpRequest({
+                    ...baseOptions,
+                    url: currentUrl,
+                    redirect: "manual",
+                    onload: res,
+                    onerror: rej,
+                    ontimeout: rej
+                  });
+                });
+                const { status } = response;
+                if (status === 301 || status === 302 || status === 303 || status === 307 || status === 308) {
+                  await extractAndSetCookies(response.responseHeaders, currentUrl);
+                  const location = getLocationHeader(response.responseHeaders);
+                  if (!location) throw new Error("[EGLC] Redirect without Location header");
+                  currentUrl = location;
+                  continue;
+                }
+                if (status === 200) {
+                  return response;
+                }
+                throw response;
+              }
+              throw new Error("[EGLC] Too many redirects");
+            }
             async function updateEpicOwnedGames(loop = true, i = 0, games = GM_getValue("ownedGames") || [], nextPageToken = "") {
               console.log("[EGLC] updateEpicOwnedGames...");
               if (!loop && i !== 0) {
@@ -1153,16 +1144,17 @@
               }
               const xsrfToken = await getEpicCookies("XSRF-AM-TOKEN");
               const allCookies = await getAllEpicCookies();
-              return new Promise((resolve, reject) => {
-                if (loop) {
-                  showUpdateStep("epic", `第 ${i + 1} 页`);
-                }
-                GM_xmlhttpRequest({
+              if (loop) {
+                showUpdateStep("epic", `第 ${i + 1} 页`);
+              }
+              return requestWithRedirect(
+                `https://accounts.epicgames.com/account/v2/payment/ajaxGetOrderHistory?count=10&sortDir=DESC&sortBy=DATE&locale=${locale}${nextPageToken ? `&nextPageToken=${encodeURIComponent(nextPageToken)}` : ""}`,
+                {
                   method: "GET",
-                  url: `https://accounts.epicgames.com/account/v2/payment/ajaxGetOrderHistory?count=10&sortDir=DESC&sortBy=DATE&locale=${locale}${nextPageToken ? `&nextPageToken=${encodeURIComponent(nextPageToken)}` : ""}`,
                   timeout: 3e4,
                   nocache: true,
                   responseType: "json",
+                  fetch: true,
                   headers: {
                     referer: "https://accounts.epicgames.com/",
                     dnt: 1,
@@ -1178,16 +1170,9 @@
                     "x-csrf-token": "null",
                     "x-xsrf-token": xsrfToken,
                     cookie: allCookies
-                  },
-                  redirect: "follow",
-                  fetch: true,
-                  onerror: reject,
-                  ontimeout: reject,
-                  onload: (response) => {
-                    response.status === 200 ? resolve(response) : reject(response);
                   }
-                });
-              }).then(async (response) => {
+                }
+              ).then(async (response) => {
                 if (/login/i.test(response.finalUrl)) {
                   return {
                     status: UPDATE_STATUS.AUTH_EXPIRED,
@@ -1258,7 +1243,7 @@
 }`);
           }
         };
-        return moduleApi2;
+        return moduleApi;
       }
       module.exports = {
         createEpicModule
@@ -1284,12 +1269,12 @@
         } = context;
         let updateLibrary;
         let started = false;
-        const moduleApi2 = {
+        const moduleApi = {
           key: "gog",
           enabled: () => settings.platformEnabled.gog,
           isCacheEmpty: () => (GM_getValue("gogGames") || []).length === 0,
           updateLibrary: () => {
-            if (!updateLibrary) moduleApi2.start();
+            if (!updateLibrary) moduleApi.start();
             return updateLibrary();
           },
           start: () => {
@@ -1320,7 +1305,7 @@
                 const autoUpdate = () => updateGogGameLibrary(false);
                 let runner = autoUpdate;
                 if (typeof runAutoUpdateWithRateLimit === "function") {
-                  runner = () => runAutoUpdateWithRateLimit(moduleApi2, autoUpdate);
+                  runner = () => runAutoUpdateWithRateLimit(moduleApi, autoUpdate);
                 }
                 runner().then((result) => {
                   if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
@@ -1398,7 +1383,7 @@
             GM_addStyle(".gog-game-link-owned{color:#ffffff !important;background:#5c8a00 !important}");
           }
         };
-        return moduleApi2;
+        return moduleApi;
       }
       module.exports = {
         createGogModule
@@ -1425,12 +1410,12 @@
         } = context;
         let updateLibrary;
         let started = false;
-        const moduleApi2 = {
+        const moduleApi = {
           key: "itch",
           enabled: () => settings.platformEnabled.itch,
           isCacheEmpty: () => (GM_getValue("itchGames") || []).length === 0,
           updateLibrary: () => {
-            if (!updateLibrary) moduleApi2.start();
+            if (!updateLibrary) moduleApi.start();
             return updateLibrary();
           },
           start: () => {
@@ -1461,7 +1446,7 @@
                 const autoUpdate = () => updateItchGameLibrary(false);
                 let runner = autoUpdate;
                 if (typeof runAutoUpdateWithRateLimit === "function") {
-                  runner = () => runAutoUpdateWithRateLimit(moduleApi2, autoUpdate);
+                  runner = () => runAutoUpdateWithRateLimit(moduleApi, autoUpdate);
                 }
                 runner().then((result) => {
                   if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
@@ -1544,7 +1529,7 @@
             unsafeWindow.checkItchGame = checkItchGame;
           }
         };
-        return moduleApi2;
+        return moduleApi;
       }
       module.exports = {
         createItchModule
@@ -1669,7 +1654,7 @@
             return false;
           }
         }
-        return {
+        const moduleApi = {
           key: "ig",
           enabled: () => settings.platformEnabled.ig,
           isCacheEmpty: () => getIgOwnedGames().length === 0,
@@ -1700,6 +1685,7 @@
             GM_addStyle(".ig-owned{color:#ffffff !important;background:#5c8a00 !important}");
           }
         };
+        return moduleApi;
       }
       module.exports = {
         createIgModule

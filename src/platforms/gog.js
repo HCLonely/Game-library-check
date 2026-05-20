@@ -6,7 +6,7 @@ function createGogModule(context) {
     getHref,
     showUpdateStep,
     showUpdateResult,
-    showLoginExpiredDialog,
+    // showLoginExpiredDialog,
     showToast,
     runAutoUpdateWithRateLimit,
     UPDATE_STATUS

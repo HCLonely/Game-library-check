@@ -7,7 +7,7 @@ function createIgModule(context) {
     parseHtml,
     showUpdateStep,
     showUpdateResult,
-    showLoginExpiredDialog,
+    // showLoginExpiredDialog,
     showToast,
     runAutoUpdateWithRateLimit,
     UPDATE_STATUS
@@ -126,7 +126,7 @@ function createIgModule(context) {
     }
   }
 
-  return {
+  const moduleApi = {
     key: 'ig',
     enabled: () => settings.platformEnabled.ig,
     isCacheEmpty: () => getIgOwnedGames().length === 0,
@@ -155,6 +155,7 @@ function createIgModule(context) {
       GM_addStyle('.ig-owned{color:#ffffff !important;background:#5c8a00 !important}');
     }
   };
+  return moduleApi;
 }
 
 module.exports = {

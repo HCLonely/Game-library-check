@@ -7,7 +7,7 @@ function createItchModule(context) {
     parseHtml,
     showUpdateStep,
     showUpdateResult,
-    showLoginExpiredDialog,
+    // showLoginExpiredDialog,
     showToast,
     runAutoUpdateWithRateLimit,
     UPDATE_STATUS
