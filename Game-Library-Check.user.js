@@ -40,6 +40,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
 // @supportURL     https://github.com/HCLonely/Game-library-check/issues
 // @updateURL      https://github.com/HCLonely/Game-library-check/raw/master/Game-Library-Check.user.js
 // @icon           https://github.com/HCLonely/Game-library-check/blob/master/icon.ico?raw=true
+// @tag            games
 
 // @include        *
 // @include        *://accounts.epicgames.com/*
