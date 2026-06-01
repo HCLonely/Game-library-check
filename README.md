@@ -14,6 +14,7 @@
 2. 点击下方链接安装脚本：
 
 - [Game-Library-Check.user.js](https://github.com/HCLonely/Game-library-check/raw/master/Game-Library-Check.user.js)
+- [GreasyFork](https://greasyfork.org/zh-CN/scripts/404924-%E6%B8%B8%E6%88%8F%E5%BA%93%E6%A3%80%E6%B5%8B-%E5%90%88%E9%9B%86)
 
 ## 🚀 使用
 
