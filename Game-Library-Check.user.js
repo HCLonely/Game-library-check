@@ -31,7 +31,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
 // @name           游戏库检测-合集
 // @name:en        Game Library Check
 // @namespace      game-library-check
-// @version        2.0.0
+// @version        2.0.1
 // @description    检测Epic/GOG/itch/Cube游戏是否已拥有。
 // @description:en Check if Epic/GOG/itch/Cube games are already owned.
 // @author         HCLonely
@@ -1368,10 +1368,9 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                                                           }
                                                           return _context14.abrupt("return", true);
                                                         case 2:
-                                                          console.info("pageSlug");
-                                                          _context14.next = 5;
+                                                          _context14.next = 4;
                                                           return getPagePlug(item.namespace, item.offerId);
-                                                        case 5:
+                                                        case 4:
                                                           pageSlug = _context14.sent;
                                                           console.log("[EGLC] pageSlug: ".concat(pageSlug));
                                                           if (pageSlug) {
@@ -1383,7 +1382,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                                                             GM_setValue("ownedGames", games);
                                                           }
                                                           return _context14.abrupt("return", true);
-                                                        case 9:
+                                                        case 8:
                                                         case "end":
                                                           return _context14.stop();
                                                       }

@@ -439,7 +439,7 @@ function createEpicModule(context) {
                 // console.info(item.namespace, ttt);
                 return true;
               }
-              console.info('pageSlug');
+              // console.info('pageSlug');
               const pageSlug = await getPagePlug(item.namespace, item.offerId);
               console.log(`[EGLC] pageSlug: ${pageSlug}`);
               if (pageSlug) {

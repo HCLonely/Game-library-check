@@ -2,7 +2,7 @@
 // @name           游戏库检测-合集
 // @name:en        Game Library Check
 // @namespace      game-library-check
-// @version        2.0.0
+// @version        2.0.1
 // @description    检测Epic/GOG/itch/Cube游戏是否已拥有。
 // @description:en Check if Epic/GOG/itch/Cube games are already owned.
 // @author         HCLonely
@@ -1192,7 +1192,6 @@
                     if (games.find((game) => game.namespace === item.namespace && game.offerId === item.offerId)) {
                       return true;
                     }
-                    console.info("pageSlug");
                     const pageSlug = await getPagePlug(item.namespace, item.offerId);
                     console.log(`[EGLC] pageSlug: ${pageSlug}`);
                     if (pageSlug) {
