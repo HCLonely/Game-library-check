@@ -2,7 +2,7 @@ module.exports = `// ==UserScript==
 // @name           游戏库检测-合集
 // @name:en        Game Library Check
 // @namespace      game-library-check
-// @version        1.0.0
+// @version        2.0.0
 // @description    检测Epic/GOG/itch/Cube游戏是否已拥有。
 // @description:en Check if Epic/GOG/itch/Cube games are already owned.
 // @author         HCLonely
@@ -10,6 +10,9 @@ module.exports = `// ==UserScript==
 // @homepage       https://github.com/HCLonely/Game-library-check
 // @supportURL     https://github.com/HCLonely/Game-library-check/issues
 // @updateURL      https://github.com/HCLonely/Game-library-check/raw/master/Game-Library-Check.user.js
+// @icon           https://github.com/HCLonely/Game-library-check/blob/master/icon.ico?raw=true
+// @tag            games
+
 // @include        *
 // @include        *://accounts.epicgames.com/*
 // @exclude        *://www.epicgames.com/*
@@ -17,6 +20,7 @@ module.exports = `// ==UserScript==
 // @exclude        *://www.gog.com/*
 // @exclude        *://itch.io/login
 // @exclude        *://account.cubejoy.com/html/login.html
+
 // @grant          GM_setValue
 // @grant          GM_getValue
 // @grant          GM_deleteValue
@@ -27,6 +31,7 @@ module.exports = `// ==UserScript==
 // @grant          GM_openInTab
 // @grant          GM_cookie
 // @grant          unsafeWindow
+
 // @connect        store.epicgames.com
 // @connect        www.epicgames.com
 // @connect        epicgames.com
