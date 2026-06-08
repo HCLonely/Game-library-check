@@ -219,7 +219,7 @@ function createStartupFlow({ showDialog, showProgressPanel, clearProgressPanel, 
       showDialog({
         title: '平台更新失败',
         bodyText: title,
-        confirmText: '我知道了',
+        confirmText: '确认',
         hideCancel: true
       });
       return Promise.resolve(true);

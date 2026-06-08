@@ -39,6 +39,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
 // @homepage       https://github.com/HCLonely/Game-library-check
 // @supportURL     https://github.com/HCLonely/Game-library-check/issues
 // @updateURL      https://github.com/HCLonely/Game-library-check/raw/master/Game-Library-Check.user.js
+// @downloadURL    https://github.com/HCLonely/Game-library-check/raw/master/Game-Library-Check.user.js
 // @icon           https://github.com/HCLonely/Game-library-check/blob/master/icon.ico?raw=true
 // @tag            games
 
@@ -876,7 +877,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
             showDialog({
               title: "平台更新失败",
               bodyText: title,
-              confirmText: "我知道了",
+              confirmText: "确认",
               hideCancel: true
             });
             return Promise.resolve(true);
@@ -2505,6 +2506,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
         function _updateIgGameLibrary() {
           _updateIgGameLibrary = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee23() {
             var loop,
+              owned,
               cookies,
               firstPageResponse,
               firstParsed,
@@ -2519,19 +2521,20 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                   case 0:
                     loop = _args24.length > 0 && _args24[0] !== undefined ? _args24[0] : true;
                     _context24.prev = 1;
+                    owned = getIgOwnedGames();
                     if (loop) {
                       showUpdateStep("ig", "第 1 页");
                     }
-                    _context24.next = 5;
+                    _context24.next = 6;
                     return getIgCookies();
-                  case 5:
+                  case 6:
                     cookies = _context24.sent;
-                    _context24.next = 8;
+                    _context24.next = 9;
                     return requestIgShowcasePage(1, cookies);
-                  case 8:
+                  case 9:
                     firstPageResponse = _context24.sent;
                     if (!(new URL(firstPageResponse.finalUrl).pathname === "/login")) {
-                      _context24.next = 11;
+                      _context24.next = 12;
                       break;
                     }
                     return _context24.abrupt("return", {
@@ -2539,11 +2542,11 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                       platformName: "IG",
                       loginUrl: "https://www.indiegala.com/login"
                     });
-                  case 11:
+                  case 12:
                     firstParsed = parseIgShowcase(firstPageResponse.responseText, 1);
-                    allGames = _toConsumableArray(firstParsed.games);
+                    allGames = [].concat(_toConsumableArray(owned), _toConsumableArray(firstParsed.games));
                     if (loop) {
-                      _context24.next = 18;
+                      _context24.next = 19;
                       break;
                     }
                     allGames = Array.from(new Set(allGames)).filter(Boolean);
@@ -2553,53 +2556,53 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                     });
                     markIgLinks();
                     return _context24.abrupt("return", true);
-                  case 18:
-                    page = 2;
                   case 19:
+                    page = 2;
+                  case 20:
                     if (!(page <= firstParsed.pages)) {
-                      _context24.next = 29;
+                      _context24.next = 30;
                       break;
                     }
                     showUpdateStep("ig", "\u7B2C ".concat(page, " \u9875"));
-                    _context24.next = 23;
+                    _context24.next = 24;
                     return requestIgShowcasePage(page, cookies);
-                  case 23:
+                  case 24:
                     response = _context24.sent;
                     parsed = parseIgShowcase(response.responseText, page);
                     allGames = allGames.concat(parsed.games);
-                  case 26:
+                  case 27:
                     page += 1;
-                    _context24.next = 19;
+                    _context24.next = 20;
                     break;
-                  case 29:
+                  case 30:
                     allGames = Array.from(new Set(allGames)).filter(Boolean);
                     GM_setValue("IG-Owned", {
                       time: Date.now(),
                       games: allGames
                     });
-                    _context24.next = 33;
+                    _context24.next = 34;
                     return showUpdateResult("IG游戏库数据更新完成", "success");
-                  case 33:
+                  case 34:
                     markIgLinks();
                     return _context24.abrupt("return", true);
-                  case 37:
-                    _context24.prev = 37;
+                  case 38:
+                    _context24.prev = 38;
                     _context24.t0 = _context24["catch"](1);
                     console.error(_context24.t0);
                     if (!loop) {
-                      _context24.next = 43;
+                      _context24.next = 44;
                       break;
                     }
-                    _context24.next = 43;
+                    _context24.next = 44;
                     return showUpdateResult("IG游戏库数据更新失败", "error");
-                  case 43:
-                    return _context24.abrupt("return", false);
                   case 44:
+                    return _context24.abrupt("return", false);
+                  case 45:
                   case "end":
                     return _context24.stop();
                 }
               }
-            }, _callee23, null, [[1, 37]]);
+            }, _callee23, null, [[1, 38]]);
           }));
           return _updateIgGameLibrary.apply(this, arguments);
         }

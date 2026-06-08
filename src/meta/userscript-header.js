@@ -10,6 +10,7 @@ module.exports = `// ==UserScript==
 // @homepage       https://github.com/HCLonely/Game-library-check
 // @supportURL     https://github.com/HCLonely/Game-library-check/issues
 // @updateURL      https://github.com/HCLonely/Game-library-check/raw/master/Game-Library-Check.user.js
+// @downloadURL    https://github.com/HCLonely/Game-library-check/raw/master/Game-Library-Check.user.js
 // @icon           https://github.com/HCLonely/Game-library-check/blob/master/icon.ico?raw=true
 // @tag            games
 

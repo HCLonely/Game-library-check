@@ -10,6 +10,7 @@
 // @homepage       https://github.com/HCLonely/Game-library-check
 // @supportURL     https://github.com/HCLonely/Game-library-check/issues
 // @updateURL      https://github.com/HCLonely/Game-library-check/raw/master/Game-Library-Check.user.js
+// @downloadURL    https://github.com/HCLonely/Game-library-check/raw/master/Game-Library-Check.user.js
 // @icon           https://github.com/HCLonely/Game-library-check/blob/master/icon.ico?raw=true
 // @tag            games
 
@@ -597,7 +598,7 @@
             showDialog({
               title: "平台更新失败",
               bodyText: title,
-              confirmText: "我知道了",
+              confirmText: "确认",
               hideCancel: true
             });
             return Promise.resolve(true);
@@ -1619,6 +1620,7 @@
         }
         async function updateIgGameLibrary(loop = true) {
           try {
+            const owned = getIgOwnedGames();
             if (loop) {
               showUpdateStep("ig", "第 1 页");
             }
@@ -1632,7 +1634,7 @@
               };
             }
             const firstParsed = parseIgShowcase(firstPageResponse.responseText, 1);
-            let allGames = [...firstParsed.games];
+            let allGames = [...owned, ...firstParsed.games];
             if (!loop) {
               allGames = Array.from(new Set(allGames)).filter(Boolean);
               GM_setValue("IG-Owned", { time: Date.now(), games: allGames });

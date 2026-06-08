@@ -82,6 +82,7 @@ function createIgModule(context) {
 
   async function updateIgGameLibrary(loop = true) {
     try {
+      const owned = getIgOwnedGames();
       if (loop) {
         showUpdateStep('ig', '第 1 页');
       }
@@ -96,7 +97,7 @@ function createIgModule(context) {
       }
 
       const firstParsed = parseIgShowcase(firstPageResponse.responseText, 1);
-      let allGames = [...firstParsed.games];
+      let allGames = [...owned, ...firstParsed.games];
 
       if (!loop) {
         allGames = Array.from(new Set(allGames)).filter(Boolean);
