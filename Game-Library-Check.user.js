@@ -670,7 +670,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
           showDialog({
             title: "平台更新失败",
             bodyText: "".concat(platform, " \u66F4\u65B0\u5931\u8D25\uFF1A").concat(reason),
-            confirmText: "我知道了",
+            confirmText: "确认",
             hideCancel: true
           });
         }
@@ -874,12 +874,16 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
         function showUpdateResult(title, type) {
           if (!inBatchUpdateFlow) clearProgressPanel();
           if (type === "error") {
-            showDialog({
-              title: "平台更新失败",
-              bodyText: title,
-              confirmText: "确认",
-              hideCancel: true
-            });
+            if (inBatchUpdateFlow) {
+              showDialog({
+                title: "平台更新失败",
+                bodyText: title,
+                confirmText: "确认",
+                hideCancel: true
+              });
+              return Promise.resolve(true);
+            }
+            showToast(title, type);
             return Promise.resolve(true);
           }
           showToast(title, type);

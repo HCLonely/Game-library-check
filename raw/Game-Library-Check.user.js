@@ -530,7 +530,7 @@
           showDialog({
             title: "平台更新失败",
             bodyText: `${platform} 更新失败：${reason}`,
-            confirmText: "我知道了",
+            confirmText: "确认",
             hideCancel: true
           });
         }
@@ -595,12 +595,16 @@
         function showUpdateResult(title, type) {
           if (!inBatchUpdateFlow) clearProgressPanel();
           if (type === "error") {
-            showDialog({
-              title: "平台更新失败",
-              bodyText: title,
-              confirmText: "确认",
-              hideCancel: true
-            });
+            if (inBatchUpdateFlow) {
+              showDialog({
+                title: "平台更新失败",
+                bodyText: title,
+                confirmText: "确认",
+                hideCancel: true
+              });
+              return Promise.resolve(true);
+            }
+            showToast(title, type);
             return Promise.resolve(true);
           }
           showToast(title, type);
