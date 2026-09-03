@@ -46,15 +46,21 @@
 // @run-at         document-end
 // @noframes
 // ==/UserScript==
+"use strict";
 (() => {
   var __getOwnPropNames = Object.getOwnPropertyNames;
   var __commonJS = (cb, mod) => function __require() {
-    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+    try {
+      return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
+    } catch (e) {
+      throw mod = 0, e;
+    }
   };
 
-  // src/ui/dialog.js
+  // src/ui/dialog.ts
   var require_dialog = __commonJS({
-    "src/ui/dialog.js"(exports, module) {
+    "src/ui/dialog.ts"(exports, module) {
+      "use strict";
       var activeDialogClose = null;
       function createModalRoot() {
         let root = document.getElementById("glc-modal-root");
@@ -64,7 +70,20 @@
         document.body.appendChild(root);
         return root;
       }
-      function showDialog({ title, bodyHtml, trustedBodyHtml = false, bodyText = "", bodyNode, confirmText = "确定", cancelText = "取消", onConfirm, onCancel, denyText, onDeny, hideCancel = false }) {
+      function showDialog({
+        title,
+        bodyHtml,
+        trustedBodyHtml = false,
+        bodyText = "",
+        bodyNode,
+        confirmText = "确定",
+        cancelText = "取消",
+        onConfirm,
+        onCancel,
+        denyText,
+        onDeny,
+        hideCancel = false
+      }) {
         if (typeof activeDialogClose === "function") {
           activeDialogClose();
         }
@@ -157,9 +176,10 @@
     }
   });
 
-  // src/ui/toast.js
+  // src/ui/toast.ts
   var require_toast = __commonJS({
-    "src/ui/toast.js"(exports, module) {
+    "src/ui/toast.ts"(exports, module) {
+      "use strict";
       function createToastContainer() {
         let container = document.getElementById("glc-toast-container");
         if (container) return container;
@@ -208,9 +228,10 @@
     }
   });
 
-  // src/ui/progress.js
+  // src/ui/progress.ts
   var require_progress = __commonJS({
-    "src/ui/progress.js"(exports, module) {
+    "src/ui/progress.ts"(exports, module) {
+      "use strict";
       function createProgressController(createModalRoot) {
         let progressPanelStateMap = {};
         function showProgressPanel(stateMap, { replace = false } = {}) {
@@ -262,9 +283,10 @@
     }
   });
 
-  // src/core/settings.js
+  // src/core/settings.ts
   var require_settings = __commonJS({
-    "src/core/settings.js"(exports, module) {
+    "src/core/settings.ts"(exports, module) {
+      "use strict";
       var SETTINGS_KEY = "globalSettings";
       function getGlobalSettings() {
         const defaults = {
@@ -293,13 +315,14 @@
         function openPlatformSwitchDialog() {
           const current = settings.platformEnabled;
           const bodyNode = document.createElement("div");
-          [
+          const platformRows = [
             ["glc-epic", "Epic", current.epic],
             ["glc-gog", "GOG", current.gog],
             ["glc-itch", "Itch", current.itch],
             // ['glc-cube', 'Cube', current.cube],
             ["glc-ig", "IG", current.ig]
-          ].forEach(([id, labelText, checked], index) => {
+          ];
+          platformRows.forEach(([id, labelText, checked], index) => {
             const label = document.createElement("label");
             const input = document.createElement("input");
             input.type = "checkbox";
@@ -317,11 +340,12 @@
             cancelText: "取消",
             onConfirm: (root) => {
               settings.platformEnabled = {
-                epic: root.querySelector("#glc-epic").checked,
-                gog: root.querySelector("#glc-gog").checked,
-                itch: root.querySelector("#glc-itch").checked,
+                ...current,
+                epic: root.querySelector("#glc-epic")?.checked ?? false,
+                gog: root.querySelector("#glc-gog")?.checked ?? false,
+                itch: root.querySelector("#glc-itch")?.checked ?? false,
                 // cube: root.querySelector('#glc-cube').checked,
-                ig: root.querySelector("#glc-ig").checked
+                ig: root.querySelector("#glc-ig")?.checked ?? false
               };
               setGlobalSettings(settings);
             }
@@ -393,10 +417,18 @@
     }
   });
 
-  // src/core/startup.js
+  // src/core/startup.ts
   var require_startup = __commonJS({
-    "src/core/startup.js"(exports, module) {
-      function createStartupFlow({ showDialog, showProgressPanel, clearProgressPanel, showToast, showLoginExpiredDialog, updateStatus }) {
+    "src/core/startup.ts"(exports, module) {
+      "use strict";
+      function createStartupFlow({
+        showDialog,
+        showProgressPanel,
+        clearProgressPanel,
+        showToast,
+        showLoginExpiredDialog,
+        updateStatus
+      }) {
         let inBatchUpdateFlow = false;
         const PLATFORM_UPDATE_RATE_KEY = "platformUpdateRate";
         const PLATFORM_LAST_UPDATE_AT_KEY = "platformLastUpdateAt";
@@ -405,15 +437,16 @@
         function sanitizePlatformRateMap(raw, now = Date.now()) {
           if (!raw || typeof raw !== "object") return {};
           const oneHourAgo = now - ONE_HOUR_MS;
+          const source = raw;
           const result = {};
-          Object.keys(raw).forEach((key) => {
-            const list = Array.isArray(raw[key]) ? raw[key] : [];
-            result[key] = list.filter((ts) => Number.isFinite(ts) && ts >= oneHourAgo && ts <= now);
+          Object.keys(source).forEach((key) => {
+            const list = Array.isArray(source[key]) ? source[key] : [];
+            result[key] = list.filter((ts) => typeof ts === "number" && Number.isFinite(ts) && ts >= oneHourAgo && ts <= now);
           });
           return result;
         }
         function canRunAutoUpdate(platformKey, now = Date.now()) {
-          const rateMap = sanitizePlatformRateMap(GM_getValue(PLATFORM_UPDATE_RATE_KEY) || {}, now);
+          const rateMap = sanitizePlatformRateMap(GM_getValue(PLATFORM_UPDATE_RATE_KEY), now);
           const history = Array.isArray(rateMap[platformKey]) ? rateMap[platformKey] : [];
           const tenMinutesAgo = now - TEN_MINUTES_MS;
           const oneHourAgo = now - ONE_HOUR_MS;
@@ -423,7 +456,7 @@
           return countIn10Minutes < 5 && countIn1Hour < 30;
         }
         function recordAutoUpdateSuccess(platformKey, now = Date.now()) {
-          const rateMap = sanitizePlatformRateMap(GM_getValue(PLATFORM_UPDATE_RATE_KEY) || {}, now);
+          const rateMap = sanitizePlatformRateMap(GM_getValue(PLATFORM_UPDATE_RATE_KEY), now);
           const history = Array.isArray(rateMap[platformKey]) ? rateMap[platformKey] : [];
           rateMap[platformKey] = history.concat(now).filter((ts) => ts >= now - ONE_HOUR_MS);
           GM_setValue(PLATFORM_UPDATE_RATE_KEY, rateMap);
@@ -431,15 +464,15 @@
           lastUpdateMap[platformKey] = now;
           GM_setValue(PLATFORM_LAST_UPDATE_AT_KEY, lastUpdateMap);
         }
-        async function runAutoUpdateWithRateLimit(module2, autoUpdateRunner) {
-          if (!module2?.key || typeof autoUpdateRunner !== "function") return false;
-          if (!canRunAutoUpdate(module2.key)) return false;
+        async function runAutoUpdateWithRateLimit(libraryModule, autoUpdateRunner) {
+          if (!libraryModule?.key || typeof autoUpdateRunner !== "function") return false;
+          if (!canRunAutoUpdate(libraryModule.key)) return false;
           const result = await autoUpdateRunner();
-          if (result === true) recordAutoUpdateSuccess(module2.key);
+          if (result === true) recordAutoUpdateSuccess(libraryModule.key);
           return result;
         }
         function collectEmptyCaches(enabledModules) {
-          return enabledModules.filter((module2) => module2.isCacheEmpty()).map((module2) => module2.key);
+          return enabledModules.filter((libraryModule) => libraryModule.isCacheEmpty()).map((libraryModule) => libraryModule.key);
         }
         function showEmptyCacheAggregationDialog(emptyKeys, onConfirm, onCancel) {
           const bodyNode = document.createElement("div");
@@ -460,7 +493,7 @@
             confirmText: "立即更新",
             cancelText: "稍后再说",
             onConfirm: (root) => {
-              const selected = Array.from(root.querySelectorAll("input[data-platform]:checked")).map((el) => el.getAttribute("data-platform"));
+              const selected = Array.from(root.querySelectorAll("input[data-platform]:checked")).map((el) => el.dataset.platform).filter((key) => Boolean(key));
               onConfirm(selected);
             },
             onCancel: () => {
@@ -469,7 +502,7 @@
           });
         }
         function getSelectedPlatformKeys(root) {
-          return Array.from(root.querySelectorAll("input[data-platform]:checked:not(:disabled)")).map((el) => el.getAttribute("data-platform"));
+          return Array.from(root.querySelectorAll("input[data-platform]:checked:not(:disabled)")).map((el) => el.dataset.platform).filter((key) => Boolean(key));
         }
         function updateManualUpdateConfirmState(root) {
           if (!root) return;
@@ -478,16 +511,16 @@
         }
         function buildPlatformCheckboxBody(modules, onSelectionChange) {
           const bodyNode = document.createElement("div");
-          modules.forEach((module2, index) => {
+          modules.forEach((libraryModule, index) => {
             const label = document.createElement("label");
             const input = document.createElement("input");
-            const enabled = module2.enabled();
+            const enabled = libraryModule.enabled();
             input.type = "checkbox";
-            input.dataset.platform = module2.key;
+            input.dataset.platform = libraryModule.key;
             input.checked = enabled;
             input.disabled = !enabled;
             label.appendChild(input);
-            label.appendChild(document.createTextNode(` ${module2.key.toUpperCase()}`));
+            label.appendChild(document.createTextNode(` ${libraryModule.key.toUpperCase()}`));
             bodyNode.appendChild(label);
             if (index < modules.length - 1) bodyNode.appendChild(document.createElement("br"));
           });
@@ -497,7 +530,7 @@
           return bodyNode;
         }
         function openManualUpdateDialogAndRun(modules) {
-          const enabledModules = modules.filter((module2) => module2.enabled());
+          const enabledModules = modules.filter((libraryModule) => libraryModule.enabled());
           const bodyNode = buildPlatformCheckboxBody(modules, updateManualUpdateConfirmState);
           showDialog({
             title: "更新游戏库",
@@ -519,9 +552,12 @@
           if (!failure) return "未知错误";
           if (typeof failure === "string") return failure;
           if (failure instanceof Error && failure.message) return failure.message;
-          if (typeof failure.message === "string" && failure.message.trim()) return failure.message;
-          if (typeof failure.reason === "string" && failure.reason.trim()) return failure.reason;
-          if (typeof failure.error === "string" && failure.error.trim()) return failure.error;
+          if (typeof failure === "object") {
+            const details = failure;
+            if (typeof details.message === "string" && details.message.trim()) return details.message;
+            if (typeof details.reason === "string" && details.reason.trim()) return details.reason;
+            if (typeof details.error === "string" && details.error.trim()) return details.error;
+          }
           return "未知错误";
         }
         function showUpdateFailureDialog(key, failure) {
@@ -534,22 +570,27 @@
             hideCancel: true
           });
         }
+        function isAuthExpiredResult(result) {
+          return typeof result === "object" && result !== null && result.status === updateStatus.AUTH_EXPIRED;
+        }
         async function batchUpdateSelectedModules(enabledModules, selectedKeys) {
-          const state = Object.fromEntries(selectedKeys.map((key) => [key, "waiting"]));
+          const state = Object.fromEntries(
+            selectedKeys.map((key) => [key, "waiting"])
+          );
           let interruptedByAuthExpired = false;
           inBatchUpdateFlow = true;
           showProgressPanel(state, { replace: true });
           try {
             for (const key of selectedKeys) {
-              const module2 = enabledModules.find((item) => item.key === key);
-              if (!module2) continue;
+              const libraryModule = enabledModules.find((item) => item.key === key);
+              if (!libraryModule) continue;
               state[key] = "running";
               showProgressPanel({ [key]: state[key] });
               try {
-                const updateResult = await module2.updateLibrary();
+                const updateResult = await libraryModule.updateLibrary();
                 if (updateResult === true) {
                   state[key] = "success";
-                } else if (updateResult?.status === updateStatus.AUTH_EXPIRED) {
+                } else if (isAuthExpiredResult(updateResult)) {
                   interruptedByAuthExpired = true;
                   state[key] = updateStatus.AUTH_EXPIRED;
                   clearProgressPanel();
@@ -572,22 +613,22 @@
           if (!interruptedByAuthExpired) clearProgressPanel();
         }
         async function runInitialFlow(modules) {
-          const enabledModules = modules.filter((module2) => module2.enabled());
+          const enabledModules = modules.filter((libraryModule) => libraryModule.enabled());
           const emptyKeys = collectEmptyCaches(enabledModules);
           if (emptyKeys.length > 0) {
             showEmptyCacheAggregationDialog(
               emptyKeys,
               async (selectedKeys) => {
                 if (selectedKeys.length > 0) await batchUpdateSelectedModules(enabledModules, selectedKeys);
-                enabledModules.forEach((module2) => module2.start());
+                enabledModules.forEach((libraryModule) => libraryModule.start());
               },
               () => {
-                enabledModules.forEach((module2) => module2.start());
+                enabledModules.forEach((libraryModule) => libraryModule.start());
               }
             );
             return;
           }
-          enabledModules.forEach((module2) => module2.start());
+          enabledModules.forEach((libraryModule) => libraryModule.start());
         }
         function showUpdateStep(platform, text) {
           showProgressPanel({ [platform]: text });
@@ -627,9 +668,10 @@
     }
   });
 
-  // src/core/gist-sync.js
+  // src/core/gist-sync.ts
   var require_gist_sync = __commonJS({
-    "src/core/gist-sync.js"(exports, module) {
+    "src/core/gist-sync.ts"(exports, module) {
+      "use strict";
       var GIST_CONF_KEY = "gistConf";
       function getGistConf() {
         const conf = GM_getValue(GIST_CONF_KEY) || {};
@@ -676,7 +718,7 @@
           method: "PATCH",
           timeout: 3e4
         }, 3).then((response) => {
-          const body = response?.response;
+          const body = response.response;
           const remoteContent = body?.files?.[fileName]?.content;
           return response.status === 200 && remoteContent === JSON.stringify(content);
         }).catch((error) => {
@@ -696,7 +738,8 @@
           timeout: 3e4
         }, 3).then((response) => {
           if (response.status !== 200) return false;
-          const content = response?.response?.files?.[fileName]?.content;
+          const body = response.response;
+          const content = body?.files?.[fileName]?.content;
           if (!content) return false;
           return JSON.parse(content);
         }).catch((error) => {
@@ -829,9 +872,10 @@
     }
   });
 
-  // src/shared/constants.js
+  // src/shared/constants.ts
   var require_constants = __commonJS({
-    "src/shared/constants.js"(exports, module) {
+    "src/shared/constants.ts"(exports, module) {
+      "use strict";
       var UPDATE_STATUS = {
         SUCCESS: "success",
         ERROR: "error",
@@ -878,9 +922,10 @@
     }
   });
 
-  // src/platforms/epic.js
+  // src/platforms/epic.ts
   var require_epic = __commonJS({
-    "src/platforms/epic.js"(exports, module) {
+    "src/platforms/epic.ts"(exports, module) {
+      "use strict";
       function createEpicModule(context) {
         const {
           settings,
@@ -944,8 +989,8 @@
                 if (typeof runAutoUpdateWithRateLimit === "function") {
                   runner = () => runAutoUpdateWithRateLimit(moduleApi, autoUpdate);
                 }
-                runner().then((result) => {
-                  if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
+                Promise.resolve(runner()).then((result) => {
+                  if (typeof result === "object" && result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
                     showToast("Epic 登录状态已过期，请先登录", "error", { duration: 0, closable: true, link: { href: result.loginUrl, text: "去登录" } });
                   }
                 });
@@ -1034,7 +1079,7 @@
                       offerMappings?.[0]?.pageSlug,
                       urlSlug,
                       customAttributes?.find((e) => e.key === "com.epicgames.app.productSlug")?.value?.replace(/\/home$/, "")
-                    ].filter((e) => e))
+                    ].filter((slug) => Boolean(slug)))
                   ];
                 }
                 return false;
@@ -1167,7 +1212,7 @@
                   fetch: true,
                   headers: {
                     referer: "https://accounts.epicgames.com/",
-                    dnt: 1,
+                    dnt: "1",
                     pragma: "no-cache",
                     priority: "u=1, i",
                     "sec-ch-ua": '"Chromium";v="146", "Not-A.Brand";v="24", "Microsoft Edge";v="146"',
@@ -1192,7 +1237,7 @@
                 }
                 const ordersLength = response.response?.orders?.length || 0;
                 if (ordersLength >= 0) {
-                  const orderedGames = response.response.orders.map((e) => e?.items?.[0] || null).filter((e) => e);
+                  const orderedGames = response.response.orders.map((order) => order.items?.[0]).filter((item) => Boolean(item));
                   await Promise.all(orderedGames.map(async (item) => {
                     if (games.find((game) => game.namespace === item.namespace && game.offerId === item.offerId)) {
                       return true;
@@ -1260,9 +1305,10 @@
     }
   });
 
-  // src/platforms/gog.js
+  // src/platforms/gog.ts
   var require_gog = __commonJS({
-    "src/platforms/gog.js"(exports, module) {
+    "src/platforms/gog.ts"(exports, module) {
+      "use strict";
       function createGogModule(context) {
         const {
           settings,
@@ -1316,8 +1362,8 @@
                 if (typeof runAutoUpdateWithRateLimit === "function") {
                   runner = () => runAutoUpdateWithRateLimit(moduleApi, autoUpdate);
                 }
-                runner().then((result) => {
-                  if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
+                Promise.resolve(runner()).then((result) => {
+                  if (typeof result === "object" && result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
                     showToast("GOG 登录状态已过期，请先登录", "error", { duration: 0, closable: true, link: { href: result.loginUrl, text: "去登录" } });
                   }
                 });
@@ -1365,8 +1411,12 @@
                     loginUrl: "https://www.gog.com/#openlogin"
                   };
                 } else if (response.response?.products?.length) {
-                  games = [...games, ...response.response.products.map((e) => e?.slug || e?.url?.split("/")?.[e?.url?.split("/").length - 1])];
-                  if (response.response?.totalPages > i) {
+                  const pageGames = response.response.products.map((product) => {
+                    const urlParts = product.url?.split("/");
+                    return product.slug || urlParts?.[urlParts.length - 1];
+                  }).filter((game) => Boolean(game));
+                  games = [...games, ...pageGames];
+                  if ((response.response.totalPages || 0) > i) {
                     return await updateGogGameLibrary(loop, ++i, games);
                   } else if (loop) {
                     GM_setValue("gogGames", [...new Set(games)].filter((e) => e));
@@ -1400,9 +1450,10 @@
     }
   });
 
-  // src/core/itch-linkage.js
+  // src/core/itch-linkage.ts
   var require_itch_linkage = __commonJS({
-    "src/core/itch-linkage.js"(exports, module) {
+    "src/core/itch-linkage.ts"(exports, module) {
+      "use strict";
       var ITCH_LINKAGE_CODE_KEY = "itchLinkageCode";
       function sha256(value) {
         const fallback = () => sha256Fallback(value);
@@ -1517,7 +1568,12 @@
         }
         return hash.map((word) => (word >>> 0).toString(16).padStart(8, "0")).join("");
       }
-      function createItchLinkage({ getGames, addGames, updateLibrary, showToast }) {
+      function createItchLinkage({
+        getGames,
+        addGames,
+        updateLibrary,
+        showToast
+      }) {
         let mousePosition = { x: 0, y: 0 };
         let linkageCode = GM_getValue(ITCH_LINKAGE_CODE_KEY) || "";
         document.addEventListener("mousemove", (event) => {
@@ -1541,6 +1597,7 @@
           unsafeWindow[linkageCode] = linkage;
         }
         function generateLinkageCode() {
+          const navigatorInfo = navigator;
           const fingerprint = JSON.stringify({
             browser: {
               userAgent: navigator.userAgent,
@@ -1551,7 +1608,7 @@
             system: {
               platform: navigator.platform,
               hardwareConcurrency: navigator.hardwareConcurrency,
-              deviceMemory: navigator.deviceMemory,
+              deviceMemory: navigatorInfo.deviceMemory,
               screen: { width: screen.width, height: screen.height, colorDepth: screen.colorDepth }
             },
             time: (/* @__PURE__ */ new Date()).toISOString(),
@@ -1577,9 +1634,10 @@
     }
   });
 
-  // src/platforms/itch.js
+  // src/platforms/itch.ts
   var require_itch = __commonJS({
-    "src/platforms/itch.js"(exports, module) {
+    "src/platforms/itch.ts"(exports, module) {
+      "use strict";
       var { createItchLinkage } = require_itch_linkage();
       function createItchModule(context) {
         const {
@@ -1644,8 +1702,8 @@
                 if (typeof runAutoUpdateWithRateLimit === "function") {
                   runner = () => runAutoUpdateWithRateLimit(moduleApi, autoUpdate);
                 }
-                runner().then((result) => {
-                  if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
+                Promise.resolve(runner()).then((result) => {
+                  if (typeof result === "object" && result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
                     showToast("itch.io 登录状态已过期，请先登录", "error", { duration: 0, closable: true, link: { href: result.loginUrl, text: "去登录" } });
                   }
                 });
@@ -1690,9 +1748,10 @@
                     loginUrl: "https://itch.io/login"
                   };
                 } else if (response.response?.num_items) {
-                  const itchDoc = parseHtml(`<div>${response.response.content}</div>`);
+                  const itchDoc = parseHtml(`<div>${response.response.content || ""}</div>`);
                   const purchaseLinks = Array.from(itchDoc.querySelectorAll("a.thumb_link.game_link"));
-                  games = [...games, ...purchaseLinks.map((el) => getHref(el).match(/https?:\/\/(.*?\/.*?)\//i)?.[1])];
+                  const pageGames = purchaseLinks.map((el) => getHref(el).match(/https?:\/\/(.*?\/.*?)\//i)?.[1]).filter((game) => Boolean(game));
+                  games = [...games, ...pageGames];
                   if (response.response.num_items === 50) {
                     return await updateItchGameLibrary(loop, ++i, games);
                   } else if (loop) {
@@ -1740,9 +1799,10 @@
     }
   });
 
-  // src/platforms/ig.js
+  // src/platforms/ig.ts
   var require_ig = __commonJS({
-    "src/platforms/ig.js"(exports, module) {
+    "src/platforms/ig.ts"(exports, module) {
+      "use strict";
       function createIgModule(context) {
         const {
           settings,
@@ -1813,7 +1873,7 @@
             const parsedPage = Number((lastPageHref.match(/\d+/) || [1])[0]);
             pages = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
           }
-          const games = Array.from(doc.querySelectorAll("a.library-showcase-title")).map((el) => el.getAttribute("href")?.match(/https?:\/\/.*?\.indiegala\.com\/(.*)/)?.[1]?.toLowerCase()).filter(Boolean);
+          const games = Array.from(doc.querySelectorAll("a.library-showcase-title")).map((el) => el.getAttribute("href")?.match(/https?:\/\/.*?\.indiegala\.com\/(.*)/)?.[1]?.toLowerCase()).filter((game) => Boolean(game));
           return { pages, games };
         }
         async function updateIgGameLibrary(loop = true) {
@@ -1872,8 +1932,8 @@
             if (typeof runAutoUpdateWithRateLimit === "function") {
               runner = () => runAutoUpdateWithRateLimit(moduleApi, autoUpdate);
             }
-            runner().then((result) => {
-              if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
+            Promise.resolve(runner()).then((result) => {
+              if (typeof result === "object" && result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
                 showToast("IG 登录状态已过期，请先登录", "error", { duration: 0, closable: true, link: { href: result.loginUrl, text: "去登录" } });
               }
             });
@@ -1897,9 +1957,10 @@
     }
   });
 
-  // src/runtime/bootstrap.js
+  // src/runtime/bootstrap.ts
   var require_bootstrap = __commonJS({
-    "src/runtime/bootstrap.js"(exports, module) {
+    "src/runtime/bootstrap.ts"(exports, module) {
+      "use strict";
       var { createModalRoot, showDialog } = require_dialog();
       var { showToast } = require_toast();
       var { createProgressController } = require_progress();
@@ -1941,7 +2002,9 @@
             bodyText: `${platformName} 登录凭证已过期，需要重新登录。`,
             confirmText: "去登录",
             cancelText: "稍后",
-            onConfirm: () => GM_openInTab(loginUrl, { active: true, insert: true, setParent: true })
+            onConfirm: () => {
+              GM_openInTab(loginUrl, { active: true, insert: true, setParent: true });
+            }
           });
         }
         const {
@@ -1994,7 +2057,7 @@
     }
   });
 
-  // src/index.js
+  // src/index.ts
   var { bootstrapMergedRuntime } = require_bootstrap();
   (function main() {
     bootstrapMergedRuntime();

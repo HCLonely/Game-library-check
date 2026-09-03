@@ -1,12 +1,12 @@
 const fs = require('fs');
 const path = require('path');
 const esbuild = require('esbuild');
-const header = require('../src/meta/userscript-header');
+const header = require('../src/meta/userscript-header.ts');
 
 const outFile = path.resolve(__dirname, '../raw/Game-Library-Check.user.js');
 
 esbuild.build({
-  entryPoints: [path.resolve(__dirname, '../src/index.js')],
+  entryPoints: [path.resolve(__dirname, '../src/index.ts')],
   bundle: true,
   platform: 'browser',
   format: 'iife',

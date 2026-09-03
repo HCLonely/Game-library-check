@@ -1,32 +1,3 @@
-function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
-function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(r); }
-function _toArray(r) { return _arrayWithHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableRest(); }
-function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
-function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
-function _regeneratorRuntime() { "use strict"; var r = _regenerator(), e = r.m(_regeneratorRuntime), t = (Object.getPrototypeOf ? Object.getPrototypeOf(e) : e.__proto__).constructor; function n(r) { var e = "function" == typeof r && r.constructor; return !!e && (e === t || "GeneratorFunction" === (e.displayName || e.name)); } var o = { "throw": 1, "return": 2, "break": 3, "continue": 3 }; function a(r) { var e, t; return function (n) { e || (e = { stop: function stop() { return t(n.a, 2); }, "catch": function _catch() { return n.v; }, abrupt: function abrupt(r, e) { return t(n.a, o[r], e); }, delegateYield: function delegateYield(r, o, a) { return e.resultName = o, t(n.d, _regeneratorValues(r), a); }, finish: function finish(r) { return t(n.f, r); } }, t = function t(r, _t, o) { n.p = e.prev, n.n = e.next; try { return r(_t, o); } finally { e.next = n.n; } }), e.resultName && (e[e.resultName] = n.v, e.resultName = void 0), e.sent = n.v, e.next = n.n; try { return r.call(this, e); } finally { n.p = e.prev, n.n = e.next; } }; } return (_regeneratorRuntime = function _regeneratorRuntime() { return { wrap: function wrap(e, t, n, o) { return r.w(a(e), t, n, o && o.reverse()); }, isGeneratorFunction: n, mark: r.m, awrap: function awrap(r, e) { return new _OverloadYield(r, e); }, AsyncIterator: _regeneratorAsyncIterator, async: function async(r, e, t, o, u) { return (n(e) ? _regeneratorAsyncGen : _regeneratorAsync)(a(r), e, t, o, u); }, keys: _regeneratorKeys, values: _regeneratorValues }; })(); }
-function _regeneratorValues(e) { if (null != e) { var t = e["function" == typeof Symbol && Symbol.iterator || "@@iterator"], r = 0; if (t) return t.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) return { next: function next() { return e && r >= e.length && (e = void 0), { value: e && e[r++], done: !e }; } }; } throw new TypeError(_typeof(e) + " is not iterable"); }
-function _regeneratorKeys(e) { var n = Object(e), r = []; for (var t in n) { r.unshift(t); } return function e() { for (; r.length;) { if ((t = r.pop()) in n) return e.value = t, e.done = !1, e; } return e.done = !0, e; }; }
-function _regeneratorAsync(n, e, r, t, o) { var a = _regeneratorAsyncGen(n, e, r, t, o); return a.next().then(function (n) { return n.done ? n.value : a.next(); }); }
-function _regeneratorAsyncGen(r, e, t, o, n) { return new _regeneratorAsyncIterator(_regenerator().w(r, e, t, o), n || Promise); }
-function _regeneratorAsyncIterator(t, e) { function n(r, o, i, f) { try { var c = t[r](o), u = c.value; return u instanceof _OverloadYield ? e.resolve(u.v).then(function (t) { n("next", t, i, f); }, function (t) { n("throw", t, i, f); }) : e.resolve(u).then(function (t) { c.value = t, i(c); }, function (t) { return n("throw", t, i, f); }); } catch (t) { f(t); } } var r; this.next || (_regeneratorDefine2(_regeneratorAsyncIterator.prototype), _regeneratorDefine2(_regeneratorAsyncIterator.prototype, "function" == typeof Symbol && Symbol.asyncIterator || "@asyncIterator", function () { return this; })), _regeneratorDefine2(this, "_invoke", function (t, o, i) { function f() { return new e(function (e, r) { n(t, i, e, r); }); } return r = r ? r.then(f, f) : f(); }, !0); }
-function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i["return"]) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
-function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
-function _OverloadYield(e, d) { this.v = e, this.k = d; }
-function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
-function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
-function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
-function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
-function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
-function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
-function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) { n[e] = r[e]; } return n; }
-function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0) { ; } } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
-function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
-function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
-function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
-function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
-function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
-function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 // ==UserScript==
 // @name           游戏库检测-合集
 // @name:en        Game Library Check
@@ -75,19 +46,56 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
 // @run-at         document-end
 // @noframes
 // ==/UserScript==
+"use strict";
+
+function _toConsumableArray(r) { return _arrayWithoutHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableSpread(); }
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _arrayWithoutHoles(r) { if (Array.isArray(r)) return _arrayLikeToArray(r); }
+function _toArray(r) { return _arrayWithHoles(r) || _iterableToArray(r) || _unsupportedIterableToArray(r) || _nonIterableRest(); }
+function _iterableToArray(r) { if ("undefined" != typeof Symbol && null != r[Symbol.iterator] || null != r["@@iterator"]) return Array.from(r); }
+function _createForOfIteratorHelper(r, e) { var t = "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (!t) { if (Array.isArray(r) || (t = _unsupportedIterableToArray(r)) || e && r && "number" == typeof r.length) { t && (r = t); var _n = 0, F = function F() {}; return { s: F, n: function n() { return _n >= r.length ? { done: !0 } : { done: !1, value: r[_n++] }; }, e: function e(r) { throw r; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var o, a = !0, u = !1; return { s: function s() { t = t.call(r); }, n: function n() { var r = t.next(); return a = r.done, r; }, e: function e(r) { u = !0, o = r; }, f: function f() { try { a || null == t["return"] || t["return"](); } finally { if (u) throw o; } } }; }
+function _regeneratorRuntime() { "use strict"; var r = _regenerator(), e = r.m(_regeneratorRuntime), t = (Object.getPrototypeOf ? Object.getPrototypeOf(e) : e.__proto__).constructor; function n(r) { var e = "function" == typeof r && r.constructor; return !!e && (e === t || "GeneratorFunction" === (e.displayName || e.name)); } var o = { "throw": 1, "return": 2, "break": 3, "continue": 3 }; function a(r) { var e, t; return function (n) { e || (e = { stop: function stop() { return t(n.a, 2); }, "catch": function _catch() { return n.v; }, abrupt: function abrupt(r, e) { return t(n.a, o[r], e); }, delegateYield: function delegateYield(r, o, a) { return e.resultName = o, t(n.d, _regeneratorValues(r), a); }, finish: function finish(r) { return t(n.f, r); } }, t = function t(r, _t, o) { n.p = e.prev, n.n = e.next; try { return r(_t, o); } finally { e.next = n.n; } }), e.resultName && (e[e.resultName] = n.v, e.resultName = void 0), e.sent = n.v, e.next = n.n; try { return r.call(this, e); } finally { n.p = e.prev, n.n = e.next; } }; } return (_regeneratorRuntime = function _regeneratorRuntime() { return { wrap: function wrap(e, t, n, o) { return r.w(a(e), t, n, o && o.reverse()); }, isGeneratorFunction: n, mark: r.m, awrap: function awrap(r, e) { return new _OverloadYield(r, e); }, AsyncIterator: _regeneratorAsyncIterator, async: function async(r, e, t, o, u) { return (n(e) ? _regeneratorAsyncGen : _regeneratorAsync)(a(r), e, t, o, u); }, keys: _regeneratorKeys, values: _regeneratorValues }; })(); }
+function _regeneratorValues(e) { if (null != e) { var t = e["function" == typeof Symbol && Symbol.iterator || "@@iterator"], r = 0; if (t) return t.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) return { next: function next() { return e && r >= e.length && (e = void 0), { value: e && e[r++], done: !e }; } }; } throw new TypeError(_typeof(e) + " is not iterable"); }
+function _regeneratorKeys(e) { var n = Object(e), r = []; for (var t in n) { r.unshift(t); } return function e() { for (; r.length;) { if ((t = r.pop()) in n) return e.value = t, e.done = !1, e; } return e.done = !0, e; }; }
+function _regeneratorAsync(n, e, r, t, o) { var a = _regeneratorAsyncGen(n, e, r, t, o); return a.next().then(function (n) { return n.done ? n.value : a.next(); }); }
+function _regeneratorAsyncGen(r, e, t, o, n) { return new _regeneratorAsyncIterator(_regenerator().w(r, e, t, o), n || Promise); }
+function _regeneratorAsyncIterator(t, e) { function n(r, o, i, f) { try { var c = t[r](o), u = c.value; return u instanceof _OverloadYield ? e.resolve(u.v).then(function (t) { n("next", t, i, f); }, function (t) { n("throw", t, i, f); }) : e.resolve(u).then(function (t) { c.value = t, i(c); }, function (t) { return n("throw", t, i, f); }); } catch (t) { f(t); } } var r; this.next || (_regeneratorDefine2(_regeneratorAsyncIterator.prototype), _regeneratorDefine2(_regeneratorAsyncIterator.prototype, "function" == typeof Symbol && Symbol.asyncIterator || "@asyncIterator", function () { return this; })), _regeneratorDefine2(this, "_invoke", function (t, o, i) { function f() { return new e(function (e, r) { n(t, i, e, r); }); } return r = r ? r.then(f, f) : f(); }, !0); }
+function _regenerator() { /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/babel/babel/blob/main/packages/babel-helpers/LICENSE */ var e, t, r = "function" == typeof Symbol ? Symbol : {}, n = r.iterator || "@@iterator", o = r.toStringTag || "@@toStringTag"; function i(r, n, o, i) { var c = n && n.prototype instanceof Generator ? n : Generator, u = Object.create(c.prototype); return _regeneratorDefine2(u, "_invoke", function (r, n, o) { var i, c, u, f = 0, p = o || [], y = !1, G = { p: 0, n: 0, v: e, a: d, f: d.bind(e, 4), d: function d(t, r) { return i = t, c = 0, u = e, G.n = r, a; } }; function d(r, n) { for (c = r, u = n, t = 0; !y && f && !o && t < p.length; t++) { var o, i = p[t], d = G.p, l = i[2]; r > 3 ? (o = l === n) && (u = i[(c = i[4]) ? 5 : (c = 3, 3)], i[4] = i[5] = e) : i[0] <= d && ((o = r < 2 && d < i[1]) ? (c = 0, G.v = n, G.n = i[1]) : d < l && (o = r < 3 || i[0] > n || n > l) && (i[4] = r, i[5] = n, G.n = l, c = 0)); } if (o || r > 1) return a; throw y = !0, n; } return function (o, p, l) { if (f > 1) throw TypeError("Generator is already running"); for (y && 1 === p && d(p, l), c = p, u = l; (t = c < 2 ? e : u) || !y;) { i || (c ? c < 3 ? (c > 1 && (G.n = -1), d(c, u)) : G.n = u : G.v = u); try { if (f = 2, i) { if (c || (o = "next"), t = i[o]) { if (!(t = t.call(i, u))) throw TypeError("iterator result is not an object"); if (!t.done) return t; u = t.value, c < 2 && (c = 0); } else 1 === c && (t = i["return"]) && t.call(i), c < 2 && (u = TypeError("The iterator does not provide a '" + o + "' method"), c = 1); i = e; } else if ((t = (y = G.n < 0) ? u : r.call(n, G)) !== a) break; } catch (t) { i = e, c = 1, u = t; } finally { f = 1; } } return { value: t, done: y }; }; }(r, o, i), !0), u; } var a = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} t = Object.getPrototypeOf; var c = [][n] ? t(t([][n]())) : (_regeneratorDefine2(t = {}, n, function () { return this; }), t), u = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(c); function f(e) { return Object.setPrototypeOf ? Object.setPrototypeOf(e, GeneratorFunctionPrototype) : (e.__proto__ = GeneratorFunctionPrototype, _regeneratorDefine2(e, o, "GeneratorFunction")), e.prototype = Object.create(u), e; } return GeneratorFunction.prototype = GeneratorFunctionPrototype, _regeneratorDefine2(u, "constructor", GeneratorFunctionPrototype), _regeneratorDefine2(GeneratorFunctionPrototype, "constructor", GeneratorFunction), GeneratorFunction.displayName = "GeneratorFunction", _regeneratorDefine2(GeneratorFunctionPrototype, o, "GeneratorFunction"), _regeneratorDefine2(u), _regeneratorDefine2(u, o, "Generator"), _regeneratorDefine2(u, n, function () { return this; }), _regeneratorDefine2(u, "toString", function () { return "[object Generator]"; }), (_regenerator = function _regenerator() { return { w: i, m: f }; })(); }
+function _regeneratorDefine2(e, r, n, t) { var i = Object.defineProperty; try { i({}, "", {}); } catch (e) { i = 0; } _regeneratorDefine2 = function _regeneratorDefine(e, r, n, t) { function o(r, n) { _regeneratorDefine2(e, r, function (e) { return this._invoke(r, n, e); }); } r ? i ? i(e, r, { value: n, enumerable: !t, configurable: !t, writable: !t }) : e[r] = n : (o("next", 0), o("throw", 1), o("return", 2)); }, _regeneratorDefine2(e, r, n, t); }
+function _OverloadYield(e, d) { this.v = e, this.k = d; }
+function asyncGeneratorStep(n, t, e, r, o, a, c) { try { var i = n[a](c), u = i.value; } catch (n) { return void e(n); } i.done ? t(u) : Promise.resolve(u).then(r, o); }
+function _asyncToGenerator(n) { return function () { var t = this, e = arguments; return new Promise(function (r, o) { var a = n.apply(t, e); function _next(n) { asyncGeneratorStep(a, r, o, _next, _throw, "next", n); } function _throw(n) { asyncGeneratorStep(a, r, o, _next, _throw, "throw", n); } _next(void 0); }); }; }
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _slicedToArray(r, e) { return _arrayWithHoles(r) || _iterableToArrayLimit(r, e) || _unsupportedIterableToArray(r, e) || _nonIterableRest(); }
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+function _unsupportedIterableToArray(r, a) { if (r) { if ("string" == typeof r) return _arrayLikeToArray(r, a); var t = {}.toString.call(r).slice(8, -1); return "Object" === t && r.constructor && (t = r.constructor.name), "Map" === t || "Set" === t ? Array.from(r) : "Arguments" === t || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(t) ? _arrayLikeToArray(r, a) : void 0; } }
+function _arrayLikeToArray(r, a) { (null == a || a > r.length) && (a = r.length); for (var e = 0, n = Array(a); e < a; e++) { n[e] = r[e]; } return n; }
+function _iterableToArrayLimit(r, l) { var t = null == r ? null : "undefined" != typeof Symbol && r[Symbol.iterator] || r["@@iterator"]; if (null != t) { var e, n, i, u, a = [], f = !0, o = !1; try { if (i = (t = t.call(r)).next, 0 === l) { if (Object(t) !== t) return; f = !1; } else for (; !(f = (e = i.call(t)).done) && (a.push(e.value), a.length !== l); f = !0) { ; } } catch (r) { o = !0, n = r; } finally { try { if (!f && null != t["return"] && (u = t["return"](), Object(u) !== u)) return; } finally { if (o) throw n; } } return a; } }
+function _arrayWithHoles(r) { if (Array.isArray(r)) return r; }
+function ownKeys(e, r) { var t = Object.keys(e); if (Object.getOwnPropertySymbols) { var o = Object.getOwnPropertySymbols(e); r && (o = o.filter(function (r) { return Object.getOwnPropertyDescriptor(e, r).enumerable; })), t.push.apply(t, o); } return t; }
+function _objectSpread(e) { for (var r = 1; r < arguments.length; r++) { var t = null != arguments[r] ? arguments[r] : {}; r % 2 ? ownKeys(Object(t), !0).forEach(function (r) { _defineProperty(e, r, t[r]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(e, Object.getOwnPropertyDescriptors(t)) : ownKeys(Object(t)).forEach(function (r) { Object.defineProperty(e, r, Object.getOwnPropertyDescriptor(t, r)); }); } return e; }
+function _defineProperty(e, r, t) { return (r = _toPropertyKey(r)) in e ? Object.defineProperty(e, r, { value: t, enumerable: !0, configurable: !0, writable: !0 }) : e[r] = t, e; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
 (function () {
   var __getOwnPropNames = Object.getOwnPropertyNames;
   var __commonJS = function __commonJS(cb, mod) {
     return function __require() {
-      return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = {
-        exports: {}
-      }).exports, mod), mod.exports;
+      try {
+        return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = {
+          exports: {}
+        }).exports, mod), mod.exports;
+      } catch (e) {
+        throw mod = 0, e;
+      }
     };
   };
 
-  // src/ui/dialog.js
+  // src/ui/dialog.ts
   var require_dialog = __commonJS({
-    "src/ui/dialog.js": function srcUiDialogJs(exports, module) {
+    "src/ui/dialog.ts": function srcUiDialogTs(exports, module) {
+      "use strict";
+
       var activeDialogClose = null;
       function createModalRoot() {
         var root = document.getElementById("glc-modal-root");
@@ -196,9 +204,11 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
     }
   });
 
-  // src/ui/toast.js
+  // src/ui/toast.ts
   var require_toast = __commonJS({
-    "src/ui/toast.js": function srcUiToastJs(exports, module) {
+    "src/ui/toast.ts": function srcUiToastTs(exports, module) {
+      "use strict";
+
       function createToastContainer() {
         var container = document.getElementById("glc-toast-container");
         if (container) return container;
@@ -254,9 +264,11 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
     }
   });
 
-  // src/ui/progress.js
+  // src/ui/progress.ts
   var require_progress = __commonJS({
-    "src/ui/progress.js": function srcUiProgressJs(exports, module) {
+    "src/ui/progress.ts": function srcUiProgressTs(exports, module) {
+      "use strict";
+
       function createProgressController(createModalRoot) {
         var progressPanelStateMap = {};
         function showProgressPanel(stateMap) {
@@ -308,9 +320,11 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
     }
   });
 
-  // src/core/settings.js
+  // src/core/settings.ts
   var require_settings = __commonJS({
-    "src/core/settings.js": function srcCoreSettingsJs(exports, module) {
+    "src/core/settings.ts": function srcCoreSettingsTs(exports, module) {
+      "use strict";
+
       var SETTINGS_KEY = "globalSettings";
       function getGlobalSettings() {
         var defaults = {
@@ -351,9 +365,10 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
         function openPlatformSwitchDialog() {
           var current = settings.platformEnabled;
           var bodyNode = document.createElement("div");
-          [["glc-epic", "Epic", current.epic], ["glc-gog", "GOG", current.gog], ["glc-itch", "Itch", current.itch],
+          var platformRows = [["glc-epic", "Epic", current.epic], ["glc-gog", "GOG", current.gog], ["glc-itch", "Itch", current.itch],
           // ['glc-cube', 'Cube', current.cube],
-          ["glc-ig", "IG", current.ig]].forEach(function (_ref6, index) {
+          ["glc-ig", "IG", current.ig]];
+          platformRows.forEach(function (_ref6, index) {
             var _ref7 = _slicedToArray(_ref6, 3),
               id = _ref7[0],
               labelText = _ref7[1],
@@ -374,13 +389,14 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
             confirmText: "保存",
             cancelText: "取消",
             onConfirm: function onConfirm(root) {
-              settings.platformEnabled = {
-                epic: root.querySelector("#glc-epic").checked,
-                gog: root.querySelector("#glc-gog").checked,
-                itch: root.querySelector("#glc-itch").checked,
+              var _root$querySelector$c, _root$querySelector, _root$querySelector$c2, _root$querySelector2, _root$querySelector$c3, _root$querySelector3, _root$querySelector$c4, _root$querySelector4;
+              settings.platformEnabled = _objectSpread(_objectSpread({}, current), {}, {
+                epic: (_root$querySelector$c = (_root$querySelector = root.querySelector("#glc-epic")) === null || _root$querySelector === void 0 ? void 0 : _root$querySelector.checked) !== null && _root$querySelector$c !== void 0 ? _root$querySelector$c : false,
+                gog: (_root$querySelector$c2 = (_root$querySelector2 = root.querySelector("#glc-gog")) === null || _root$querySelector2 === void 0 ? void 0 : _root$querySelector2.checked) !== null && _root$querySelector$c2 !== void 0 ? _root$querySelector$c2 : false,
+                itch: (_root$querySelector$c3 = (_root$querySelector3 = root.querySelector("#glc-itch")) === null || _root$querySelector3 === void 0 ? void 0 : _root$querySelector3.checked) !== null && _root$querySelector$c3 !== void 0 ? _root$querySelector$c3 : false,
                 // cube: root.querySelector('#glc-cube').checked,
-                ig: root.querySelector("#glc-ig").checked
-              };
+                ig: (_root$querySelector$c4 = (_root$querySelector4 = root.querySelector("#glc-ig")) === null || _root$querySelector4 === void 0 ? void 0 : _root$querySelector4.checked) !== null && _root$querySelector$c4 !== void 0 ? _root$querySelector$c4 : false
+              });
               setGlobalSettings(settings);
             }
           });
@@ -395,8 +411,8 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
             confirmText: "保存",
             cancelText: "取消",
             onConfirm: function onConfirm(root) {
-              var _root$querySelector;
-              var value = ((_root$querySelector = root.querySelector(".glc-textarea")) === null || _root$querySelector === void 0 ? void 0 : _root$querySelector.value) || "";
+              var _root$querySelector5;
+              var value = ((_root$querySelector5 = root.querySelector(".glc-textarea")) === null || _root$querySelector5 === void 0 ? void 0 : _root$querySelector5.value) || "";
               onSave(value ? value.split("\n") : []);
             }
           });
@@ -455,9 +471,11 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
     }
   });
 
-  // src/core/startup.js
+  // src/core/startup.ts
   var require_startup = __commonJS({
-    "src/core/startup.js": function srcCoreStartupJs(exports, module) {
+    "src/core/startup.ts": function srcCoreStartupTs(exports, module) {
+      "use strict";
+
       function createStartupFlow(_ref8) {
         var showDialog = _ref8.showDialog,
           showProgressPanel = _ref8.showProgressPanel,
@@ -474,18 +492,19 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
           var now = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Date.now();
           if (!raw || _typeof(raw) !== "object") return {};
           var oneHourAgo = now - ONE_HOUR_MS;
+          var source = raw;
           var result = {};
-          Object.keys(raw).forEach(function (key) {
-            var list = Array.isArray(raw[key]) ? raw[key] : [];
+          Object.keys(source).forEach(function (key) {
+            var list = Array.isArray(source[key]) ? source[key] : [];
             result[key] = list.filter(function (ts) {
-              return Number.isFinite(ts) && ts >= oneHourAgo && ts <= now;
+              return typeof ts === "number" && Number.isFinite(ts) && ts >= oneHourAgo && ts <= now;
             });
           });
           return result;
         }
         function canRunAutoUpdate(platformKey) {
           var now = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Date.now();
-          var rateMap = sanitizePlatformRateMap(GM_getValue(PLATFORM_UPDATE_RATE_KEY) || {}, now);
+          var rateMap = sanitizePlatformRateMap(GM_getValue(PLATFORM_UPDATE_RATE_KEY), now);
           var history = Array.isArray(rateMap[platformKey]) ? rateMap[platformKey] : [];
           var tenMinutesAgo = now - TEN_MINUTES_MS;
           var oneHourAgo = now - ONE_HOUR_MS;
@@ -500,7 +519,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
         }
         function recordAutoUpdateSuccess(platformKey) {
           var now = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Date.now();
-          var rateMap = sanitizePlatformRateMap(GM_getValue(PLATFORM_UPDATE_RATE_KEY) || {}, now);
+          var rateMap = sanitizePlatformRateMap(GM_getValue(PLATFORM_UPDATE_RATE_KEY), now);
           var history = Array.isArray(rateMap[platformKey]) ? rateMap[platformKey] : [];
           rateMap[platformKey] = history.concat(now).filter(function (ts) {
             return ts >= now - ONE_HOUR_MS;
@@ -514,19 +533,19 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
           return _runAutoUpdateWithRateLimit.apply(this, arguments);
         }
         function _runAutoUpdateWithRateLimit() {
-          _runAutoUpdateWithRateLimit = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(module2, autoUpdateRunner) {
+          _runAutoUpdateWithRateLimit = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee2(libraryModule, autoUpdateRunner) {
             var result;
             return _regeneratorRuntime().wrap(function _callee2$(_context2) {
               while (1) {
                 switch (_context2.prev = _context2.next) {
                   case 0:
-                    if (!(!(module2 !== null && module2 !== void 0 && module2.key) || typeof autoUpdateRunner !== "function")) {
+                    if (!(!(libraryModule !== null && libraryModule !== void 0 && libraryModule.key) || typeof autoUpdateRunner !== "function")) {
                       _context2.next = 2;
                       break;
                     }
                     return _context2.abrupt("return", false);
                   case 2:
-                    if (canRunAutoUpdate(module2.key)) {
+                    if (canRunAutoUpdate(libraryModule.key)) {
                       _context2.next = 4;
                       break;
                     }
@@ -536,7 +555,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                     return autoUpdateRunner();
                   case 6:
                     result = _context2.sent;
-                    if (result === true) recordAutoUpdateSuccess(module2.key);
+                    if (result === true) recordAutoUpdateSuccess(libraryModule.key);
                     return _context2.abrupt("return", result);
                   case 9:
                   case "end":
@@ -548,10 +567,10 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
           return _runAutoUpdateWithRateLimit.apply(this, arguments);
         }
         function collectEmptyCaches(enabledModules) {
-          return enabledModules.filter(function (module2) {
-            return module2.isCacheEmpty();
-          }).map(function (module2) {
-            return module2.key;
+          return enabledModules.filter(function (libraryModule) {
+            return libraryModule.isCacheEmpty();
+          }).map(function (libraryModule) {
+            return libraryModule.key;
           });
         }
         function showEmptyCacheAggregationDialog(emptyKeys, _onConfirm, _onCancel) {
@@ -574,7 +593,9 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
             cancelText: "稍后再说",
             onConfirm: function onConfirm(root) {
               var selected = Array.from(root.querySelectorAll("input[data-platform]:checked")).map(function (el) {
-                return el.getAttribute("data-platform");
+                return el.dataset.platform;
+              }).filter(function (key) {
+                return Boolean(key);
               });
               _onConfirm(selected);
             },
@@ -585,7 +606,9 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
         }
         function getSelectedPlatformKeys(root) {
           return Array.from(root.querySelectorAll("input[data-platform]:checked:not(:disabled)")).map(function (el) {
-            return el.getAttribute("data-platform");
+            return el.dataset.platform;
+          }).filter(function (key) {
+            return Boolean(key);
           });
         }
         function updateManualUpdateConfirmState(root) {
@@ -595,16 +618,16 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
         }
         function buildPlatformCheckboxBody(modules, onSelectionChange) {
           var bodyNode = document.createElement("div");
-          modules.forEach(function (module2, index) {
+          modules.forEach(function (libraryModule, index) {
             var label = document.createElement("label");
             var input = document.createElement("input");
-            var enabled = module2.enabled();
+            var enabled = libraryModule.enabled();
             input.type = "checkbox";
-            input.dataset.platform = module2.key;
+            input.dataset.platform = libraryModule.key;
             input.checked = enabled;
             input.disabled = !enabled;
             label.appendChild(input);
-            label.appendChild(document.createTextNode(" ".concat(module2.key.toUpperCase())));
+            label.appendChild(document.createTextNode(" ".concat(libraryModule.key.toUpperCase())));
             bodyNode.appendChild(label);
             if (index < modules.length - 1) bodyNode.appendChild(document.createElement("br"));
           });
@@ -614,8 +637,8 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
           return bodyNode;
         }
         function openManualUpdateDialogAndRun(modules) {
-          var enabledModules = modules.filter(function (module2) {
-            return module2.enabled();
+          var enabledModules = modules.filter(function (libraryModule) {
+            return libraryModule.enabled();
           });
           var bodyNode = buildPlatformCheckboxBody(modules, updateManualUpdateConfirmState);
           showDialog({
@@ -659,9 +682,12 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
           if (!failure) return "未知错误";
           if (typeof failure === "string") return failure;
           if (failure instanceof Error && failure.message) return failure.message;
-          if (typeof failure.message === "string" && failure.message.trim()) return failure.message;
-          if (typeof failure.reason === "string" && failure.reason.trim()) return failure.reason;
-          if (typeof failure.error === "string" && failure.error.trim()) return failure.error;
+          if (_typeof(failure) === "object") {
+            var details = failure;
+            if (typeof details.message === "string" && details.message.trim()) return details.message;
+            if (typeof details.reason === "string" && details.reason.trim()) return details.reason;
+            if (typeof details.error === "string" && details.error.trim()) return details.error;
+          }
           return "未知错误";
         }
         function showUpdateFailureDialog(key, failure) {
@@ -673,6 +699,9 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
             confirmText: "确认",
             hideCancel: true
           });
+        }
+        function isAuthExpiredResult(result) {
+          return _typeof(result) === "object" && result !== null && result.status === updateStatus.AUTH_EXPIRED;
         }
         function batchUpdateSelectedModules(_x4, _x5) {
           return _batchUpdateSelectedModules.apply(this, arguments);
@@ -696,16 +725,16 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                     _iterator = _createForOfIteratorHelper(selectedKeys);
                     _context4.prev = 6;
                     _loop = /*#__PURE__*/_regeneratorRuntime().mark(function _loop() {
-                      var key, module2, updateResult;
+                      var key, libraryModule, updateResult;
                       return _regeneratorRuntime().wrap(function _loop$(_context3) {
                         while (1) {
                           switch (_context3.prev = _context3.next) {
                             case 0:
                               key = _step.value;
-                              module2 = enabledModules.find(function (item) {
+                              libraryModule = enabledModules.find(function (item) {
                                 return item.key === key;
                               });
-                              if (module2) {
+                              if (libraryModule) {
                                 _context3.next = 4;
                                 break;
                               }
@@ -715,7 +744,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                               showProgressPanel(_defineProperty({}, key, state[key]));
                               _context3.prev = 6;
                               _context3.next = 9;
-                              return module2.updateLibrary();
+                              return libraryModule.updateLibrary();
                             case 9:
                               updateResult = _context3.sent;
                               if (!(updateResult === true)) {
@@ -726,7 +755,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                               _context3.next = 24;
                               break;
                             case 14:
-                              if (!((updateResult === null || updateResult === void 0 ? void 0 : updateResult.status) === updateStatus.AUTH_EXPIRED)) {
+                              if (!isAuthExpiredResult(updateResult)) {
                                 _context3.next = 22;
                                 break;
                               }
@@ -815,8 +844,8 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
               while (1) {
                 switch (_context6.prev = _context6.next) {
                   case 0:
-                    enabledModules = modules.filter(function (module2) {
-                      return module2.enabled();
+                    enabledModules = modules.filter(function (libraryModule) {
+                      return libraryModule.enabled();
                     });
                     emptyKeys = collectEmptyCaches(enabledModules);
                     if (!(emptyKeys.length > 0)) {
@@ -836,8 +865,8 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                                 _context5.next = 3;
                                 return batchUpdateSelectedModules(enabledModules, selectedKeys);
                               case 3:
-                                enabledModules.forEach(function (module2) {
-                                  return module2.start();
+                                enabledModules.forEach(function (libraryModule) {
+                                  return libraryModule.start();
                                 });
                               case 4:
                               case "end":
@@ -850,14 +879,14 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                         return _ref9.apply(this, arguments);
                       };
                     }(), function () {
-                      enabledModules.forEach(function (module2) {
-                        return module2.start();
+                      enabledModules.forEach(function (libraryModule) {
+                        return libraryModule.start();
                       });
                     });
                     return _context6.abrupt("return");
                   case 5:
-                    enabledModules.forEach(function (module2) {
-                      return module2.start();
+                    enabledModules.forEach(function (libraryModule) {
+                      return libraryModule.start();
                     });
                   case 6:
                   case "end":
@@ -906,9 +935,11 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
     }
   });
 
-  // src/core/gist-sync.js
+  // src/core/gist-sync.ts
   var require_gist_sync = __commonJS({
-    "src/core/gist-sync.js": function srcCoreGistSyncJs(exports, module) {
+    "src/core/gist-sync.ts": function srcCoreGistSyncTs(exports, module) {
+      "use strict";
+
       var GIST_CONF_KEY = "gistConf";
       function getGistConf() {
         var conf = GM_getValue(GIST_CONF_KEY) || {};
@@ -954,7 +985,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
           timeout: 3e4
         }, 3).then(function (response) {
           var _body$files, _body$files$fileName;
-          var body = response === null || response === void 0 ? void 0 : response.response;
+          var body = response.response;
           var remoteContent = body === null || body === void 0 ? void 0 : (_body$files = body.files) === null || _body$files === void 0 ? void 0 : (_body$files$fileName = _body$files[fileName]) === null || _body$files$fileName === void 0 ? void 0 : _body$files$fileName.content;
           return response.status === 200 && remoteContent === JSON.stringify(content);
         })["catch"](function (error) {
@@ -973,9 +1004,10 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
           method: "GET",
           timeout: 3e4
         }, 3).then(function (response) {
-          var _response$response, _response$response$fi, _response$response$fi2;
+          var _body$files2, _body$files2$fileName;
           if (response.status !== 200) return false;
-          var content = response === null || response === void 0 ? void 0 : (_response$response = response.response) === null || _response$response === void 0 ? void 0 : (_response$response$fi = _response$response.files) === null || _response$response$fi === void 0 ? void 0 : (_response$response$fi2 = _response$response$fi[fileName]) === null || _response$response$fi2 === void 0 ? void 0 : _response$response$fi2.content;
+          var body = response.response;
+          var content = body === null || body === void 0 ? void 0 : (_body$files2 = body.files) === null || _body$files2 === void 0 ? void 0 : (_body$files2$fileName = _body$files2[fileName]) === null || _body$files2$fileName === void 0 ? void 0 : _body$files2$fileName.content;
           if (!content) return false;
           return JSON.parse(content);
         })["catch"](function (error) {
@@ -1197,9 +1229,11 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
     }
   });
 
-  // src/shared/constants.js
+  // src/shared/constants.ts
   var require_constants = __commonJS({
-    "src/shared/constants.js": function srcSharedConstantsJs(exports, module) {
+    "src/shared/constants.ts": function srcSharedConstantsTs(exports, module) {
+      "use strict";
+
       var UPDATE_STATUS = {
         SUCCESS: "success",
         ERROR: "error",
@@ -1213,9 +1247,11 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
     }
   });
 
-  // src/platforms/epic.js
+  // src/platforms/epic.ts
   var require_epic = __commonJS({
-    "src/platforms/epic.js": function srcPlatformsEpicJs(exports, module) {
+    "src/platforms/epic.ts": function srcPlatformsEpicTs(exports, module) {
+      "use strict";
+
       function createEpicModule(context) {
         var settings = context.settings,
           queryLinks = context.queryLinks,
@@ -1314,7 +1350,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                                     fetch: true,
                                     headers: {
                                       referer: "https://accounts.epicgames.com/",
-                                      dnt: 1,
+                                      dnt: "1",
                                       pragma: "no-cache",
                                       priority: "u=1, i",
                                       "sec-ch-ua": '"Chromium";v="146", "Not-A.Brand";v="24", "Microsoft Edge";v="146"',
@@ -1330,7 +1366,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                                     }
                                   }).then(/*#__PURE__*/function () {
                                     var _ref16 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee14(response) {
-                                      var _response$response3, _response$response3$o, _response$response4, _response$response4$p;
+                                      var _response$response2, _response$response2$o, _response$response3, _response$response3$p;
                                       var ordersLength, orderedGames, nextPageToken2;
                                       return _regeneratorRuntime().wrap(function _callee14$(_context15) {
                                         while (1) {
@@ -1346,16 +1382,16 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                                                 loginUrl: "https://www.epicgames.com/id/login"
                                               });
                                             case 2:
-                                              ordersLength = ((_response$response3 = response.response) === null || _response$response3 === void 0 ? void 0 : (_response$response3$o = _response$response3.orders) === null || _response$response3$o === void 0 ? void 0 : _response$response3$o.length) || 0;
+                                              ordersLength = ((_response$response2 = response.response) === null || _response$response2 === void 0 ? void 0 : (_response$response2$o = _response$response2.orders) === null || _response$response2$o === void 0 ? void 0 : _response$response2$o.length) || 0;
                                               if (!(ordersLength >= 0)) {
                                                 _context15.next = 28;
                                                 break;
                                               }
-                                              orderedGames = response.response.orders.map(function (e) {
-                                                var _e$items;
-                                                return (e === null || e === void 0 ? void 0 : (_e$items = e.items) === null || _e$items === void 0 ? void 0 : _e$items[0]) || null;
-                                              }).filter(function (e) {
-                                                return e;
+                                              orderedGames = response.response.orders.map(function (order) {
+                                                var _order$items;
+                                                return (_order$items = order.items) === null || _order$items === void 0 ? void 0 : _order$items[0];
+                                              }).filter(function (item) {
+                                                return Boolean(item);
                                               });
                                               _context15.next = 7;
                                               return Promise.all(orderedGames.map(/*#__PURE__*/function () {
@@ -1435,7 +1471,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                                               console.log("[EGLC] updateEpicOwnedGames: Finish!");
                                               return _context15.abrupt("return", true);
                                             case 28:
-                                              if (!(((_response$response4 = response.response) === null || _response$response4 === void 0 ? void 0 : (_response$response4$p = _response$response4.products) === null || _response$response4$p === void 0 ? void 0 : _response$response4$p.length) !== 0)) {
+                                              if (!(((_response$response3 = response.response) === null || _response$response3 === void 0 ? void 0 : (_response$response3$p = _response$response3.products) === null || _response$response3$p === void 0 ? void 0 : _response$response3$p.length) !== 0)) {
                                                 _context15.next = 33;
                                                 break;
                                               }
@@ -1689,21 +1725,21 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                                     });
                                   }).then(/*#__PURE__*/function () {
                                     var _ref15 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee10(response) {
-                                      var _response$response2, _response$response2$d, _response$response2$d2;
-                                      var _offerMappings$, _customAttributes$fin, _customAttributes$fin2, _response$response$da, offerMappings, urlSlug, customAttributes;
+                                      var _response$response, _response$response$da, _response$response$da2;
+                                      var _offerMappings$, _customAttributes$fin, _customAttributes$fin2, _response$response$da3, offerMappings, urlSlug, customAttributes;
                                       return _regeneratorRuntime().wrap(function _callee10$(_context11) {
                                         while (1) {
                                           switch (_context11.prev = _context11.next) {
                                             case 0:
-                                              if (!((_response$response2 = response.response) !== null && _response$response2 !== void 0 && (_response$response2$d = _response$response2.data) !== null && _response$response2$d !== void 0 && (_response$response2$d2 = _response$response2$d.Catalog) !== null && _response$response2$d2 !== void 0 && _response$response2$d2.catalogOffer)) {
+                                              if (!((_response$response = response.response) !== null && _response$response !== void 0 && (_response$response$da = _response$response.data) !== null && _response$response$da !== void 0 && (_response$response$da2 = _response$response$da.Catalog) !== null && _response$response$da2 !== void 0 && _response$response$da2.catalogOffer)) {
                                                 _context11.next = 3;
                                                 break;
                                               }
-                                              _response$response$da = response.response.data.Catalog.catalogOffer, offerMappings = _response$response$da.offerMappings, urlSlug = _response$response$da.urlSlug, customAttributes = _response$response$da.customAttributes;
+                                              _response$response$da3 = response.response.data.Catalog.catalogOffer, offerMappings = _response$response$da3.offerMappings, urlSlug = _response$response$da3.urlSlug, customAttributes = _response$response$da3.customAttributes;
                                               return _context11.abrupt("return", _toConsumableArray(new Set([offerMappings === null || offerMappings === void 0 ? void 0 : (_offerMappings$ = offerMappings[0]) === null || _offerMappings$ === void 0 ? void 0 : _offerMappings$.pageSlug, urlSlug, customAttributes === null || customAttributes === void 0 ? void 0 : (_customAttributes$fin = customAttributes.find(function (e) {
                                                 return e.key === "com.epicgames.app.productSlug";
-                                              })) === null || _customAttributes$fin === void 0 ? void 0 : (_customAttributes$fin2 = _customAttributes$fin.value) === null || _customAttributes$fin2 === void 0 ? void 0 : _customAttributes$fin2.replace(/\/home$/, "")].filter(function (e) {
-                                                return e;
+                                              })) === null || _customAttributes$fin === void 0 ? void 0 : (_customAttributes$fin2 = _customAttributes$fin.value) === null || _customAttributes$fin2 === void 0 ? void 0 : _customAttributes$fin2.replace(/\/home$/, "")].filter(function (slug) {
+                                                return Boolean(slug);
                                               }))));
                                             case 3:
                                               return _context11.abrupt("return", false);
@@ -1831,8 +1867,8 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                                         return runAutoUpdateWithRateLimit(moduleApi, autoUpdate);
                                       };
                                     }
-                                    runner().then(function (result) {
-                                      if ((result === null || result === void 0 ? void 0 : result.status) === UPDATE_STATUS.AUTH_EXPIRED) {
+                                    Promise.resolve(runner()).then(function (result) {
+                                      if (_typeof(result) === "object" && (result === null || result === void 0 ? void 0 : result.status) === UPDATE_STATUS.AUTH_EXPIRED) {
                                         showToast("Epic 登录状态已过期，请先登录", "error", {
                                           duration: 0,
                                           closable: true,
@@ -1939,9 +1975,11 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
     }
   });
 
-  // src/platforms/gog.js
+  // src/platforms/gog.ts
   var require_gog = __commonJS({
-    "src/platforms/gog.js": function srcPlatformsGogJs(exports, module) {
+    "src/platforms/gog.ts": function srcPlatformsGogTs(exports, module) {
+      "use strict";
+
       function createGogModule(context) {
         var settings = context.settings,
           queryLinks = context.queryLinks,
@@ -2004,8 +2042,8 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                     return runAutoUpdateWithRateLimit(moduleApi, autoUpdate);
                   };
                 }
-                runner().then(function (result) {
-                  if ((result === null || result === void 0 ? void 0 : result.status) === UPDATE_STATUS.AUTH_EXPIRED) {
+                Promise.resolve(runner()).then(function (result) {
+                  if (_typeof(result) === "object" && (result === null || result === void 0 ? void 0 : result.status) === UPDATE_STATUS.AUTH_EXPIRED) {
                     showToast("GOG 登录状态已过期，请先登录", "error", {
                       duration: 0,
                       closable: true,
@@ -2060,8 +2098,8 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                 });
               }).then(/*#__PURE__*/function () {
                 var _ref19 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee18(response) {
-                  var _response$response5, _response$response5$p, _response$response7, _response$response7$p;
-                  var _response$response6;
+                  var _response$response4, _response$response4$p, _response$response5, _response$response5$p;
+                  var pageGames;
                   return _regeneratorRuntime().wrap(function _callee18$(_context19) {
                     while (1) {
                       switch (_context19.prev = _context19.next) {
@@ -2076,53 +2114,57 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                             loginUrl: "https://www.gog.com/#openlogin"
                           });
                         case 4:
-                          if (!((_response$response5 = response.response) !== null && _response$response5 !== void 0 && (_response$response5$p = _response$response5.products) !== null && _response$response5$p !== void 0 && _response$response5$p.length)) {
-                            _context19.next = 22;
+                          if (!((_response$response4 = response.response) !== null && _response$response4 !== void 0 && (_response$response4$p = _response$response4.products) !== null && _response$response4$p !== void 0 && _response$response4$p.length)) {
+                            _context19.next = 23;
                             break;
                           }
-                          games = [].concat(_toConsumableArray(games), _toConsumableArray(response.response.products.map(function (e) {
-                            var _e$url, _e$url$split, _e$url2;
-                            return (e === null || e === void 0 ? void 0 : e.slug) || (e === null || e === void 0 ? void 0 : (_e$url = e.url) === null || _e$url === void 0 ? void 0 : (_e$url$split = _e$url.split("/")) === null || _e$url$split === void 0 ? void 0 : _e$url$split[(e === null || e === void 0 ? void 0 : (_e$url2 = e.url) === null || _e$url2 === void 0 ? void 0 : _e$url2.split("/").length) - 1]);
-                          })));
-                          if (!(((_response$response6 = response.response) === null || _response$response6 === void 0 ? void 0 : _response$response6.totalPages) > i)) {
-                            _context19.next = 12;
+                          pageGames = response.response.products.map(function (product) {
+                            var _product$url;
+                            var urlParts = (_product$url = product.url) === null || _product$url === void 0 ? void 0 : _product$url.split("/");
+                            return product.slug || (urlParts === null || urlParts === void 0 ? void 0 : urlParts[urlParts.length - 1]);
+                          }).filter(function (game) {
+                            return Boolean(game);
+                          });
+                          games = [].concat(_toConsumableArray(games), _toConsumableArray(pageGames));
+                          if (!((response.response.totalPages || 0) > i)) {
+                            _context19.next = 13;
                             break;
                           }
-                          _context19.next = 9;
+                          _context19.next = 10;
                           return updateGogGameLibrary(loop, ++i, games);
-                        case 9:
+                        case 10:
                           return _context19.abrupt("return", _context19.sent);
-                        case 12:
+                        case 13:
                           if (!loop) {
-                            _context19.next = 17;
+                            _context19.next = 18;
                             break;
                           }
                           GM_setValue("gogGames", _toConsumableArray(new Set(games)).filter(function (e) {
                             return e;
                           }));
-                          _context19.next = 16;
+                          _context19.next = 17;
                           return showUpdateResult("gog游戏库数据更新完成", "success");
-                        case 16:
-                          return _context19.abrupt("return", true);
                         case 17:
+                          return _context19.abrupt("return", true);
+                        case 18:
                           GM_setValue("gogGames", _toConsumableArray(/* @__PURE__ */new Set([].concat(_toConsumableArray(getGogGameLibrary()), _toConsumableArray(games)))).filter(function (e) {
                             return e;
                           }));
                           checkGogGame(false);
                           return _context19.abrupt("return", true);
-                        case 22:
-                          if (!(((_response$response7 = response.response) === null || _response$response7 === void 0 ? void 0 : (_response$response7$p = _response$response7.products) === null || _response$response7$p === void 0 ? void 0 : _response$response7$p.length) !== 0)) {
-                            _context19.next = 27;
+                        case 23:
+                          if (!(((_response$response5 = response.response) === null || _response$response5 === void 0 ? void 0 : (_response$response5$p = _response$response5.products) === null || _response$response5$p === void 0 ? void 0 : _response$response5$p.length) !== 0)) {
+                            _context19.next = 28;
                             break;
                           }
                           console.error(response);
-                          _context19.next = 26;
+                          _context19.next = 27;
                           return showUpdateResult("gog游戏库数据更新失败", "error");
-                        case 26:
-                          return _context19.abrupt("return", false);
                         case 27:
                           return _context19.abrupt("return", false);
                         case 28:
+                          return _context19.abrupt("return", false);
+                        case 29:
                         case "end":
                           return _context19.stop();
                       }
@@ -2167,9 +2209,11 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
     }
   });
 
-  // src/core/itch-linkage.js
+  // src/core/itch-linkage.ts
   var require_itch_linkage = __commonJS({
-    "src/core/itch-linkage.js": function srcCoreItchLinkageJs(exports, module) {
+    "src/core/itch-linkage.ts": function srcCoreItchLinkageTs(exports, module) {
+      "use strict";
+
       var ITCH_LINKAGE_CODE_KEY = "itchLinkageCode";
       function sha256(value) {
         var _globalThis$crypto;
@@ -2315,6 +2359,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
           unsafeWindow[linkageCode] = linkage;
         }
         function generateLinkageCode() {
+          var navigatorInfo = navigator;
           var fingerprint = JSON.stringify({
             browser: {
               userAgent: navigator.userAgent,
@@ -2325,7 +2370,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
             system: {
               platform: navigator.platform,
               hardwareConcurrency: navigator.hardwareConcurrency,
-              deviceMemory: navigator.deviceMemory,
+              deviceMemory: navigatorInfo.deviceMemory,
               screen: {
                 width: screen.width,
                 height: screen.height,
@@ -2364,9 +2409,11 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
     }
   });
 
-  // src/platforms/itch.js
+  // src/platforms/itch.ts
   var require_itch = __commonJS({
-    "src/platforms/itch.js": function srcPlatformsItchJs(exports, module) {
+    "src/platforms/itch.ts": function srcPlatformsItchTs(exports, module) {
+      "use strict";
+
       var _require_itch_linkage = require_itch_linkage(),
         createItchLinkage = _require_itch_linkage.createItchLinkage;
       function createItchModule(context) {
@@ -2441,8 +2488,8 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                     return runAutoUpdateWithRateLimit(moduleApi, autoUpdate);
                   };
                 }
-                runner().then(function (result) {
-                  if ((result === null || result === void 0 ? void 0 : result.status) === UPDATE_STATUS.AUTH_EXPIRED) {
+                Promise.resolve(runner()).then(function (result) {
+                  if (_typeof(result) === "object" && (result === null || result === void 0 ? void 0 : result.status) === UPDATE_STATUS.AUTH_EXPIRED) {
                     showToast("itch.io 登录状态已过期，请先登录", "error", {
                       duration: 0,
                       closable: true,
@@ -2492,8 +2539,8 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                 });
               }).then(/*#__PURE__*/function () {
                 var _ref23 = _asyncToGenerator(/*#__PURE__*/_regeneratorRuntime().mark(function _callee20(response) {
-                  var _response$response8, _response$response9;
-                  var itchDoc, purchaseLinks;
+                  var _response$response6, _response$response7;
+                  var itchDoc, purchaseLinks, pageGames;
                   return _regeneratorRuntime().wrap(function _callee20$(_context21) {
                     while (1) {
                       switch (_context21.prev = _context21.next) {
@@ -2508,55 +2555,58 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                             loginUrl: "https://itch.io/login"
                           });
                         case 4:
-                          if (!((_response$response8 = response.response) !== null && _response$response8 !== void 0 && _response$response8.num_items)) {
-                            _context21.next = 24;
+                          if (!((_response$response6 = response.response) !== null && _response$response6 !== void 0 && _response$response6.num_items)) {
+                            _context21.next = 25;
                             break;
                           }
-                          itchDoc = parseHtml("<div>".concat(response.response.content, "</div>"));
+                          itchDoc = parseHtml("<div>".concat(response.response.content || "", "</div>"));
                           purchaseLinks = Array.from(itchDoc.querySelectorAll("a.thumb_link.game_link"));
-                          games = [].concat(_toConsumableArray(games), _toConsumableArray(purchaseLinks.map(function (el) {
+                          pageGames = purchaseLinks.map(function (el) {
                             var _getHref$match;
                             return (_getHref$match = getHref(el).match(/https?:\/\/(.*?\/.*?)\//i)) === null || _getHref$match === void 0 ? void 0 : _getHref$match[1];
-                          })));
+                          }).filter(function (game) {
+                            return Boolean(game);
+                          });
+                          games = [].concat(_toConsumableArray(games), _toConsumableArray(pageGames));
                           if (!(response.response.num_items === 50)) {
-                            _context21.next = 14;
+                            _context21.next = 15;
                             break;
                           }
-                          _context21.next = 11;
+                          _context21.next = 12;
                           return updateItchGameLibrary(loop, ++i, games);
-                        case 11:
+                        case 12:
                           return _context21.abrupt("return", _context21.sent);
-                        case 14:
+                        case 15:
                           if (!loop) {
-                            _context21.next = 19;
+                            _context21.next = 20;
                             break;
                           }
                           GM_setValue("itchGames", _toConsumableArray(new Set(games)));
-                          _context21.next = 18;
+                          _context21.next = 19;
                           return showUpdateResult("itch游戏库数据更新完成", "success");
-                        case 18:
-                          return _context21.abrupt("return", true);
                         case 19:
+                          return _context21.abrupt("return", true);
+                        case 20:
                           GM_setValue("itchGames", _toConsumableArray(/* @__PURE__ */new Set([].concat(_toConsumableArray(getItchGameLibrary()), _toConsumableArray(games)))));
                           checkItchGame(false);
                           return _context21.abrupt("return", true);
-                        case 24:
-                          if (!(((_response$response9 = response.response) === null || _response$response9 === void 0 ? void 0 : _response$response9.num_items) === 0)) {
-                            _context21.next = 29;
+                        case 25:
+                          if (!(((_response$response7 = response.response) === null || _response$response7 === void 0 ? void 0 : _response$response7.num_items) === 0)) {
+                            _context21.next = 30;
                             break;
                           }
                           GM_setValue("itchGames", _toConsumableArray(new Set(games)));
-                          _context21.next = 28;
+                          _context21.next = 29;
                           return showUpdateResult("itch游戏库数据更新完成", "success");
-                        case 28:
-                          return _context21.abrupt("return", true);
                         case 29:
+                          return _context21.abrupt("return", true);
+                        case 30:
                           console.error(response);
-                          _context21.next = 32;
+                          _context21.next = 33;
                           return showUpdateResult("itch游戏库数据更新失败", "error");
-                        case 32:
-                          return _context21.abrupt("return", false);
                         case 33:
+                          return _context21.abrupt("return", false);
+                        case 34:
                         case "end":
                           return _context21.stop();
                       }
@@ -2614,9 +2664,11 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
     }
   });
 
-  // src/platforms/ig.js
+  // src/platforms/ig.ts
   var require_ig = __commonJS({
-    "src/platforms/ig.js": function srcPlatformsIgJs(exports, module) {
+    "src/platforms/ig.ts": function srcPlatformsIgTs(exports, module) {
+      "use strict";
+
       function createIgModule(context) {
         var settings = context.settings,
           queryLinks = context.queryLinks,
@@ -2715,7 +2767,9 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
           var games = Array.from(doc.querySelectorAll("a.library-showcase-title")).map(function (el) {
             var _el$getAttribute, _el$getAttribute$matc, _el$getAttribute$matc2;
             return (_el$getAttribute = el.getAttribute("href")) === null || _el$getAttribute === void 0 ? void 0 : (_el$getAttribute$matc = _el$getAttribute.match(/https?:\/\/.*?\.indiegala\.com\/(.*)/)) === null || _el$getAttribute$matc === void 0 ? void 0 : (_el$getAttribute$matc2 = _el$getAttribute$matc[1]) === null || _el$getAttribute$matc2 === void 0 ? void 0 : _el$getAttribute$matc2.toLowerCase();
-          }).filter(Boolean);
+          }).filter(function (game) {
+            return Boolean(game);
+          });
           return {
             pages: pages,
             games: games
@@ -2851,8 +2905,8 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
                 return runAutoUpdateWithRateLimit(moduleApi, autoUpdate);
               };
             }
-            runner().then(function (result) {
-              if ((result === null || result === void 0 ? void 0 : result.status) === UPDATE_STATUS.AUTH_EXPIRED) {
+            Promise.resolve(runner()).then(function (result) {
+              if (_typeof(result) === "object" && (result === null || result === void 0 ? void 0 : result.status) === UPDATE_STATUS.AUTH_EXPIRED) {
                 showToast("IG 登录状态已过期，请先登录", "error", {
                   duration: 0,
                   closable: true,
@@ -2883,9 +2937,11 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
     }
   });
 
-  // src/runtime/bootstrap.js
+  // src/runtime/bootstrap.ts
   var require_bootstrap = __commonJS({
-    "src/runtime/bootstrap.js": function srcRuntimeBootstrapJs(exports, module) {
+    "src/runtime/bootstrap.ts": function srcRuntimeBootstrapTs(exports, module) {
+      "use strict";
+
       var _require_dialog = require_dialog(),
         createModalRoot = _require_dialog.createModalRoot,
         showDialog = _require_dialog.showDialog;
@@ -2945,7 +3001,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
             confirmText: "去登录",
             cancelText: "稍后",
             onConfirm: function onConfirm() {
-              return GM_openInTab(loginUrl, {
+              GM_openInTab(loginUrl, {
                 active: true,
                 insert: true,
                 setParent: true
@@ -3002,7 +3058,7 @@ function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e 
     }
   });
 
-  // src/index.js
+  // src/index.ts
   var _require_bootstrap = require_bootstrap(),
     bootstrapMergedRuntime = _require_bootstrap.bootstrapMergedRuntime;
   (function main() {
