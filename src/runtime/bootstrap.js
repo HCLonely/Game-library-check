@@ -86,12 +86,15 @@ function bootstrapMergedRuntime() {
   GM_registerMenuCommand('数据同步设置', openGistSyncDialog);
   GM_addStyle(BASE_STYLE);
 
+  const itchModule = createItchModule(moduleContext);
+  GM_registerMenuCommand('生成Itch联动码', () => itchModule.generateLinkageCode());
+
   if (!isUrlEnabled(window.location.href)) return;
 
   const modules = [
     createEpicModule(moduleContext),
     createGogModule(moduleContext),
-    createItchModule(moduleContext),
+    itchModule,
     // createCubeModule(moduleContext),
     createIgModule(moduleContext)
   ];

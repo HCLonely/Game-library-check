@@ -1400,9 +1400,187 @@
     }
   });
 
+  // src/core/itch-linkage.js
+  var require_itch_linkage = __commonJS({
+    "src/core/itch-linkage.js"(exports, module) {
+      var ITCH_LINKAGE_CODE_KEY = "itchLinkageCode";
+      function sha256(value) {
+        const fallback = () => sha256Fallback(value);
+        if (!globalThis.crypto?.subtle || typeof TextEncoder === "undefined") {
+          return Promise.resolve(fallback());
+        }
+        return globalThis.crypto.subtle.digest("SHA-256", new TextEncoder().encode(value)).then((buffer) => Array.from(new Uint8Array(buffer)).map((byte) => byte.toString(16).padStart(2, "0")).join("")).catch(fallback);
+      }
+      function sha256Fallback(value) {
+        const bytes = unescape(encodeURIComponent(value)).split("").map((char) => char.charCodeAt(0));
+        const bitLength = bytes.length * 8;
+        bytes.push(128);
+        while (bytes.length % 64 !== 56) bytes.push(0);
+        for (let index = 7; index >= 0; index--) bytes.push(bitLength / 2 ** (index * 8) & 255);
+        const constants = [
+          1116352408,
+          1899447441,
+          3049323471,
+          3921009573,
+          961987163,
+          1508970993,
+          2453635748,
+          2870763221,
+          3624381080,
+          310598401,
+          607225278,
+          1426881987,
+          1925078388,
+          2162078206,
+          2614888103,
+          3248222580,
+          3835390401,
+          4022224774,
+          264347078,
+          604807628,
+          770255983,
+          1249150122,
+          1555081692,
+          1996064986,
+          2554220882,
+          2821834349,
+          2952996808,
+          3210313671,
+          3336571891,
+          3584528711,
+          113926993,
+          338241895,
+          666307205,
+          773529912,
+          1294757372,
+          1396182291,
+          1695183700,
+          1986661051,
+          2177026350,
+          2456956037,
+          2730485921,
+          2820302411,
+          3259730800,
+          3345764771,
+          3516065817,
+          3600352804,
+          4094571909,
+          275423344,
+          430227734,
+          506948616,
+          659060556,
+          883997877,
+          958139571,
+          1322822218,
+          1537002063,
+          1747873779,
+          1955562222,
+          2024104815,
+          2227730452,
+          2361852424,
+          2428436474,
+          2756734187,
+          3204031479,
+          3329325298
+        ];
+        const hash = [1779033703, 3144134277, 1013904242, 2773480762, 1359893119, 2600822924, 528734635, 1541459225];
+        const rotateRight = (number, bits) => number >>> bits | number << 32 - bits;
+        for (let offset = 0; offset < bytes.length; offset += 64) {
+          const words = new Array(64);
+          for (let index = 0; index < 16; index++) {
+            const position = offset + index * 4;
+            words[index] = bytes[position] << 24 | bytes[position + 1] << 16 | bytes[position + 2] << 8 | bytes[position + 3];
+          }
+          for (let index = 16; index < 64; index++) {
+            const s0 = rotateRight(words[index - 15], 7) ^ rotateRight(words[index - 15], 18) ^ words[index - 15] >>> 3;
+            const s1 = rotateRight(words[index - 2], 17) ^ rotateRight(words[index - 2], 19) ^ words[index - 2] >>> 10;
+            words[index] = words[index - 16] + s0 + words[index - 7] + s1 | 0;
+          }
+          let [a, b, c, d, e, f, g, h] = hash;
+          for (let index = 0; index < 64; index++) {
+            const s1 = rotateRight(e, 6) ^ rotateRight(e, 11) ^ rotateRight(e, 25);
+            const choice = e & f ^ ~e & g;
+            const temp1 = h + s1 + choice + constants[index] + words[index] | 0;
+            const s0 = rotateRight(a, 2) ^ rotateRight(a, 13) ^ rotateRight(a, 22);
+            const majority = a & b ^ a & c ^ b & c;
+            const temp2 = s0 + majority | 0;
+            [h, g, f, e, d, c, b, a] = [g, f, e, d + temp1 | 0, c, b, a, temp1 + temp2 | 0];
+          }
+          hash[0] = hash[0] + a | 0;
+          hash[1] = hash[1] + b | 0;
+          hash[2] = hash[2] + c | 0;
+          hash[3] = hash[3] + d | 0;
+          hash[4] = hash[4] + e | 0;
+          hash[5] = hash[5] + f | 0;
+          hash[6] = hash[6] + g | 0;
+          hash[7] = hash[7] + h | 0;
+        }
+        return hash.map((word) => (word >>> 0).toString(16).padStart(8, "0")).join("");
+      }
+      function createItchLinkage({ getGames, addGames, updateLibrary, showToast }) {
+        let mousePosition = { x: 0, y: 0 };
+        let linkageCode = GM_getValue(ITCH_LINKAGE_CODE_KEY) || "";
+        document.addEventListener("mousemove", (event) => {
+          mousePosition = { x: event.clientX, y: event.clientY };
+        }, { passive: true });
+        function exposeLinkage() {
+          if (!linkageCode) return;
+          const linkage = function itchLibraryLinkage() {
+          };
+          Object.defineProperties(linkage, {
+            connected: { enumerable: true, get: () => true },
+            has: { enumerable: true, value: (game) => typeof game === "string" && getGames().includes(game) },
+            get: { enumerable: true, value: () => [...getGames()] },
+            add: { enumerable: true, value: (games) => addGames(games) },
+            removeOwned: {
+              enumerable: true,
+              value: (games) => Array.isArray(games) ? games.filter((game) => !getGames().includes(game)) : []
+            },
+            update: { enumerable: true, value: () => updateLibrary(false, 1) }
+          });
+          unsafeWindow[linkageCode] = linkage;
+        }
+        function generateLinkageCode() {
+          const fingerprint = JSON.stringify({
+            browser: {
+              userAgent: navigator.userAgent,
+              language: navigator.language,
+              languages: navigator.languages,
+              vendor: navigator.vendor
+            },
+            system: {
+              platform: navigator.platform,
+              hardwareConcurrency: navigator.hardwareConcurrency,
+              deviceMemory: navigator.deviceMemory,
+              screen: { width: screen.width, height: screen.height, colorDepth: screen.colorDepth }
+            },
+            time: (/* @__PURE__ */ new Date()).toISOString(),
+            window: { innerWidth: window.innerWidth, innerHeight: window.innerHeight, outerWidth: window.outerWidth, outerHeight: window.outerHeight },
+            mouse: mousePosition
+          });
+          return sha256(fingerprint).then((code) => {
+            linkageCode = code;
+            GM_setValue(ITCH_LINKAGE_CODE_KEY, linkageCode);
+            exposeLinkage();
+            window.prompt("Itch 联动码已生成并保存，请复制：", linkageCode);
+            return linkageCode;
+          }).catch((error) => {
+            console.error("生成 Itch 联动码失败", error);
+            showToast("生成 Itch 联动码失败：浏览器不支持 SHA-256", "error");
+            return "";
+          });
+        }
+        exposeLinkage();
+        return { generateLinkageCode };
+      }
+      module.exports = { createItchLinkage };
+    }
+  });
+
   // src/platforms/itch.js
   var require_itch = __commonJS({
     "src/platforms/itch.js"(exports, module) {
+      var { createItchLinkage } = require_itch_linkage();
       function createItchModule(context) {
         const {
           settings,
@@ -1419,10 +1597,19 @@
         } = context;
         let updateLibrary;
         let started = false;
+        function getItchGameLibrary() {
+          return GM_getValue("itchGames") || [];
+        }
+        function addItchGames(games) {
+          if (!Array.isArray(games)) return getItchGameLibrary();
+          const library = [.../* @__PURE__ */ new Set([...getItchGameLibrary(), ...games])];
+          GM_setValue("itchGames", library);
+          return library;
+        }
         const moduleApi = {
           key: "itch",
           enabled: () => settings.platformEnabled.itch,
-          isCacheEmpty: () => (GM_getValue("itchGames") || []).length === 0,
+          isCacheEmpty: () => getItchGameLibrary().length === 0,
           updateLibrary: () => {
             if (!updateLibrary) moduleApi.start();
             return updateLibrary();
@@ -1472,9 +1659,6 @@
                   addClass(el, "itch-io-game-link-owned");
                 }
               });
-            }
-            function getItchGameLibrary() {
-              return GM_getValue("itchGames") || [];
             }
             function updateItchGameLibrary(loop = true, i = 1, games = []) {
               if (!loop && i !== 1) {
@@ -1538,6 +1722,16 @@
             unsafeWindow.checkItchGame = checkItchGame;
           }
         };
+        const itchLinkage = createItchLinkage({
+          getGames: getItchGameLibrary,
+          addGames: addItchGames,
+          updateLibrary: (loop = false, i = 1) => {
+            if (!started) moduleApi.start();
+            return updateLibrary(loop, i);
+          },
+          showToast
+        });
+        moduleApi.generateLinkageCode = itchLinkage.generateLinkageCode;
         return moduleApi;
       }
       module.exports = {
@@ -1781,11 +1975,13 @@
         GM_registerMenuCommand("平台开关", openPlatformSwitchDialog);
         GM_registerMenuCommand("数据同步设置", openGistSyncDialog);
         GM_addStyle(BASE_STYLE);
+        const itchModule = createItchModule(moduleContext);
+        GM_registerMenuCommand("生成Itch联动码", () => itchModule.generateLinkageCode());
         if (!isUrlEnabled(window.location.href)) return;
         const modules = [
           createEpicModule(moduleContext),
           createGogModule(moduleContext),
-          createItchModule(moduleContext),
+          itchModule,
           // createCubeModule(moduleContext),
           createIgModule(moduleContext)
         ];

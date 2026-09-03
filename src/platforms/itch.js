@@ -1,3 +1,5 @@
+const { createItchLinkage } = require('../core/itch-linkage');
+
 function createItchModule(context) {
   const {
     settings,
@@ -15,10 +17,19 @@ function createItchModule(context) {
 
   let updateLibrary;
   let started = false;
+  function getItchGameLibrary() {
+    return GM_getValue('itchGames') || [];
+  }
+  function addItchGames(games) {
+    if (!Array.isArray(games)) return getItchGameLibrary();
+    const library = [...new Set([...getItchGameLibrary(), ...games])];
+    GM_setValue('itchGames', library);
+    return library;
+  }
   const moduleApi = {
     key: 'itch',
     enabled: () => settings.platformEnabled.itch,
-    isCacheEmpty: () => (GM_getValue('itchGames') || []).length === 0,
+    isCacheEmpty: () => getItchGameLibrary().length === 0,
     updateLibrary: () => {
       if (!updateLibrary) moduleApi.start();
       return updateLibrary();
@@ -70,9 +81,6 @@ function createItchModule(context) {
             addClass(el, 'itch-io-game-link-owned');
           }
         });
-      }
-      function getItchGameLibrary() {
-        return GM_getValue('itchGames') || [];
       }
       function updateItchGameLibrary(loop = true, i = 1, games = []) {
         if (!loop && i !== 1) {
@@ -141,6 +149,16 @@ function createItchModule(context) {
       unsafeWindow.checkItchGame = checkItchGame;
     }
   };
+  const itchLinkage = createItchLinkage({
+    getGames: getItchGameLibrary,
+    addGames: addItchGames,
+    updateLibrary: (loop = false, i = 1) => {
+      if (!started) moduleApi.start();
+      return updateLibrary(loop, i);
+    },
+    showToast
+  });
+  moduleApi.generateLinkageCode = itchLinkage.generateLinkageCode;
   return moduleApi;
 }
 
