@@ -45,10 +45,13 @@ interface GMCookie {
 }
 
 interface GMCookieApi {
+  /** Lists cookies matching the requested URL and optional cookie name. */
   list(
     details: { url: string; name?: string },
     callback: (cookies: GMCookie[], error?: unknown) => void
   ): void;
+
+  /** Sets a cookie, reporting any Greasemonkey API error through the callback. */
   set(cookie: GMCookie & { url: string }, callback: (error?: unknown) => void): void;
 }
 

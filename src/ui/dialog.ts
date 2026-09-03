@@ -2,6 +2,7 @@ import type { DialogOptions } from '../shared/types';
 
 let activeDialogClose: (() => void) | null = null;
 
+/** Returns the shared modal mount point, creating and appending it when absent. */
 function createModalRoot(): HTMLElement {
   let root = document.getElementById('glc-modal-root');
   if (root) return root;
@@ -11,6 +12,7 @@ function createModalRoot(): HTMLElement {
   return root;
 }
 
+/** Replaces the active dialog and manages its buttons, callbacks, keyboard, and mask lifecycle. */
 function showDialog({
   title,
   bodyHtml,

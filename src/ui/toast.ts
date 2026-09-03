@@ -1,5 +1,6 @@
 import type { ToastOptions, ToastType } from '../shared/types';
 
+/** Returns the shared toast container, creating and appending it when absent. */
 function createToastContainer(): HTMLElement {
   let container = document.getElementById('glc-toast-container');
   if (container) return container;
@@ -9,6 +10,7 @@ function createToastContainer(): HTMLElement {
   return container;
 }
 
+/** Displays a typed toast with optional link, close button, and timed dismissal. */
 function showToast(
   message: string,
   type: ToastType = 'info',

@@ -1,8 +1,10 @@
 import type { ProgressPanelOptions, ProgressStateMap } from '../shared/types';
 
+/** Creates progress-panel controls backed by a shared modal root. */
 function createProgressController(createModalRoot: () => HTMLElement) {
   let progressPanelStateMap: ProgressStateMap = {};
 
+  /** Merges or replaces progress state, then redraws the progress panel. */
   function showProgressPanel(
     stateMap: ProgressStateMap,
     { replace = false }: ProgressPanelOptions = {}
@@ -40,6 +42,7 @@ function createProgressController(createModalRoot: () => HTMLElement) {
     }
   }
 
+  /** Clears stored progress state and removes the rendered progress panel. */
   function clearProgressPanel(): void {
     progressPanelStateMap = {};
     const root = createModalRoot();
