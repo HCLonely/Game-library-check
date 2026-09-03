@@ -18,7 +18,14 @@ interface ItchLinkageOptions {
   showToast: ShowToast;
 }
 
+/**
+ * Calculates a SHA-256 digest, falling back to the bundled implementation if Web Crypto is unavailable or fails.
+ *
+ * @param value - UTF-8 text to hash.
+ * @returns A promise for the lowercase hexadecimal digest.
+ */
 function sha256(value: string): Promise<string> {
+  /** @returns The bundled SHA-256 digest when Web Crypto is unavailable or rejects. */
   const fallback = () => sha256Fallback(value);
   if (!globalThis.crypto?.subtle || typeof TextEncoder === 'undefined') {
     return Promise.resolve(fallback());
@@ -30,7 +37,12 @@ function sha256(value: string): Promise<string> {
     .catch(fallback);
 }
 
-// Web Crypto 不可用时使用的 SHA-256 实现，输入按 UTF-8 编码。
+/**
+ * Calculates a SHA-256 digest without Web Crypto, encoding the input as UTF-8.
+ *
+ * @param value - Text to hash.
+ * @returns The lowercase hexadecimal digest.
+ */
 function sha256Fallback(value: string): string {
   const bytes = unescape(encodeURIComponent(value)).split('')
     .map((char) => char.charCodeAt(0));
@@ -50,6 +62,7 @@ function sha256Fallback(value: string): string {
     0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
   ];
   const hash = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];
+  /** Rotates a 32-bit word right by the requested number of bits. */
   const rotateRight = (number: number, bits: number): number => (
     (number >>> bits) | (number << (32 - bits))
   );
@@ -87,6 +100,12 @@ function sha256Fallback(value: string): string {
   return hash.map((word) => (word >>> 0).toString(16).padStart(8, '0')).join('');
 }
 
+/**
+ * Creates Itch library linkage support and restores any previously generated global linkage API.
+ *
+ * @param options - Library access, update, and UI dependencies.
+ * @returns A controller that generates and persists a linkage code.
+ */
 function createItchLinkage({
   getGames,
   addGames,
@@ -100,8 +119,10 @@ function createItchLinkage({
     mousePosition = { x: event.clientX, y: event.clientY };
   }, { passive: true });
 
+  /** Exposes the current linkage API on `unsafeWindow` when a saved code is available. */
   function exposeLinkage(): void {
     if (!linkageCode) return;
+    /** Marker function whose properties form the page-visible Itch linkage API. */
     const linkage = function itchLibraryLinkage() {};
     Object.defineProperties(linkage, {
       connected: { enumerable: true, get: () => true },
@@ -119,6 +140,11 @@ function createItchLinkage({
     unsafeWindow[linkageCode] = linkage;
   }
 
+  /**
+   * Hashes a browser snapshot to generate, persist, expose, and prompt for a new linkage code.
+   *
+   * @returns The generated code, or an empty string after a hashing failure and error toast.
+   */
   function generateLinkageCode(): Promise<string> {
     const navigatorInfo = navigator as NavigatorWithDeviceMemory;
     const fingerprint = JSON.stringify({

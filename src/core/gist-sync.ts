@@ -30,6 +30,11 @@ interface GistSyncControllerOptions {
   showToast: ShowToast;
 }
 
+/**
+ * Reads the saved Gist connection details, supplying empty fields for missing values.
+ *
+ * @returns The normalized Gist configuration stored in userscript storage.
+ */
 function getGistConf(): GistConf {
   const conf = GM_getValue<Partial<GistConf>>(GIST_CONF_KEY) || {};
   return {
@@ -39,10 +44,25 @@ function getGistConf(): GistConf {
   };
 }
 
+/**
+ * Persists Gist connection details in userscript storage.
+ *
+ * @param conf - The configuration to save.
+ */
 function setGistConf(conf: GistConf): void {
   GM_setValue(GIST_CONF_KEY, conf);
 }
 
+/**
+ * Sends a privileged HTTP request and retries failures until the retry budget is exhausted.
+ *
+ * HTTP responses outside the 2xx–3xx range, network errors, and timeouts all consume one retry.
+ *
+ * @param options - Request options passed to `GM_xmlhttpRequest`.
+ * @param retry - Number of additional attempts allowed after the first attempt.
+ * @returns The successful response.
+ * @throws The final request error or unsuccessful response when no retries remain.
+ */
 function requestWithRetry<TResponse = unknown>(
   options: GistRequestOptions,
   retry = 0
@@ -62,6 +82,15 @@ function requestWithRetry<TResponse = unknown>(
   });
 }
 
+/**
+ * Serializes local data and writes it to a file in the configured GitHub Gist.
+ *
+ * @param token - GitHub personal access token.
+ * @param gistId - Target Gist identifier.
+ * @param fileName - File in the Gist to replace.
+ * @param content - Data to serialize and upload.
+ * @returns Whether GitHub confirmed the expected file content after retrying failed requests.
+ */
 function setGistData(
   token: string,
   gistId: string,
@@ -96,6 +125,14 @@ function setGistData(
   });
 }
 
+/**
+ * Fetches and parses a JSON file from a GitHub Gist.
+ *
+ * @param token - GitHub personal access token.
+ * @param gistId - Source Gist identifier.
+ * @param fileName - File to retrieve.
+ * @returns Parsed remote data, or `false` when the request, response, or content is invalid.
+ */
 function getGistData(token: string, gistId: string, fileName: string): Promise<unknown | false> {
   return requestWithRetry<GistResponseBody>({
     url: `https://api.github.com/gists/${gistId}`,
@@ -118,6 +155,15 @@ function getGistData(token: string, gistId: string, fileName: string): Promise<u
   });
 }
 
+/**
+ * Creates a labeled input field for the Gist settings dialog.
+ *
+ * @param labelText - Visible label text.
+ * @param value - Initial input value.
+ * @param placeholder - Placeholder displayed for an empty input.
+ * @param type - HTML input type.
+ * @returns The label wrapper and its input element.
+ */
 function createLabeledInput(
   labelText: string,
   value: string,
@@ -142,11 +188,28 @@ function createLabeledInput(
   return { wrapper, input };
 }
 
+/**
+ * Creates the controller used to configure and synchronize userscript storage with a Gist.
+ *
+ * @param options - Dialog and toast UI dependencies.
+ * @returns A controller that opens the Gist synchronization dialog.
+ */
 function createGistSyncController({ showDialog, showToast }: GistSyncControllerOptions) {
+  /**
+   * Checks that every required Gist configuration field has a value.
+   *
+   * @param conf - Configuration to validate.
+   * @returns Whether the configuration can be used for a request.
+   */
   function validateConf(conf: GistConf): boolean {
     return Boolean(conf.TOKEN && conf.GIST_ID && conf.FILE_NAME);
   }
 
+  /**
+   * Collects all persisted userscript values except the Gist credentials.
+   *
+   * @returns A storage snapshot suitable for upload.
+   */
   function buildUploadPayload(): Record<string, unknown> {
     const payload: Record<string, unknown> = {};
     const keys = GM_listValues();
@@ -157,6 +220,11 @@ function createGistSyncController({ showDialog, showToast }: GistSyncControllerO
     return payload;
   }
 
+  /**
+   * Uploads the local storage snapshot and reports validation or sync outcomes through toasts.
+   *
+   * @param conf - Gist credentials and target file details.
+   */
   async function uploadData(conf: GistConf): Promise<void> {
     if (!validateConf(conf)) {
       showToast('请先保存配置并测试', 'error');
@@ -171,6 +239,11 @@ function createGistSyncController({ showDialog, showToast }: GistSyncControllerO
     showToast('同步到 Gist 失败，请查看控制台错误', 'error');
   }
 
+  /**
+   * Downloads remote data, writes each non-credential entry to userscript storage, and shows its outcome.
+   *
+   * @param conf - Gist credentials and source file details.
+   */
   async function downloadData(conf: GistConf): Promise<void> {
     if (!validateConf(conf)) {
       showToast('请先保存配置并测试', 'error');
@@ -188,6 +261,7 @@ function createGistSyncController({ showDialog, showToast }: GistSyncControllerO
     showToast('从 Gist 同步成功', 'success');
   }
 
+  /** Opens the Gist settings dialog, including upload, download, save, and connection-test actions. */
   function openGistSyncDialog(): void {
     const conf = getGistConf();
     const bodyNode = document.createElement('div');
@@ -217,6 +291,7 @@ function createGistSyncController({ showDialog, showToast }: GistSyncControllerO
     actionRow.appendChild(downloadButton);
     bodyNode.appendChild(actionRow);
 
+    /** @returns The trimmed Gist configuration currently entered in the dialog. */
     const readConfFromInputs = (): GistConf => ({
       TOKEN: tokenField.input.value.trim(),
       GIST_ID: gistIdField.input.value.trim(),

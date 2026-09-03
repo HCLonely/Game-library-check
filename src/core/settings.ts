@@ -14,6 +14,11 @@ interface SettingsControllerOptions {
   showDialog: ShowDialog;
 }
 
+/**
+ * Loads global settings from storage, merging them with legacy list values and platform defaults.
+ *
+ * @returns Normalized global settings.
+ */
 function getGlobalSettings(): GlobalSettings {
   const defaults: GlobalSettings = {
     whiteList: GM_getValue<string[]>('whiteList') || [],
@@ -28,10 +33,24 @@ function getGlobalSettings(): GlobalSettings {
   };
 }
 
+/**
+ * Persists the complete global-settings object in userscript storage.
+ *
+ * @param settings - Settings to save.
+ */
 function setGlobalSettings(settings: GlobalSettings): void {
   GM_setValue(SETTINGS_KEY, settings);
 }
 
+/**
+ * Determines whether a URL is allowed by the configured whitelist or blacklist.
+ *
+ * A non-empty whitelist takes precedence; with neither list populated, every URL is allowed.
+ *
+ * @param url - URL to evaluate.
+ * @param settings - Settings containing the URL lists.
+ * @returns Whether the URL is enabled.
+ */
 function isUrlEnabledByList(url: string, settings: GlobalSettings): boolean {
   const { whiteList, blackList } = settings;
   if (whiteList.length > 0) return whiteList.some((item) => url.includes(item));
@@ -39,9 +58,16 @@ function isUrlEnabledByList(url: string, settings: GlobalSettings): boolean {
   return true;
 }
 
+/**
+ * Creates settings actions backed by a shared, persisted settings object.
+ *
+ * @param options - Dialog UI dependency.
+ * @returns Settings and methods that open the settings and platform-switch dialogs.
+ */
 function createSettingsController({ showDialog }: SettingsControllerOptions) {
   const settings = getGlobalSettings();
 
+  /** Opens a dialog that saves enabled-platform selections to global settings. */
   function openPlatformSwitchDialog() {
     const current = settings.platformEnabled;
     const bodyNode = document.createElement('div');
@@ -82,6 +108,13 @@ function createSettingsController({ showDialog }: SettingsControllerOptions) {
     });
   }
 
+  /**
+   * Opens a newline-delimited list editor and passes its saved entries to a caller.
+   *
+   * @param title - Dialog title.
+   * @param initialValue - Entries to prefill.
+   * @param onSave - Receives the saved entries.
+   */
   function showListEditor(
     title: string,
     initialValue: string[],
@@ -102,6 +135,7 @@ function createSettingsController({ showDialog }: SettingsControllerOptions) {
     });
   }
 
+  /** Opens the whitelist editor and persists the saved whitelist. */
   function addWhiteList() {
     showListEditor('添加白名单网站', settings.whiteList || [], (value) => {
       settings.whiteList = value;
@@ -110,6 +144,7 @@ function createSettingsController({ showDialog }: SettingsControllerOptions) {
     });
   }
 
+  /** Opens the blacklist editor and persists the saved blacklist. */
   function addBlackList() {
     showListEditor('添加黑名单网站', settings.blackList || [], (value) => {
       settings.blackList = value;
@@ -118,6 +153,7 @@ function createSettingsController({ showDialog }: SettingsControllerOptions) {
     });
   }
 
+  /** Opens the top-level settings dialog with links to the whitelist and blacklist editors. */
   function setting() {
     const bodyNode = document.createElement('div');
     const whiteButton = document.createElement('button');
@@ -144,6 +180,7 @@ function createSettingsController({ showDialog }: SettingsControllerOptions) {
     settings,
     setting,
     openPlatformSwitchDialog,
+    /** Determines whether a URL is enabled using this controller's current settings. */
     isUrlEnabled: (url: string) => isUrlEnabledByList(url, settings)
   };
 }

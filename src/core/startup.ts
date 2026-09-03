@@ -22,6 +22,12 @@ interface StartupFlowOptions {
 
 type PlatformRateMap = Record<string, number[]>;
 
+/**
+ * Creates the startup and update orchestration controller.
+ *
+ * @param options - UI dependencies and update-status constants.
+ * @returns Methods for automatic, initial, and manually selected library updates.
+ */
 function createStartupFlow({
   showDialog,
   showProgressPanel,
@@ -36,6 +42,13 @@ function createStartupFlow({
   const TEN_MINUTES_MS = 10 * 60 * 1000;
   const ONE_HOUR_MS = 60 * 60 * 1000;
 
+  /**
+   * Normalizes persisted update timestamps and removes entries outside the prior hour.
+   *
+   * @param raw - Untrusted storage value.
+   * @param now - Reference timestamp used for filtering.
+   * @returns Per-platform, in-window numeric timestamps.
+   */
   function sanitizePlatformRateMap(raw: unknown, now = Date.now()): PlatformRateMap {
     if (!raw || typeof raw !== 'object') return {};
     const oneHourAgo = now - ONE_HOUR_MS;
@@ -50,6 +63,15 @@ function createStartupFlow({
     return result;
   }
 
+  /**
+   * Checks the per-platform automatic-update limits and persists the sanitized rate history.
+   *
+   * Allows fewer than five runs in ten minutes and fewer than 30 in one hour.
+   *
+   * @param platformKey - Platform to evaluate.
+   * @param now - Reference timestamp for rate limiting.
+   * @returns Whether an automatic update may run.
+   */
   function canRunAutoUpdate(platformKey: string, now = Date.now()): boolean {
     const rateMap = sanitizePlatformRateMap(GM_getValue<unknown>(PLATFORM_UPDATE_RATE_KEY), now);
     const history = Array.isArray(rateMap[platformKey]) ? rateMap[platformKey] : [];
@@ -61,6 +83,12 @@ function createStartupFlow({
     return countIn10Minutes < 5 && countIn1Hour < 30;
   }
 
+  /**
+   * Records a successful automatic update in rate-history and last-update storage.
+   *
+   * @param platformKey - Updated platform.
+   * @param now - Timestamp to record.
+   */
   function recordAutoUpdateSuccess(platformKey: string, now = Date.now()): void {
     const rateMap = sanitizePlatformRateMap(GM_getValue<unknown>(PLATFORM_UPDATE_RATE_KEY), now);
     const history = Array.isArray(rateMap[platformKey]) ? rateMap[platformKey] : [];
@@ -72,6 +100,15 @@ function createStartupFlow({
     GM_setValue(PLATFORM_LAST_UPDATE_AT_KEY, lastUpdateMap);
   }
 
+  /**
+   * Runs an automatic updater only when the module and rate limit permit it.
+   *
+   * Successful runs update the persisted rate history; invalid inputs or rate-limited runs return `false`.
+   *
+   * @param libraryModule - Platform module being updated.
+   * @param autoUpdateRunner - Function that performs the update.
+   * @returns The runner's result, or `false` when it was not run.
+   */
   async function runAutoUpdateWithRateLimit(
     libraryModule: LibraryModule,
     autoUpdateRunner: AutoUpdateRunner
@@ -83,11 +120,24 @@ function createStartupFlow({
     return result;
   }
 
+  /**
+   * Lists enabled modules that currently have no cached library data.
+   *
+   * @param enabledModules - Modules to inspect.
+   * @returns Keys for modules with empty caches.
+   */
   function collectEmptyCaches(enabledModules: LibraryModule[]): string[] {
     return enabledModules.filter((libraryModule) => libraryModule.isCacheEmpty())
       .map((libraryModule) => libraryModule.key);
   }
 
+  /**
+   * Opens a dialog that lets the user choose empty-cache platforms to update.
+   *
+   * @param emptyKeys - Platform keys with empty caches.
+   * @param onConfirm - Receives checked keys when the user starts updates.
+   * @param onCancel - Optional callback when the dialog is dismissed.
+   */
   function showEmptyCacheAggregationDialog(
     emptyKeys: string[],
     onConfirm: (selectedKeys: string[]) => void | Promise<void>,
@@ -122,18 +172,38 @@ function createStartupFlow({
     });
   }
 
+  /**
+   * Reads checked, enabled platform keys from a dialog root.
+   *
+   * @param root - Dialog content root.
+   * @returns Selected platform keys.
+   */
   function getSelectedPlatformKeys(root: HTMLElement): string[] {
     return Array.from(root.querySelectorAll<HTMLInputElement>('input[data-platform]:checked:not(:disabled)'))
       .map((el) => el.dataset.platform)
       .filter((key): key is string => Boolean(key));
   }
 
+  /**
+   * Enables the manual-update confirmation button only when a platform is selected.
+   *
+   * @param root - Modal root, if it is currently mounted.
+   */
   function updateManualUpdateConfirmState(root: HTMLElement | null): void {
     if (!root) return;
     const confirmButton = root.querySelector<HTMLButtonElement>('[data-glc-confirm]');
     if (confirmButton) confirmButton.disabled = getSelectedPlatformKeys(root).length === 0;
   }
 
+  /**
+   * Builds checkbox controls for manual platform selection.
+   *
+   * Disabled modules are shown but cannot be selected.
+   *
+   * @param modules - Modules to display.
+   * @param onSelectionChange - Optional callback after checkbox changes.
+   * @returns Dialog body containing the platform checkboxes.
+   */
   function buildPlatformCheckboxBody(
     modules: LibraryModule[],
     onSelectionChange?: (root: HTMLElement | null) => void
@@ -158,6 +228,11 @@ function createStartupFlow({
     return bodyNode;
   }
 
+  /**
+   * Opens the manual update picker and runs the selected enabled modules after confirmation.
+   *
+   * @param modules - Available library modules.
+   */
   function openManualUpdateDialogAndRun(modules: LibraryModule[]): void {
     const enabledModules = modules.filter((libraryModule) => libraryModule.enabled());
     const bodyNode = buildPlatformCheckboxBody(modules, updateManualUpdateConfirmState);
@@ -178,6 +253,12 @@ function createStartupFlow({
     updateManualUpdateConfirmState(document.getElementById('glc-modal-root'));
   }
 
+  /**
+   * Extracts a user-visible error message from a failed update result or thrown value.
+   *
+   * @param failure - Failure value to inspect.
+   * @returns A specific reason when available, otherwise the localized unknown-error message.
+   */
   function extractFailureReason(failure: unknown): string {
     if (!failure) return '未知错误';
     if (typeof failure === 'string') return failure;
@@ -191,6 +272,12 @@ function createStartupFlow({
     return '未知错误';
   }
 
+  /**
+   * Opens a modal describing an update failure for one platform.
+   *
+   * @param key - Failed platform key.
+   * @param failure - Result or error that explains the failure.
+   */
   function showUpdateFailureDialog(key: string, failure: unknown): void {
     const platform = key.toUpperCase();
     const reason = extractFailureReason(failure);
@@ -202,12 +289,27 @@ function createStartupFlow({
     });
   }
 
+  /**
+   * Narrows an update result to the authentication-expired outcome.
+   *
+   * @param result - Update result to inspect.
+   * @returns Whether the result signals that the user must log in again.
+   */
   function isAuthExpiredResult(result: UpdateResult): result is AuthExpiredUpdateResult {
     return typeof result === 'object'
       && result !== null
       && result.status === updateStatus.AUTH_EXPIRED;
   }
 
+  /**
+   * Updates selected platforms sequentially while reporting progress and per-platform failures.
+   *
+   * Authentication expiry stops remaining work, clears progress, and opens the login dialog; otherwise the
+   * progress panel is cleared after all selected modules have been attempted.
+   *
+   * @param enabledModules - Modules eligible to run.
+   * @param selectedKeys - Platform keys selected by the user.
+   */
   async function batchUpdateSelectedModules(
     enabledModules: LibraryModule[],
     selectedKeys: string[]
@@ -251,6 +353,11 @@ function createStartupFlow({
     if (!interruptedByAuthExpired) clearProgressPanel();
   }
 
+  /**
+   * Starts enabled modules, first offering a batch update when any enabled cache is empty.
+   *
+   * @param modules - Available library modules.
+   */
   async function runInitialFlow(modules: LibraryModule[]): Promise<void> {
     const enabledModules = modules.filter((libraryModule) => libraryModule.enabled());
     const emptyKeys = collectEmptyCaches(enabledModules);
@@ -270,10 +377,23 @@ function createStartupFlow({
     enabledModules.forEach((libraryModule) => libraryModule.start());
   }
 
+  /**
+   * Displays an incremental progress message for one platform.
+   *
+   * @param platform - Platform whose progress changed.
+   * @param text - Progress text to show.
+   */
   function showUpdateStep(platform: string, text: string): void {
     showProgressPanel({ [platform]: text });
   }
 
+  /**
+   * Shows an update outcome, using a modal for batch-update errors and toasts otherwise.
+   *
+   * @param title - Outcome text.
+   * @param type - Toast severity.
+   * @returns A resolved acknowledgement promise after the outcome has been shown.
+   */
   function showUpdateResult(title: string, type: ToastType): Promise<boolean> {
     if (!inBatchUpdateFlow) clearProgressPanel();
     if (type === 'error') {
