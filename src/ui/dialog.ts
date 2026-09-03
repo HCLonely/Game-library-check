@@ -1,6 +1,8 @@
-let activeDialogClose = null;
+import type { DialogOptions } from '../shared/types';
 
-function createModalRoot() {
+let activeDialogClose: (() => void) | null = null;
+
+function createModalRoot(): HTMLElement {
   let root = document.getElementById('glc-modal-root');
   if (root) return root;
   root = document.createElement('div');
@@ -9,7 +11,20 @@ function createModalRoot() {
   return root;
 }
 
-function showDialog({ title, bodyHtml, trustedBodyHtml = false, bodyText = '', bodyNode, confirmText = '确定', cancelText = '取消', onConfirm, onCancel, denyText, onDeny, hideCancel = false }) {
+function showDialog({
+  title,
+  bodyHtml,
+  trustedBodyHtml = false,
+  bodyText = '',
+  bodyNode,
+  confirmText = '确定',
+  cancelText = '取消',
+  onConfirm,
+  onCancel,
+  denyText,
+  onDeny,
+  hideCancel = false
+}: DialogOptions): void {
   if (typeof activeDialogClose === 'function') {
     activeDialogClose();
   }
@@ -27,12 +42,12 @@ function showDialog({ title, bodyHtml, trustedBodyHtml = false, bodyText = '', b
         </div>
       </div>
     </div>`;
-  const maskEl = root.querySelector('.glc-mask');
-  const titleEl = root.querySelector('.glc-dialog-title');
-  const bodyEl = root.querySelector('.glc-dialog-body');
-  const cancelBtn = root.querySelector('[data-glc-cancel]');
-  const denyBtn = root.querySelector('[data-glc-deny]');
-  const confirmBtn = root.querySelector('[data-glc-confirm]');
+  const maskEl = root.querySelector<HTMLElement>('.glc-mask');
+  const titleEl = root.querySelector<HTMLElement>('.glc-dialog-title');
+  const bodyEl = root.querySelector<HTMLElement>('.glc-dialog-body');
+  const cancelBtn = root.querySelector<HTMLButtonElement>('[data-glc-cancel]');
+  const denyBtn = root.querySelector<HTMLButtonElement>('[data-glc-deny]');
+  const confirmBtn = root.querySelector<HTMLButtonElement>('[data-glc-confirm]');
   if (titleEl) titleEl.textContent = title || '';
   if (bodyEl) {
     bodyEl.textContent = '';
@@ -55,7 +70,7 @@ function showDialog({ title, bodyHtml, trustedBodyHtml = false, bodyText = '', b
   if (confirmBtn) confirmBtn.textContent = confirmText;
 
   let closed = false;
-  const close = () => {
+  const close = (): void => {
     if (closed) return;
     closed = true;
     document.removeEventListener('keydown', onKeydown);
@@ -66,7 +81,7 @@ function showDialog({ title, bodyHtml, trustedBodyHtml = false, bodyText = '', b
     root.innerHTML = '';
   };
 
-  const runAndClose = (callback) => {
+  const runAndClose = (callback?: (root: HTMLElement) => void | Promise<void>): void => {
     try {
       if (typeof callback === 'function') callback(root);
     } finally {
@@ -74,12 +89,12 @@ function showDialog({ title, bodyHtml, trustedBodyHtml = false, bodyText = '', b
     }
   };
 
-  const onKeydown = (event) => {
+  const onKeydown = (event: KeyboardEvent): void => {
     if (closed) return;
     if (event.key === 'Escape') runAndClose(onCancel);
   };
 
-  const onMaskClick = (event) => {
+  const onMaskClick = (event: MouseEvent): void => {
     if (closed) return;
     if (event.target !== maskEl) return;
     runAndClose(onCancel);

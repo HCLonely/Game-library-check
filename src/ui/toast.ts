@@ -1,4 +1,6 @@
-function createToastContainer() {
+import type { ToastOptions, ToastType } from '../shared/types';
+
+function createToastContainer(): HTMLElement {
   let container = document.getElementById('glc-toast-container');
   if (container) return container;
   container = document.createElement('div');
@@ -7,7 +9,11 @@ function createToastContainer() {
   return container;
 }
 
-function showToast(message, type = 'info', options = {}) {
+function showToast(
+  message: string,
+  type: ToastType = 'info',
+  options: ToastOptions = {}
+): void {
   const el = document.createElement('div');
   el.className = `glc-toast glc-toast-content glc-toast-${type}`;
   el.textContent = message;

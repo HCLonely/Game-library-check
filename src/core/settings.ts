@@ -1,12 +1,26 @@
+import type {
+  GlobalSettings,
+  PlatformEnabledSettings,
+  ShowDialog
+} from '../shared/types';
+
 const SETTINGS_KEY = 'globalSettings';
 
-function getGlobalSettings() {
-  const defaults = {
-    whiteList: GM_getValue('whiteList') || [],
-    blackList: GM_getValue('blackList') || [],
+type StoredGlobalSettings = Partial<Omit<GlobalSettings, 'platformEnabled'>> & {
+  platformEnabled?: Partial<PlatformEnabledSettings>;
+};
+
+interface SettingsControllerOptions {
+  showDialog: ShowDialog;
+}
+
+function getGlobalSettings(): GlobalSettings {
+  const defaults: GlobalSettings = {
+    whiteList: GM_getValue<string[]>('whiteList') || [],
+    blackList: GM_getValue<string[]>('blackList') || [],
     platformEnabled: { epic: true, gog: true, itch: true, cube: true, ig: true }
   };
-  const saved = GM_getValue(SETTINGS_KEY) || {};
+  const saved = GM_getValue<StoredGlobalSettings>(SETTINGS_KEY) || {};
   return {
     whiteList: Array.isArray(saved.whiteList) ? saved.whiteList : defaults.whiteList,
     blackList: Array.isArray(saved.blackList) ? saved.blackList : defaults.blackList,
@@ -14,30 +28,31 @@ function getGlobalSettings() {
   };
 }
 
-function setGlobalSettings(settings) {
+function setGlobalSettings(settings: GlobalSettings): void {
   GM_setValue(SETTINGS_KEY, settings);
 }
 
-function isUrlEnabledByList(url, settings) {
+function isUrlEnabledByList(url: string, settings: GlobalSettings): boolean {
   const { whiteList, blackList } = settings;
   if (whiteList.length > 0) return whiteList.some((item) => url.includes(item));
   if (blackList.length > 0) return !blackList.some((item) => url.includes(item));
   return true;
 }
 
-function createSettingsController({ showDialog }) {
+function createSettingsController({ showDialog }: SettingsControllerOptions) {
   const settings = getGlobalSettings();
 
   function openPlatformSwitchDialog() {
     const current = settings.platformEnabled;
     const bodyNode = document.createElement('div');
-    [
+    const platformRows: Array<[string, string, boolean]> = [
       ['glc-epic', 'Epic', current.epic],
       ['glc-gog', 'GOG', current.gog],
       ['glc-itch', 'Itch', current.itch],
       // ['glc-cube', 'Cube', current.cube],
       ['glc-ig', 'IG', current.ig]
-    ].forEach(([id, labelText, checked], index) => {
+    ];
+    platformRows.forEach(([id, labelText, checked], index) => {
       const label = document.createElement('label');
       const input = document.createElement('input');
       input.type = 'checkbox';
@@ -55,18 +70,23 @@ function createSettingsController({ showDialog }) {
       cancelText: '取消',
       onConfirm: (root) => {
         settings.platformEnabled = {
-          epic: root.querySelector('#glc-epic').checked,
-          gog: root.querySelector('#glc-gog').checked,
-          itch: root.querySelector('#glc-itch').checked,
+          ...current,
+          epic: root.querySelector<HTMLInputElement>('#glc-epic')?.checked ?? false,
+          gog: root.querySelector<HTMLInputElement>('#glc-gog')?.checked ?? false,
+          itch: root.querySelector<HTMLInputElement>('#glc-itch')?.checked ?? false,
           // cube: root.querySelector('#glc-cube').checked,
-          ig: root.querySelector('#glc-ig').checked
+          ig: root.querySelector<HTMLInputElement>('#glc-ig')?.checked ?? false
         };
         setGlobalSettings(settings);
       }
     });
   }
 
-  function showListEditor(title, initialValue, onSave) {
+  function showListEditor(
+    title: string,
+    initialValue: string[],
+    onSave: (value: string[]) => void
+  ): void {
     const bodyNode = document.createElement('textarea');
     bodyNode.className = 'glc-textarea';
     bodyNode.value = initialValue.join('\n');
@@ -76,7 +96,7 @@ function createSettingsController({ showDialog }) {
       confirmText: '保存',
       cancelText: '取消',
       onConfirm: (root) => {
-        const value = root.querySelector('.glc-textarea')?.value || '';
+        const value = root.querySelector<HTMLTextAreaElement>('.glc-textarea')?.value || '';
         onSave(value ? value.split('\n') : []);
       }
     });
@@ -124,7 +144,7 @@ function createSettingsController({ showDialog }) {
     settings,
     setting,
     openPlatformSwitchDialog,
-    isUrlEnabled: (url) => isUrlEnabledByList(url, settings)
+    isUrlEnabled: (url: string) => isUrlEnabledByList(url, settings)
   };
 }
 

@@ -4,18 +4,34 @@ declare function GM_listValues(): string[];
 declare function GM_addStyle(css: string): void;
 declare const unsafeWindow: Window & Record<string, unknown>;
 
-interface GMXmlHttpRequestDetails {
+interface GMXmlHttpRequestResponse<TResponse = unknown> {
+  finalUrl: string;
+  readyState: number;
+  response: TResponse;
+  responseHeaders: string;
+  responseText: string;
+  status: number;
+  statusText: string;
+}
+
+interface GMXmlHttpRequestDetails<TResponse = unknown> {
   method?: string;
   url: string;
   headers?: Record<string, string>;
   data?: string | Document | XMLHttpRequestBodyInit | null;
   responseType?: XMLHttpRequestResponseType;
-  onload?: (response: XMLHttpRequest) => void;
-  onerror?: (response: XMLHttpRequest) => void;
-  ontimeout?: (response: XMLHttpRequest) => void;
+  onload?: (response: GMXmlHttpRequestResponse<TResponse>) => void;
+  onerror?: (response: GMXmlHttpRequestResponse<TResponse>) => void;
+  ontimeout?: (response: GMXmlHttpRequestResponse<TResponse>) => void;
   [key: string]: unknown;
 }
 
-declare function GM_xmlhttpRequest(details: GMXmlHttpRequestDetails): void;
+declare function GM_xmlhttpRequest<TResponse = unknown>(
+  details: GMXmlHttpRequestDetails<TResponse>
+): void;
 declare function GM_openInTab(url: string, options?: boolean | Record<string, unknown>): unknown;
 declare function GM_registerMenuCommand(caption: string, onClick: () => void): unknown;
+
+declare const module: {
+  exports: Record<string, unknown>;
+};

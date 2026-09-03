@@ -1,23 +1,57 @@
-function createStartupFlow({ showDialog, showProgressPanel, clearProgressPanel, showToast, showLoginExpiredDialog, updateStatus }) {
+import type {
+  AuthExpiredUpdateResult,
+  AutoUpdateRunner,
+  LibraryModule,
+  ProgressPanelOptions,
+  ProgressStateMap,
+  ShowDialog,
+  ShowToast,
+  ToastType,
+  UpdateResult,
+  UpdateStatusConstants
+} from '../shared/types';
+
+interface StartupFlowOptions {
+  showDialog: ShowDialog;
+  showProgressPanel: (stateMap: ProgressStateMap, options?: ProgressPanelOptions) => void;
+  clearProgressPanel: () => void;
+  showToast: ShowToast;
+  showLoginExpiredDialog: (platformName: string, loginUrl: string) => void;
+  updateStatus: UpdateStatusConstants;
+}
+
+type PlatformRateMap = Record<string, number[]>;
+
+function createStartupFlow({
+  showDialog,
+  showProgressPanel,
+  clearProgressPanel,
+  showToast,
+  showLoginExpiredDialog,
+  updateStatus
+}: StartupFlowOptions) {
   let inBatchUpdateFlow = false;
   const PLATFORM_UPDATE_RATE_KEY = 'platformUpdateRate';
   const PLATFORM_LAST_UPDATE_AT_KEY = 'platformLastUpdateAt';
   const TEN_MINUTES_MS = 10 * 60 * 1000;
   const ONE_HOUR_MS = 60 * 60 * 1000;
 
-  function sanitizePlatformRateMap(raw, now = Date.now()) {
+  function sanitizePlatformRateMap(raw: unknown, now = Date.now()): PlatformRateMap {
     if (!raw || typeof raw !== 'object') return {};
     const oneHourAgo = now - ONE_HOUR_MS;
-    const result = {};
-    Object.keys(raw).forEach((key) => {
-      const list = Array.isArray(raw[key]) ? raw[key] : [];
-      result[key] = list.filter((ts) => Number.isFinite(ts) && ts >= oneHourAgo && ts <= now);
+    const source = raw as Record<string, unknown>;
+    const result: PlatformRateMap = {};
+    Object.keys(source).forEach((key) => {
+      const list = Array.isArray(source[key]) ? source[key] : [];
+      result[key] = list.filter((ts): ts is number => (
+        typeof ts === 'number' && Number.isFinite(ts) && ts >= oneHourAgo && ts <= now
+      ));
     });
     return result;
   }
 
-  function canRunAutoUpdate(platformKey, now = Date.now()) {
-    const rateMap = sanitizePlatformRateMap(GM_getValue(PLATFORM_UPDATE_RATE_KEY) || {}, now);
+  function canRunAutoUpdate(platformKey: string, now = Date.now()): boolean {
+    const rateMap = sanitizePlatformRateMap(GM_getValue<unknown>(PLATFORM_UPDATE_RATE_KEY), now);
     const history = Array.isArray(rateMap[platformKey]) ? rateMap[platformKey] : [];
     const tenMinutesAgo = now - TEN_MINUTES_MS;
     const oneHourAgo = now - ONE_HOUR_MS;
@@ -27,30 +61,38 @@ function createStartupFlow({ showDialog, showProgressPanel, clearProgressPanel, 
     return countIn10Minutes < 5 && countIn1Hour < 30;
   }
 
-  function recordAutoUpdateSuccess(platformKey, now = Date.now()) {
-    const rateMap = sanitizePlatformRateMap(GM_getValue(PLATFORM_UPDATE_RATE_KEY) || {}, now);
+  function recordAutoUpdateSuccess(platformKey: string, now = Date.now()): void {
+    const rateMap = sanitizePlatformRateMap(GM_getValue<unknown>(PLATFORM_UPDATE_RATE_KEY), now);
     const history = Array.isArray(rateMap[platformKey]) ? rateMap[platformKey] : [];
     rateMap[platformKey] = history.concat(now).filter((ts) => ts >= now - ONE_HOUR_MS);
     GM_setValue(PLATFORM_UPDATE_RATE_KEY, rateMap);
 
-    const lastUpdateMap = GM_getValue(PLATFORM_LAST_UPDATE_AT_KEY) || {};
+    const lastUpdateMap = GM_getValue<Record<string, number>>(PLATFORM_LAST_UPDATE_AT_KEY) || {};
     lastUpdateMap[platformKey] = now;
     GM_setValue(PLATFORM_LAST_UPDATE_AT_KEY, lastUpdateMap);
   }
 
-  async function runAutoUpdateWithRateLimit(module, autoUpdateRunner) {
-    if (!module?.key || typeof autoUpdateRunner !== 'function') return false;
-    if (!canRunAutoUpdate(module.key)) return false;
+  async function runAutoUpdateWithRateLimit(
+    libraryModule: LibraryModule,
+    autoUpdateRunner: AutoUpdateRunner
+  ): Promise<UpdateResult> {
+    if (!libraryModule?.key || typeof autoUpdateRunner !== 'function') return false;
+    if (!canRunAutoUpdate(libraryModule.key)) return false;
     const result = await autoUpdateRunner();
-    if (result === true) recordAutoUpdateSuccess(module.key);
+    if (result === true) recordAutoUpdateSuccess(libraryModule.key);
     return result;
   }
 
-  function collectEmptyCaches(enabledModules) {
-    return enabledModules.filter((module) => module.isCacheEmpty()).map((module) => module.key);
+  function collectEmptyCaches(enabledModules: LibraryModule[]): string[] {
+    return enabledModules.filter((libraryModule) => libraryModule.isCacheEmpty())
+      .map((libraryModule) => libraryModule.key);
   }
 
-  function showEmptyCacheAggregationDialog(emptyKeys, onConfirm, onCancel) {
+  function showEmptyCacheAggregationDialog(
+    emptyKeys: string[],
+    onConfirm: (selectedKeys: string[]) => void | Promise<void>,
+    onCancel?: () => void
+  ): void {
     const bodyNode = document.createElement('div');
     emptyKeys.forEach((key, index) => {
       const label = document.createElement('label');
@@ -69,8 +111,9 @@ function createStartupFlow({ showDialog, showProgressPanel, clearProgressPanel, 
       confirmText: '立即更新',
       cancelText: '稍后再说',
       onConfirm: (root) => {
-        const selected = Array.from(root.querySelectorAll('input[data-platform]:checked'))
-          .map((el) => el.getAttribute('data-platform'));
+        const selected = Array.from(root.querySelectorAll<HTMLInputElement>('input[data-platform]:checked'))
+          .map((el) => el.dataset.platform)
+          .filter((key): key is string => Boolean(key));
         onConfirm(selected);
       },
       onCancel: () => {
@@ -79,29 +122,33 @@ function createStartupFlow({ showDialog, showProgressPanel, clearProgressPanel, 
     });
   }
 
-  function getSelectedPlatformKeys(root) {
-    return Array.from(root.querySelectorAll('input[data-platform]:checked:not(:disabled)'))
-      .map((el) => el.getAttribute('data-platform'));
+  function getSelectedPlatformKeys(root: HTMLElement): string[] {
+    return Array.from(root.querySelectorAll<HTMLInputElement>('input[data-platform]:checked:not(:disabled)'))
+      .map((el) => el.dataset.platform)
+      .filter((key): key is string => Boolean(key));
   }
 
-  function updateManualUpdateConfirmState(root) {
+  function updateManualUpdateConfirmState(root: HTMLElement | null): void {
     if (!root) return;
-    const confirmButton = root.querySelector('[data-glc-confirm]');
+    const confirmButton = root.querySelector<HTMLButtonElement>('[data-glc-confirm]');
     if (confirmButton) confirmButton.disabled = getSelectedPlatformKeys(root).length === 0;
   }
 
-  function buildPlatformCheckboxBody(modules, onSelectionChange) {
+  function buildPlatformCheckboxBody(
+    modules: LibraryModule[],
+    onSelectionChange?: (root: HTMLElement | null) => void
+  ): HTMLElement {
     const bodyNode = document.createElement('div');
-    modules.forEach((module, index) => {
+    modules.forEach((libraryModule, index) => {
       const label = document.createElement('label');
       const input = document.createElement('input');
-      const enabled = module.enabled();
+      const enabled = libraryModule.enabled();
       input.type = 'checkbox';
-      input.dataset.platform = module.key;
+      input.dataset.platform = libraryModule.key;
       input.checked = enabled;
       input.disabled = !enabled;
       label.appendChild(input);
-      label.appendChild(document.createTextNode(` ${module.key.toUpperCase()}`));
+      label.appendChild(document.createTextNode(` ${libraryModule.key.toUpperCase()}`));
       bodyNode.appendChild(label);
       if (index < modules.length - 1) bodyNode.appendChild(document.createElement('br'));
     });
@@ -111,8 +158,8 @@ function createStartupFlow({ showDialog, showProgressPanel, clearProgressPanel, 
     return bodyNode;
   }
 
-  function openManualUpdateDialogAndRun(modules) {
-    const enabledModules = modules.filter((module) => module.enabled());
+  function openManualUpdateDialogAndRun(modules: LibraryModule[]): void {
+    const enabledModules = modules.filter((libraryModule) => libraryModule.enabled());
     const bodyNode = buildPlatformCheckboxBody(modules, updateManualUpdateConfirmState);
     showDialog({
       title: '更新游戏库',
@@ -131,17 +178,20 @@ function createStartupFlow({ showDialog, showProgressPanel, clearProgressPanel, 
     updateManualUpdateConfirmState(document.getElementById('glc-modal-root'));
   }
 
-  function extractFailureReason(failure) {
+  function extractFailureReason(failure: unknown): string {
     if (!failure) return '未知错误';
     if (typeof failure === 'string') return failure;
     if (failure instanceof Error && failure.message) return failure.message;
-    if (typeof failure.message === 'string' && failure.message.trim()) return failure.message;
-    if (typeof failure.reason === 'string' && failure.reason.trim()) return failure.reason;
-    if (typeof failure.error === 'string' && failure.error.trim()) return failure.error;
+    if (typeof failure === 'object') {
+      const details = failure as Record<string, unknown>;
+      if (typeof details.message === 'string' && details.message.trim()) return details.message;
+      if (typeof details.reason === 'string' && details.reason.trim()) return details.reason;
+      if (typeof details.error === 'string' && details.error.trim()) return details.error;
+    }
     return '未知错误';
   }
 
-  function showUpdateFailureDialog(key, failure) {
+  function showUpdateFailureDialog(key: string, failure: unknown): void {
     const platform = key.toUpperCase();
     const reason = extractFailureReason(failure);
     showDialog({
@@ -152,22 +202,33 @@ function createStartupFlow({ showDialog, showProgressPanel, clearProgressPanel, 
     });
   }
 
-  async function batchUpdateSelectedModules(enabledModules, selectedKeys) {
-    const state = Object.fromEntries(selectedKeys.map((key) => [key, 'waiting']));
+  function isAuthExpiredResult(result: UpdateResult): result is AuthExpiredUpdateResult {
+    return typeof result === 'object'
+      && result !== null
+      && result.status === updateStatus.AUTH_EXPIRED;
+  }
+
+  async function batchUpdateSelectedModules(
+    enabledModules: LibraryModule[],
+    selectedKeys: string[]
+  ): Promise<void> {
+    const state: ProgressStateMap = Object.fromEntries(
+      selectedKeys.map((key) => [key, 'waiting'])
+    );
     let interruptedByAuthExpired = false;
     inBatchUpdateFlow = true;
     showProgressPanel(state, { replace: true });
     try {
       for (const key of selectedKeys) {
-        const module = enabledModules.find((item) => item.key === key);
-        if (!module) continue;
+        const libraryModule = enabledModules.find((item) => item.key === key);
+        if (!libraryModule) continue;
         state[key] = 'running';
         showProgressPanel({ [key]: state[key] });
         try {
-          const updateResult = await module.updateLibrary();
+          const updateResult = await libraryModule.updateLibrary();
           if (updateResult === true) {
             state[key] = 'success';
-          } else if (updateResult?.status === updateStatus.AUTH_EXPIRED) {
+          } else if (isAuthExpiredResult(updateResult)) {
             interruptedByAuthExpired = true;
             state[key] = updateStatus.AUTH_EXPIRED;
             clearProgressPanel();
@@ -190,30 +251,30 @@ function createStartupFlow({ showDialog, showProgressPanel, clearProgressPanel, 
     if (!interruptedByAuthExpired) clearProgressPanel();
   }
 
-  async function runInitialFlow(modules) {
-    const enabledModules = modules.filter((module) => module.enabled());
+  async function runInitialFlow(modules: LibraryModule[]): Promise<void> {
+    const enabledModules = modules.filter((libraryModule) => libraryModule.enabled());
     const emptyKeys = collectEmptyCaches(enabledModules);
     if (emptyKeys.length > 0) {
       showEmptyCacheAggregationDialog(
         emptyKeys,
         async (selectedKeys) => {
           if (selectedKeys.length > 0) await batchUpdateSelectedModules(enabledModules, selectedKeys);
-          enabledModules.forEach((module) => module.start());
+          enabledModules.forEach((libraryModule) => libraryModule.start());
         },
         () => {
-          enabledModules.forEach((module) => module.start());
+          enabledModules.forEach((libraryModule) => libraryModule.start());
         }
       );
       return;
     }
-    enabledModules.forEach((module) => module.start());
+    enabledModules.forEach((libraryModule) => libraryModule.start());
   }
 
-  function showUpdateStep(platform, text) {
+  function showUpdateStep(platform: string, text: string): void {
     showProgressPanel({ [platform]: text });
   }
 
-  function showUpdateResult(title, type) {
+  function showUpdateResult(title: string, type: ToastType): Promise<boolean> {
     if (!inBatchUpdateFlow) clearProgressPanel();
     if (type === 'error') {
       if (inBatchUpdateFlow) {

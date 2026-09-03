@@ -2,7 +2,7 @@ const UPDATE_STATUS = {
   SUCCESS: 'success',
   ERROR: 'error',
   AUTH_EXPIRED: 'auth_expired'
-};
+} as const;
 
 const BASE_STYLE = `
 .glc-mask{position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:2147483646;display:flex;align-items:center;justify-content:center;padding:20px;box-sizing:border-box}

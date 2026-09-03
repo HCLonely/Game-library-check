@@ -1,6 +1,24 @@
+import type { Awaitable, ShowToast, UpdateResult } from '../shared/types';
+
 const ITCH_LINKAGE_CODE_KEY = 'itchLinkageCode';
 
-function sha256(value) {
+interface MousePosition {
+  x: number;
+  y: number;
+}
+
+interface NavigatorWithDeviceMemory extends Navigator {
+  deviceMemory?: number;
+}
+
+interface ItchLinkageOptions {
+  getGames: () => string[];
+  addGames: (games: string[]) => unknown;
+  updateLibrary: (loop: boolean, page: number) => Awaitable<UpdateResult>;
+  showToast: ShowToast;
+}
+
+function sha256(value: string): Promise<string> {
   const fallback = () => sha256Fallback(value);
   if (!globalThis.crypto?.subtle || typeof TextEncoder === 'undefined') {
     return Promise.resolve(fallback());
@@ -13,7 +31,7 @@ function sha256(value) {
 }
 
 // Web Crypto 不可用时使用的 SHA-256 实现，输入按 UTF-8 编码。
-function sha256Fallback(value) {
+function sha256Fallback(value: string): string {
   const bytes = unescape(encodeURIComponent(value)).split('')
     .map((char) => char.charCodeAt(0));
   const bitLength = bytes.length * 8;
@@ -32,10 +50,12 @@ function sha256Fallback(value) {
     0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
   ];
   const hash = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];
-  const rotateRight = (number, bits) => (number >>> bits) | (number << (32 - bits));
+  const rotateRight = (number: number, bits: number): number => (
+    (number >>> bits) | (number << (32 - bits))
+  );
 
   for (let offset = 0; offset < bytes.length; offset += 64) {
-    const words = new Array(64);
+    const words = new Array<number>(64);
     for (let index = 0; index < 16; index++) {
       const position = offset + (index * 4);
       words[index] = (bytes[position] << 24) | (bytes[position + 1] << 16) | (bytes[position + 2] << 8) | bytes[position + 3];
@@ -67,32 +87,40 @@ function sha256Fallback(value) {
   return hash.map((word) => (word >>> 0).toString(16).padStart(8, '0')).join('');
 }
 
-function createItchLinkage({ getGames, addGames, updateLibrary, showToast }) {
-  let mousePosition = { x: 0, y: 0 };
-  let linkageCode = GM_getValue(ITCH_LINKAGE_CODE_KEY) || '';
+function createItchLinkage({
+  getGames,
+  addGames,
+  updateLibrary,
+  showToast
+}: ItchLinkageOptions): { generateLinkageCode: () => Promise<string> } {
+  let mousePosition: MousePosition = { x: 0, y: 0 };
+  let linkageCode = GM_getValue<string>(ITCH_LINKAGE_CODE_KEY) || '';
 
   document.addEventListener('mousemove', (event) => {
     mousePosition = { x: event.clientX, y: event.clientY };
   }, { passive: true });
 
-  function exposeLinkage() {
+  function exposeLinkage(): void {
     if (!linkageCode) return;
     const linkage = function itchLibraryLinkage() {};
     Object.defineProperties(linkage, {
       connected: { enumerable: true, get: () => true },
-      has: { enumerable: true, value: (game) => typeof game === 'string' && getGames().includes(game) },
+      has: { enumerable: true, value: (game: unknown) => typeof game === 'string' && getGames().includes(game) },
       get: { enumerable: true, value: () => [...getGames()] },
-      add: { enumerable: true, value: (games) => addGames(games) },
+      add: { enumerable: true, value: (games: string[]) => addGames(games) },
       removeOwned: {
         enumerable: true,
-        value: (games) => Array.isArray(games) ? games.filter((game) => !getGames().includes(game)) : []
+        value: (games: string[]) => Array.isArray(games)
+          ? games.filter((game) => !getGames().includes(game))
+          : []
       },
       update: { enumerable: true, value: () => updateLibrary(false, 1) }
     });
     unsafeWindow[linkageCode] = linkage;
   }
 
-  function generateLinkageCode() {
+  function generateLinkageCode(): Promise<string> {
+    const navigatorInfo = navigator as NavigatorWithDeviceMemory;
     const fingerprint = JSON.stringify({
       browser: {
         userAgent: navigator.userAgent,
@@ -103,7 +131,7 @@ function createItchLinkage({ getGames, addGames, updateLibrary, showToast }) {
       system: {
         platform: navigator.platform,
         hardwareConcurrency: navigator.hardwareConcurrency,
-        deviceMemory: navigator.deviceMemory,
+        deviceMemory: navigatorInfo.deviceMemory,
         screen: { width: screen.width, height: screen.height, colorDepth: screen.colorDepth }
       },
       time: new Date().toISOString(),
@@ -118,7 +146,7 @@ function createItchLinkage({ getGames, addGames, updateLibrary, showToast }) {
       window.prompt('Itch 联动码已生成并保存，请复制：', linkageCode);
       return linkageCode;
     })
-      .catch((error) => {
+      .catch((error: unknown) => {
         console.error('生成 Itch 联动码失败', error);
         showToast('生成 Itch 联动码失败：浏览器不支持 SHA-256', 'error');
         return '';

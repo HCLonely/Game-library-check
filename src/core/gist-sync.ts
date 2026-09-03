@@ -1,7 +1,37 @@
+import type { ShowDialog, ShowToast } from '../shared/types';
+
 const GIST_CONF_KEY = 'gistConf';
 
-function getGistConf() {
-  const conf = GM_getValue(GIST_CONF_KEY) || {};
+interface GistConf {
+  TOKEN: string;
+  GIST_ID: string;
+  FILE_NAME: string;
+}
+
+interface GistFileResponse {
+  content?: string;
+}
+
+interface GistResponseBody {
+  files?: Record<string, GistFileResponse>;
+}
+
+interface GistRequestOptions {
+  url: string;
+  method?: string;
+  headers?: Record<string, string>;
+  data?: string;
+  responseType?: XMLHttpRequestResponseType;
+  timeout?: number;
+}
+
+interface GistSyncControllerOptions {
+  showDialog: ShowDialog;
+  showToast: ShowToast;
+}
+
+function getGistConf(): GistConf {
+  const conf = GM_getValue<Partial<GistConf>>(GIST_CONF_KEY) || {};
   return {
     TOKEN: conf.TOKEN || '',
     GIST_ID: conf.GIST_ID || '',
@@ -9,13 +39,16 @@ function getGistConf() {
   };
 }
 
-function setGistConf(conf) {
+function setGistConf(conf: GistConf): void {
   GM_setValue(GIST_CONF_KEY, conf);
 }
 
-function requestWithRetry(options, retry = 0) {
-  return new Promise((resolve, reject) => {
-    GM_xmlhttpRequest({
+function requestWithRetry<TResponse = unknown>(
+  options: GistRequestOptions,
+  retry = 0
+): Promise<GMXmlHttpRequestResponse<TResponse>> {
+  return new Promise<GMXmlHttpRequestResponse<TResponse>>((resolve, reject) => {
+    GM_xmlhttpRequest<TResponse>({
       ...options,
       onerror: reject,
       ontimeout: reject,
@@ -23,13 +56,18 @@ function requestWithRetry(options, retry = 0) {
         response.status >= 200 && response.status < 400 ? resolve(response) : reject(response);
       }
     });
-  }).catch((error) => {
+  }).catch((error: unknown) => {
     if (retry <= 0) throw error;
-    return requestWithRetry(options, retry - 1);
+    return requestWithRetry<TResponse>(options, retry - 1);
   });
 }
 
-function setGistData(token, gistId, fileName, content) {
+function setGistData(
+  token: string,
+  gistId: string,
+  fileName: string,
+  content: unknown
+): Promise<boolean> {
   const data = JSON.stringify({
     files: {
       [fileName]: {
@@ -38,7 +76,7 @@ function setGistData(token, gistId, fileName, content) {
     }
   });
 
-  return requestWithRetry({
+  return requestWithRetry<GistResponseBody>({
     url: `https://api.github.com/gists/${gistId}`,
     headers: {
       Accept: 'application/vnd.github.v3+json',
@@ -49,17 +87,17 @@ function setGistData(token, gistId, fileName, content) {
     method: 'PATCH',
     timeout: 30000
   }, 3).then((response) => {
-    const body = response?.response;
+    const body = response.response;
     const remoteContent = body?.files?.[fileName]?.content;
     return response.status === 200 && remoteContent === JSON.stringify(content);
-  }).catch((error) => {
+  }).catch((error: unknown) => {
     console.error(error);
     return false;
   });
 }
 
-function getGistData(token, gistId, fileName) {
-  return requestWithRetry({
+function getGistData(token: string, gistId: string, fileName: string): Promise<unknown | false> {
+  return requestWithRetry<GistResponseBody>({
     url: `https://api.github.com/gists/${gistId}`,
     headers: {
       Accept: 'application/vnd.github.v3+json',
@@ -70,16 +108,22 @@ function getGistData(token, gistId, fileName) {
     timeout: 30000
   }, 3).then((response) => {
     if (response.status !== 200) return false;
-    const content = response?.response?.files?.[fileName]?.content;
+    const body = response.response;
+    const content = body?.files?.[fileName]?.content;
     if (!content) return false;
     return JSON.parse(content);
-  }).catch((error) => {
+  }).catch((error: unknown) => {
     console.error(error);
     return false;
   });
 }
 
-function createLabeledInput(labelText, value, placeholder, type = 'text') {
+function createLabeledInput(
+  labelText: string,
+  value: string,
+  placeholder: string,
+  type = 'text'
+): { wrapper: HTMLLabelElement; input: HTMLInputElement } {
   const wrapper = document.createElement('label');
   wrapper.className = 'glc-form-field';
 
@@ -98,13 +142,13 @@ function createLabeledInput(labelText, value, placeholder, type = 'text') {
   return { wrapper, input };
 }
 
-function createGistSyncController({ showDialog, showToast }) {
-  function validateConf(conf) {
+function createGistSyncController({ showDialog, showToast }: GistSyncControllerOptions) {
+  function validateConf(conf: GistConf): boolean {
     return Boolean(conf.TOKEN && conf.GIST_ID && conf.FILE_NAME);
   }
 
-  function buildUploadPayload() {
-    const payload = {};
+  function buildUploadPayload(): Record<string, unknown> {
+    const payload: Record<string, unknown> = {};
     const keys = GM_listValues();
     keys.forEach((key) => {
       if (key === GIST_CONF_KEY) return;
@@ -113,7 +157,7 @@ function createGistSyncController({ showDialog, showToast }) {
     return payload;
   }
 
-  async function uploadData(conf) {
+  async function uploadData(conf: GistConf): Promise<void> {
     if (!validateConf(conf)) {
       showToast('请先保存配置并测试', 'error');
       return;
@@ -127,7 +171,7 @@ function createGistSyncController({ showDialog, showToast }) {
     showToast('同步到 Gist 失败，请查看控制台错误', 'error');
   }
 
-  async function downloadData(conf) {
+  async function downloadData(conf: GistConf): Promise<void> {
     if (!validateConf(conf)) {
       showToast('请先保存配置并测试', 'error');
       return;
@@ -137,14 +181,14 @@ function createGistSyncController({ showDialog, showToast }) {
       showToast('未检测到远程数据，请检查配置', 'error');
       return;
     }
-    Object.entries(remoteData).forEach(([key, value]) => {
+    Object.entries(remoteData as Record<string, unknown>).forEach(([key, value]) => {
       if (key === GIST_CONF_KEY) return;
       GM_setValue(key, value);
     });
     showToast('从 Gist 同步成功', 'success');
   }
 
-  function openGistSyncDialog() {
+  function openGistSyncDialog(): void {
     const conf = getGistConf();
     const bodyNode = document.createElement('div');
 
@@ -173,7 +217,7 @@ function createGistSyncController({ showDialog, showToast }) {
     actionRow.appendChild(downloadButton);
     bodyNode.appendChild(actionRow);
 
-    const readConfFromInputs = () => ({
+    const readConfFromInputs = (): GistConf => ({
       TOKEN: tokenField.input.value.trim(),
       GIST_ID: gistIdField.input.value.trim(),
       FILE_NAME: fileNameField.input.value.trim()

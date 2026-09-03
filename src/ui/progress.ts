@@ -1,7 +1,12 @@
-function createProgressController(createModalRoot) {
-  let progressPanelStateMap = {};
+import type { ProgressPanelOptions, ProgressStateMap } from '../shared/types';
 
-  function showProgressPanel(stateMap, { replace = false } = {}) {
+function createProgressController(createModalRoot: () => HTMLElement) {
+  let progressPanelStateMap: ProgressStateMap = {};
+
+  function showProgressPanel(
+    stateMap: ProgressStateMap,
+    { replace = false }: ProgressPanelOptions = {}
+  ): void {
     if (replace) {
       progressPanelStateMap = { ...(stateMap || {}) };
     } else {
@@ -15,8 +20,8 @@ function createProgressController(createModalRoot) {
           <ul class="glc-progress-list"></ul>
         </div>
       </div>`;
-    const titleEl = root.querySelector('.glc-dialog-title');
-    const listEl = root.querySelector('.glc-progress-list');
+    const titleEl = root.querySelector<HTMLElement>('.glc-dialog-title');
+    const listEl = root.querySelector<HTMLUListElement>('.glc-progress-list');
     if (titleEl) titleEl.textContent = '正在更新缓存';
     if (listEl) {
       Object.entries(progressPanelStateMap).forEach(([platform, state]) => {
@@ -35,7 +40,7 @@ function createProgressController(createModalRoot) {
     }
   }
 
-  function clearProgressPanel() {
+  function clearProgressPanel(): void {
     progressPanelStateMap = {};
     const root = createModalRoot();
     if (root.querySelector('.glc-progress-dialog')) root.innerHTML = '';
