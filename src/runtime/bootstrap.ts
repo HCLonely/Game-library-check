@@ -83,6 +83,11 @@ const { createIgModule } = require('../platforms/ig.ts') as {
   createIgModule: PlatformModuleFactory;
 };
 
+/**
+ * Initializes the merged userscript runtime, shared UI services, platform modules, styles, and menu actions.
+ *
+ * Startup exits before platform initialization when the current URL is disabled by user settings.
+ */
 function bootstrapMergedRuntime(): void {
   const { showProgressPanel, clearProgressPanel } = createProgressController(createModalRoot);
 
@@ -98,22 +103,52 @@ function bootstrapMergedRuntime(): void {
     showToast
   });
 
+  /**
+   * Finds elements matching a selector for platform link scanners.
+   *
+   * @param selector - CSS selector to query from the document.
+   * @returns Matching elements as an array.
+   */
   function queryLinks(selector: string): Element[] {
     return Array.from(document.querySelectorAll(selector));
   }
 
+  /**
+   * Adds a CSS class to an element when it is present and not already marked.
+   *
+   * @param el - Optional target element.
+   * @param className - Class to apply.
+   */
   function addClass(el: Element | null | undefined, className: string): void {
     if (el && !el.classList.contains(className)) el.classList.add(className);
   }
 
+  /**
+   * Reads an element's href attribute without requiring it to be an anchor.
+   *
+   * @param el - Optional element whose href should be read.
+   * @returns The href attribute, or an empty string when unavailable.
+   */
   function getHref(el: Element | null | undefined): string {
     return (el && el.getAttribute('href')) || '';
   }
 
+  /**
+   * Parses remote HTML into an inert document for platform-specific scraping.
+   *
+   * @param html - HTML source to parse.
+   * @returns A document created with the HTML parser.
+   */
   function parseHtml(html: string): Document {
     return new DOMParser().parseFromString(html, 'text/html');
   }
 
+  /**
+   * Opens a login-expired dialog that can launch the affected platform's login page in a new tab.
+   *
+   * @param platformName - Display name of the expired platform session.
+   * @param loginUrl - Login page to open after confirmation.
+   */
   function showLoginExpiredDialog(platformName: string, loginUrl: string): void {
     showDialog({
       title: '登录状态已失效',

@@ -10,6 +10,12 @@ interface IgParsedShowcase {
   games: string[];
 }
 
+/**
+ * Creates the IndieGala library module that marks owned links and synchronizes the showcase cache.
+ *
+ * @param context - Shared runtime services, settings, UI feedback, and update-status constants.
+ * @returns An IndieGala library module with startup and update actions.
+ */
 function createIgModule(context: ModuleContext): LibraryModule {
   const {
     settings,
@@ -27,12 +33,20 @@ function createIgModule(context: ModuleContext): LibraryModule {
 
   let started = false;
 
+  /**
+   * Reads and normalizes owned IndieGala paths from the persistent cache.
+   *
+   * @returns Lowercase game path keys, or an empty array when no cache exists.
+   */
   function getIgOwnedGames(): string[] {
     return (GM_getValue<IgOwnedCache>('IG-Owned')?.games || [])
       .filter(Boolean)
       .map((item) => item.toLowerCase());
   }
 
+  /**
+   * Marks unprocessed IndieGala links whose path or host key is present in the owned-games cache.
+   */
   function markIgLinks(): void {
     const owned = getIgOwnedGames();
     const links = queryLinks('a[href*=".indiegala.com"]:not(.ig-checked)');
@@ -51,6 +65,11 @@ function createIgModule(context: ModuleContext): LibraryModule {
     });
   }
 
+  /**
+   * Reads IndieGala cookies and serializes them for an authenticated showcase request.
+   *
+   * @returns A semicolon-delimited Cookie header value.
+   */
   function getIgCookies(): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       GM_cookie.list({ url: 'https://www.indiegala.com/library/showcase/1' }, (cookies, error) => {
@@ -63,6 +82,13 @@ function createIgModule(context: ModuleContext): LibraryModule {
     });
   }
 
+  /**
+   * Requests one authenticated IndieGala library showcase page.
+   *
+   * @param page - One-based showcase page number.
+   * @param cookies - Serialized authentication cookies.
+   * @returns The successful HTTP response, or rejects on request failure.
+   */
   async function requestIgShowcasePage(
     page: number,
     cookies: string
@@ -82,6 +108,13 @@ function createIgModule(context: ModuleContext): LibraryModule {
     });
   }
 
+  /**
+   * Parses showcase HTML into owned game paths and, on the first page, its page count.
+   *
+   * @param responseText - Showcase HTML response body.
+   * @param page - Page the response represents.
+   * @returns Parsed page count and normalized game paths.
+   */
   function parseIgShowcase(responseText: string, page: number): IgParsedShowcase {
     const doc = parseHtml(responseText);
     let pages = 1;
@@ -97,6 +130,15 @@ function createIgModule(context: ModuleContext): LibraryModule {
     return { pages, games };
   }
 
+  /**
+   * Fetches IndieGala showcase pages and persists the deduplicated owned-games cache.
+   *
+   * Background updates merge the first page into the existing cache; interactive updates fetch every page and
+   * display progress. A login redirect returns the authentication-expired sentinel.
+   *
+   * @param loop - Whether to perform a full interactive synchronization.
+   * @returns Update success, failure, or an authentication-expired result.
+   */
   async function updateIgGameLibrary(loop = true): Promise<UpdateResult> {
     try {
       const owned = getIgOwnedGames();

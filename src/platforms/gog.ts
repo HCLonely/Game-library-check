@@ -10,6 +10,12 @@ interface GogLibraryResponse {
   totalPages?: number;
 }
 
+/**
+ * Creates the GOG library module that marks owned store links and maintains the cached library.
+ *
+ * @param context - Shared runtime services, settings, UI feedback, and update-status constants.
+ * @returns A GOG library module with startup and update actions.
+ */
 function createGogModule(context: ModuleContext): LibraryModule {
   const {
     settings,
@@ -49,6 +55,15 @@ function createGogModule(context: ModuleContext): LibraryModule {
         subtree: true
       });
 
+      /**
+       * Marks unprocessed GOG links that are present in the cached game library.
+       *
+       * The initial scan starts a rate-limited background refresh and displays an authentication-expired notice
+       * when applicable.
+       *
+       * @param first - Whether this is the initial scan that may trigger an update.
+       * @param again - Whether a mutation-triggered scan should only skip already scanned links.
+       */
       function checkGogGame(first = true, again = false): void {
         loadTimes++;
         if (loadTimes > 1000) {
@@ -82,9 +97,25 @@ function createGogModule(context: ModuleContext): LibraryModule {
           }
         });
       }
+      /**
+       * Reads normalized GOG game slugs from userscript storage.
+       *
+       * @returns Cached game slugs, or an empty array when no cache exists.
+       */
       function getGogGameLibrary(): string[] {
         return GM_getValue<string[]>('gogGames') || [];
       }
+      /**
+       * Fetches paginated GOG library data and writes the resulting slugs to persistent storage.
+       *
+       * Interactive runs report progress and completion; a redirected login response returns the
+       * authentication-expired sentinel for the caller to handle.
+       *
+       * @param loop - Whether to fetch all pages with interactive progress.
+       * @param i - Current one-based page number.
+       * @param games - Slugs collected from earlier pages.
+       * @returns Update success, failure, or an authentication-expired result.
+       */
       function updateGogGameLibrary(
         loop = true,
         i = 1,

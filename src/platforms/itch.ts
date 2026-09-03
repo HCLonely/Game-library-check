@@ -22,6 +22,12 @@ const { createItchLinkage } = require('../core/itch-linkage.ts') as {
   };
 };
 
+/**
+ * Creates the itch.io library module, including ownership marking, cache updates, and linkage-code support.
+ *
+ * @param context - Shared runtime services, settings, UI feedback, and update-status constants.
+ * @returns An itch.io module with standard library actions and linkage-code generation.
+ */
 function createItchModule(context: ModuleContext): ItchModule {
   const {
     settings,
@@ -39,9 +45,20 @@ function createItchModule(context: ModuleContext): ItchModule {
 
   let updateLibrary: ((loop?: boolean, page?: number, games?: string[]) => Promise<UpdateResult> | void) | undefined;
   let started = false;
+  /**
+   * Reads cached itch.io game identifiers from userscript storage.
+   *
+   * @returns Cached game identifiers, or an empty array when no cache exists.
+   */
   function getItchGameLibrary(): string[] {
     return GM_getValue<string[]>('itchGames') || [];
   }
+  /**
+   * Merges supplied itch.io game identifiers into the persistent library cache.
+   *
+   * @param games - Identifiers to add, typically received through linkage import.
+   * @returns The deduplicated cache after the merge, or the existing cache for invalid input.
+   */
   function addItchGames(games: string[]): string[] {
     if (!Array.isArray(games)) return getItchGameLibrary();
     const library = [...new Set([...getItchGameLibrary(), ...games])];
@@ -71,6 +88,14 @@ function createItchModule(context: ModuleContext): ItchModule {
         subtree: true
       });
 
+      /**
+       * Marks unprocessed itch.io store links that appear in the cached ownership library.
+       *
+       * The initial scan starts a rate-limited background refresh and shows an expired-login notice when needed.
+       *
+       * @param first - Whether this is the initial scan that may trigger an update.
+       * @param again - Whether a mutation-triggered scan should only skip already scanned links.
+       */
       function checkItchGame(first = true, again = false): void {
         loadTimes++;
         if (loadTimes > 1000) {
@@ -104,6 +129,17 @@ function createItchModule(context: ModuleContext): ItchModule {
           }
         });
       }
+      /**
+       * Fetches paginated itch.io purchases and updates the persistent ownership cache.
+       *
+       * Interactive runs show progress and completion; a login redirect returns the authentication-expired
+       * sentinel for the caller to surface.
+       *
+       * @param loop - Whether to fetch all pages with interactive progress.
+       * @param i - Current one-based page number.
+       * @param games - Identifiers collected from earlier pages.
+       * @returns Update success, failure, or an authentication-expired result.
+       */
       function updateItchGameLibrary(
         loop = true,
         i = 1,

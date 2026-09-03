@@ -12,6 +12,12 @@ interface CubeLibraryResponse {
   };
 }
 
+/**
+ * Creates the CubeJoy library module that marks owned store links and updates the cached game IDs.
+ *
+ * @param context - Shared runtime services, settings, UI feedback, and update-status constants.
+ * @returns A CubeJoy library module with startup and update actions.
+ */
 function createCubeModule(context: ModuleContext): LibraryModule {
   const {
     settings,
@@ -50,6 +56,14 @@ function createCubeModule(context: ModuleContext): LibraryModule {
         subtree: true
       });
 
+      /**
+       * Marks unprocessed CubeJoy store links whose game IDs exist in the persistent library cache.
+       *
+       * On its first pass, this also starts a background cache refresh and reports expired authentication.
+       *
+       * @param first - Whether this is the initial scan that may trigger an update.
+       * @param again - Whether a mutation-triggered scan should only skip already scanned links.
+       */
       function checkCubeGame(first = true, again = false): void {
         loadTimes++;
         if (loadTimes > 1000) {
@@ -78,9 +92,25 @@ function createCubeModule(context: ModuleContext): LibraryModule {
           }
         });
       }
+      /**
+       * Reads the cached CubeJoy game IDs from userscript storage.
+       *
+       * @returns Cached IDs, or an empty array when no cache exists.
+       */
       function getCubeGameLibrary(): number[] {
         return GM_getValue<number[]>('cubeGames') || [];
       }
+      /**
+       * Fetches paginated CubeJoy purchases and updates the persistent game-ID cache.
+       *
+       * Interactive runs show progress and a result message; background runs merge new IDs and may return the
+       * authentication-expired sentinel when the account endpoint rejects the session.
+       *
+       * @param loop - Whether to fetch every page and show interactive progress.
+       * @param i - Current one-based page number.
+       * @param games - IDs collected from earlier pages.
+       * @returns Update success, failure, or an authentication-expired result.
+       */
       function updateCubeGameLibrary(
         loop = true,
         i = 1,

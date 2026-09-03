@@ -39,6 +39,12 @@ type EpicRequestOptions = Omit<
   'url' | 'onload' | 'onerror' | 'ontimeout'
 >;
 
+/**
+ * Creates the Epic Games module that marks owned and wishlisted store links and maintains its cache.
+ *
+ * @param context - Shared runtime services, settings, UI feedback, and update-status constants.
+ * @returns An Epic Games library module with startup and update actions.
+ */
 function createEpicModule(context: ModuleContext): LibraryModule {
   const {
     settings,
@@ -88,6 +94,14 @@ function createEpicModule(context: ModuleContext): LibraryModule {
         subtree: true
       });
 
+      /**
+       * Marks unprocessed Epic store links as owned or wishlisted from cached account data.
+       *
+       * The initial scan starts a rate-limited background update and surfaces its authentication-expired result.
+       *
+       * @param first - Whether this is the initial scan that may trigger an update.
+       * @param again - Whether a mutation-triggered scan should only skip already scanned links.
+       */
       async function checkEpicGame(first = true, again = false): Promise<void> {
         loadTimes++;
         if (loadTimes > 1000) {
@@ -136,10 +150,20 @@ function createEpicModule(context: ModuleContext): LibraryModule {
         });
       }
 
+      /**
+       * Reads cached Epic ownership records from userscript storage.
+       *
+       * @returns Owned game records, or an empty array when no cache exists.
+       */
       function getEpicOwnedGames(): EpicCachedGame[] {
         return GM_getValue<EpicCachedGame[]>('ownedGames') || [];
       }
 
+      /**
+       * Loads Epic's store page to capture the persisted catalog-query hash and active locale.
+       *
+       * Failures are logged and leave the catalog lookup unavailable until a later retry.
+       */
       async function getSha256Hash(): Promise<void> {
         console.log('[EGLC] getSha256Hash...');
         return new Promise<GMXmlHttpRequestResponse<string>>((resolve, reject) => {
@@ -167,6 +191,13 @@ function createEpicModule(context: ModuleContext): LibraryModule {
           });
       }
 
+      /**
+       * Resolves an Epic catalog offer into page slugs used to match store links.
+       *
+       * @param namespace - Epic sandbox namespace for the offer.
+       * @param offerId - Epic offer ID to query.
+       * @returns Deduplicated product slugs, or `false` when catalog data cannot be obtained.
+       */
       async function getPagePlug(namespace: string, offerId: string): Promise<string[] | false> {
         console.log('[EGLC] getPagePlug...');
         if (catalogOfferSha256Hash === false) {
@@ -304,6 +335,12 @@ function createEpicModule(context: ModuleContext): LibraryModule {
       //   return true;
       // }
 
+      /**
+       * Reads one Epic account cookie for authenticated order-history requests.
+       *
+       * @param name - Cookie name to retrieve.
+       * @returns The cookie value, or the `null` string when it is absent.
+       */
       function getEpicCookies(name: string): Promise<string> {
         return new Promise<string>((resolve, reject) => {
           GM_cookie.list({ url: 'https://accounts.epicgames.com/', name }, (cookies, error) => {
@@ -316,6 +353,11 @@ function createEpicModule(context: ModuleContext): LibraryModule {
         });
       }
 
+      /**
+       * Serializes all Epic account cookies into a request Cookie header.
+       *
+       * @returns A semicolon-delimited Cookie header value.
+       */
       function getAllEpicCookies(): Promise<string> {
         return new Promise<string>((resolve, reject) => {
           GM_cookie.list({ url: 'https://accounts.epicgames.com/' }, (cookies, error) => {
@@ -328,6 +370,13 @@ function createEpicModule(context: ModuleContext): LibraryModule {
         });
       }
 
+      /**
+       * Parses one Set-Cookie header into the object required by the GM cookie API.
+       *
+       * @param cookieString - Raw Set-Cookie header value.
+       * @param fallbackUrl - URL used when the header does not define a domain.
+       * @returns A cookie object with the fallback URL and parsed attributes.
+       */
       function parseSetCookieHeader(cookieString: string, fallbackUrl: string): GMCookie & { url: string } {
         const parts = cookieString.split(';').map((s) => s.trim());
         const [nameValue, ...attrs] = parts;
@@ -366,6 +415,13 @@ function createEpicModule(context: ModuleContext): LibraryModule {
         return cookie;
       }
 
+      /**
+       * Extracts Set-Cookie headers from a response and persists them through the GM cookie API.
+       *
+       * @param responseHeaders - Raw HTTP response headers.
+       * @param url - URL that received the response.
+       * @returns A promise that resolves after every parsed cookie has been submitted.
+       */
       function extractAndSetCookies(responseHeaders: string, url: string): Promise<void[]> | Promise<void> {
         if (!responseHeaders) return Promise.resolve();
         const setCookieLines = responseHeaders.split(/\r?\n/).filter((line) => /^set-cookie:\s*/i.test(line));
@@ -385,11 +441,26 @@ function createEpicModule(context: ModuleContext): LibraryModule {
         return Promise.all(cookiePromises);
       }
 
+      /**
+       * Reads the Location value from raw HTTP response headers.
+       *
+       * @param responseHeaders - Raw HTTP response headers.
+       * @returns The redirect target, or `null` when no Location header exists.
+       */
       function getLocationHeader(responseHeaders: string): string | null {
         const match = responseHeaders?.match(/^location:\s*(.+)/im);
         return match ? match[1].trim() : null;
       }
 
+      /**
+       * Requests Epic order data while manually following redirects and persisting redirect cookies.
+       *
+       * @param initialUrl - First URL to request.
+       * @param baseOptions - Request options shared by every redirect hop.
+       * @param maxRedirects - Maximum redirects allowed before failing.
+       * @returns The final successful order-history response.
+       * @throws When a redirect lacks a Location header, a response fails, or the redirect limit is exceeded.
+       */
       async function requestWithRedirect(
         initialUrl: string,
         baseOptions: EpicRequestOptions,
@@ -428,6 +499,18 @@ function createEpicModule(context: ModuleContext): LibraryModule {
         throw new Error('[EGLC] Too many redirects');
       }
 
+      /**
+       * Fetches Epic order history, resolves catalog slugs, and writes owned games to persistent storage.
+       *
+       * Interactive runs show progress and completion. Login redirects return the authentication-expired sentinel;
+       * background runs merge partial results and rescan links after each completed update.
+       *
+       * @param loop - Whether to fetch every page with interactive progress.
+       * @param i - Current zero-based order-history page index.
+       * @param games - Ownership records accumulated from prior pages.
+       * @param nextPageToken - Pagination token for the next order-history request.
+       * @returns Update success, failure, or an authentication-expired result.
+       */
       async function updateEpicOwnedGames(
         loop = true,
         i = 0,
