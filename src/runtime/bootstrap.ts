@@ -1,17 +1,87 @@
-import type { LibraryModule, ModuleContext } from '../shared/types';
+import type {
+  GlobalSettings,
+  LibraryModule,
+  ModuleContext,
+  ProgressPanelOptions,
+  ProgressStateMap,
+  ShowDialog,
+  ShowToast,
+  ToastType,
+  UpdateStatusConstants
+} from '../shared/types';
 
-const { createModalRoot, showDialog } = require('../ui/dialog');
-const { showToast } = require('../ui/toast');
-const { createProgressController } = require('../ui/progress');
-const { createSettingsController } = require('../core/settings');
-const { createStartupFlow } = require('../core/startup');
-const { createGistSyncController } = require('../core/gist-sync');
-const { UPDATE_STATUS, BASE_STYLE } = require('../shared/constants');
-const { createEpicModule } = require('../platforms/epic');
-const { createGogModule } = require('../platforms/gog');
-const { createItchModule } = require('../platforms/itch');
-// const { createCubeModule } = require('../platforms/cube');
-const { createIgModule } = require('../platforms/ig');
+interface ProgressController {
+  showProgressPanel: (stateMap: ProgressStateMap, options?: ProgressPanelOptions) => void;
+  clearProgressPanel: () => void;
+}
+
+interface SettingsController {
+  settings: GlobalSettings;
+  setting: () => void;
+  openPlatformSwitchDialog: () => void;
+  isUrlEnabled: (url: string) => boolean;
+}
+
+interface StartupFlowController {
+  runInitialFlow: (modules: LibraryModule[]) => Promise<void>;
+  showUpdateStep: (platform: string, text: string) => void;
+  showUpdateResult: (title: string, type: ToastType) => Promise<boolean>;
+  openManualUpdateDialogAndRun: (modules: LibraryModule[]) => void;
+  runAutoUpdateWithRateLimit: ModuleContext['runAutoUpdateWithRateLimit'];
+}
+
+interface ItchModule extends LibraryModule {
+  generateLinkageCode: () => Promise<string>;
+}
+
+type PlatformModuleFactory = (context: ModuleContext) => LibraryModule;
+
+const { createModalRoot, showDialog } = require('../ui/dialog') as {
+  createModalRoot: () => HTMLElement;
+  showDialog: ShowDialog;
+};
+const { showToast } = require('../ui/toast') as { showToast: ShowToast };
+const { createProgressController } = require('../ui/progress') as {
+  createProgressController: (createRoot: () => HTMLElement) => ProgressController;
+};
+const { createSettingsController } = require('../core/settings') as {
+  createSettingsController: (options: { showDialog: ShowDialog }) => SettingsController;
+};
+const { createStartupFlow } = require('../core/startup') as {
+  createStartupFlow: (options: {
+    showDialog: ShowDialog;
+    showProgressPanel: ProgressController['showProgressPanel'];
+    clearProgressPanel: ProgressController['clearProgressPanel'];
+    showToast: ShowToast;
+    showLoginExpiredDialog: (platformName: string, loginUrl: string) => void;
+    updateStatus: UpdateStatusConstants;
+  }) => StartupFlowController;
+};
+const { createGistSyncController } = require('../core/gist-sync') as {
+  createGistSyncController: (options: {
+    showDialog: ShowDialog;
+    showToast: ShowToast;
+  }) => { openGistSyncDialog: () => void };
+};
+const { UPDATE_STATUS, BASE_STYLE } = require('../shared/constants') as {
+  UPDATE_STATUS: UpdateStatusConstants;
+  BASE_STYLE: string;
+};
+const { createEpicModule } = require('../platforms/epic') as {
+  createEpicModule: PlatformModuleFactory;
+};
+const { createGogModule } = require('../platforms/gog') as {
+  createGogModule: PlatformModuleFactory;
+};
+const { createItchModule } = require('../platforms/itch') as {
+  createItchModule: (context: ModuleContext) => ItchModule;
+};
+// const { createCubeModule } = require('../platforms/cube') as {
+//   createCubeModule: PlatformModuleFactory;
+// };
+const { createIgModule } = require('../platforms/ig') as {
+  createIgModule: PlatformModuleFactory;
+};
 
 function bootstrapMergedRuntime(): void {
   const { showProgressPanel, clearProgressPanel } = createProgressController(createModalRoot);
@@ -50,7 +120,9 @@ function bootstrapMergedRuntime(): void {
       bodyText: `${platformName} 登录凭证已过期，需要重新登录。`,
       confirmText: '去登录',
       cancelText: '稍后',
-      onConfirm: () => GM_openInTab(loginUrl, { active: true, insert: true, setParent: true })
+      onConfirm: () => {
+        GM_openInTab(loginUrl, { active: true, insert: true, setParent: true });
+      }
     });
   }
 

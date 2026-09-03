@@ -4,7 +4,7 @@ declare function GM_deleteValue(key: string): void;
 declare function GM_listValues(): string[];
 declare function GM_addStyle(css: string): void;
 declare const unsafeWindow: Window & Record<string, unknown>;
-declare function require(moduleName: string): any;
+declare function require(moduleName: string): unknown;
 
 interface GMXmlHttpRequestResponse<TResponse = unknown> {
   finalUrl: string;
