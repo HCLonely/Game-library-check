@@ -64,7 +64,10 @@ const { createProgressController } = require('../ui/progress.ts') as {
 };
 const { createSettingsController } = require('../core/settings.ts') as {
   /** Creates the global settings controller. */
-  createSettingsController: (options: { showDialog: ShowDialog }) => SettingsController;
+  createSettingsController: (options: {
+    /** Opens settings dialogs. */
+    showDialog: ShowDialog;
+  }) => SettingsController;
 };
 const { createStartupFlow } = require('../core/startup.ts') as {
   /** Creates the initial and manual library update controller. */
@@ -99,9 +102,11 @@ const { UPDATE_STATUS, BASE_STYLE } = require('../shared/constants.ts') as {
   BASE_STYLE: string;
 };
 const { createEpicModule } = require('../platforms/epic.ts') as {
+  /** Creates the Epic Games Store platform module. */
   createEpicModule: PlatformModuleFactory;
 };
 const { createGogModule } = require('../platforms/gog.ts') as {
+  /** Creates the GOG platform module. */
   createGogModule: PlatformModuleFactory;
 };
 const { createItchModule } = require('../platforms/itch.ts') as {

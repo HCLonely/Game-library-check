@@ -115,7 +115,10 @@ function createItchLinkage({
   addGames,
   updateLibrary,
   showToast
-}: ItchLinkageOptions): { generateLinkageCode: () => Promise<string> } {
+}: ItchLinkageOptions): {
+  /** Generates and persists an itch.io library linkage code. */
+  generateLinkageCode: () => Promise<string>;
+} {
   let mousePosition: MousePosition = { x: 0, y: 0 };
   let linkageCode = GM_getValue<string>(ITCH_LINKAGE_CODE_KEY) || '';
 
