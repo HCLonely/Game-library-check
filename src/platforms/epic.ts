@@ -115,6 +115,7 @@ function createEpicModule(context: ModuleContext): LibraryModule {
           .filter((el) => !el.classList.contains(excludedClass));
         if (epicLink.length === 0) return;
         if (first) {
+          /** Refreshes the Epic ownership cache without interactive status UI. */
           const autoUpdate = () => updateEpicOwnedGames(false);
           let runner = autoUpdate;
           if (typeof runAutoUpdateWithRateLimit === 'function') {

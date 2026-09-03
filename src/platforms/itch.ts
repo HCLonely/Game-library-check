@@ -6,18 +6,25 @@ interface ItchPurchasesResponse {
 }
 
 interface ItchModule extends LibraryModule {
+  /** Generates a code for linking the itch.io library with another installation. */
   generateLinkageCode: () => Promise<string>;
 }
 
 interface ItchLinkageOptions {
+  /** Reads the cached itch.io game identifiers. */
   getGames: () => string[];
+  /** Adds game identifiers to the cached itch.io library. */
   addGames: (games: string[]) => string[];
+  /** Updates the itch.io library using the requested pagination state. */
   updateLibrary: (loop: boolean, page: number) => Awaitable<UpdateResult>;
+  /** Displays linkage workflow feedback to the user. */
   showToast: ShowToast;
 }
 
 const { createItchLinkage } = require('../core/itch-linkage.ts') as {
+  /** Creates the itch.io linkage service from its platform dependencies. */
   createItchLinkage: (options: ItchLinkageOptions) => {
+    /** Generates a code for linking the itch.io library. */
     generateLinkageCode: () => Promise<string>;
   };
 };
@@ -108,6 +115,7 @@ function createItchModule(context: ModuleContext): ItchModule {
           .filter((el) => !el.classList.contains(excludedClass));
         if (itchLink.length === 0) return;
         if (first) {
+          /** Refreshes the itch.io ownership cache without interactive status UI. */
           const autoUpdate = () => updateItchGameLibrary(false);
           let runner = autoUpdate;
           if (typeof runAutoUpdateWithRateLimit === 'function') {

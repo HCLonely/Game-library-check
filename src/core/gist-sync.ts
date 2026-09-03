@@ -26,7 +26,9 @@ interface GistRequestOptions {
 }
 
 interface GistSyncControllerOptions {
+  /** Opens modal dialogs needed by the Gist synchronization workflow. */
   showDialog: ShowDialog;
+  /** Displays user-facing feedback for Gist synchronization outcomes. */
   showToast: ShowToast;
 }
 

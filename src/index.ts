@@ -1,4 +1,5 @@
 const { bootstrapMergedRuntime } = require('./runtime/bootstrap.ts') as {
+  /** Initializes the merged userscript runtime. */
   bootstrapMergedRuntime: () => void;
 };
 

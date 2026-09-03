@@ -11,6 +11,7 @@ type StoredGlobalSettings = Partial<Omit<GlobalSettings, 'platformEnabled'>> & {
 };
 
 interface SettingsControllerOptions {
+  /** Opens settings dialogs. */
   showDialog: ShowDialog;
 }
 

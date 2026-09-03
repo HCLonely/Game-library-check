@@ -72,6 +72,7 @@ function showDialog({
   if (confirmBtn) confirmBtn.textContent = confirmText;
 
   let closed = false;
+  /** Closes the active dialog and releases its event listeners. */
   const close = (): void => {
     if (closed) return;
     closed = true;
@@ -83,6 +84,7 @@ function showDialog({
     root.innerHTML = '';
   };
 
+  /** Invokes an optional dialog action before closing the dialog. */
   const runAndClose = (callback?: (root: HTMLElement) => void | Promise<void>): void => {
     try {
       if (typeof callback === 'function') callback(root);
@@ -91,11 +93,13 @@ function showDialog({
     }
   };
 
+  /** Closes the dialog when its Escape-key shortcut is pressed. */
   const onKeydown = (event: KeyboardEvent): void => {
     if (closed) return;
     if (event.key === 'Escape') runAndClose(onCancel);
   };
 
+  /** Closes the dialog when the user clicks its surrounding mask. */
   const onMaskClick = (event: MouseEvent): void => {
     if (closed) return;
     if (event.target !== maskEl) return;

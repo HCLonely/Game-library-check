@@ -11,57 +11,88 @@ import type {
 } from '../shared/types';
 
 interface ProgressController {
+  /** Shows the current per-platform update progress. */
   showProgressPanel: (stateMap: ProgressStateMap, options?: ProgressPanelOptions) => void;
+  /** Removes the active update progress display. */
   clearProgressPanel: () => void;
 }
 
 interface SettingsController {
   settings: GlobalSettings;
+  /** Opens the global settings dialog. */
   setting: () => void;
+  /** Opens the platform enablement dialog. */
   openPlatformSwitchDialog: () => void;
+  /** Determines whether a URL is enabled by the saved allow/block lists. */
   isUrlEnabled: (url: string) => boolean;
 }
 
 interface StartupFlowController {
+  /** Runs the initial update workflow for active modules. */
   runInitialFlow: (modules: LibraryModule[]) => Promise<void>;
+  /** Updates the visible status for one platform. */
   showUpdateStep: (platform: string, text: string) => void;
+  /** Shows the final status for one platform update. */
   showUpdateResult: (title: string, type: ToastType) => Promise<boolean>;
+  /** Opens the manual update selector and runs the chosen modules. */
   openManualUpdateDialogAndRun: (modules: LibraryModule[]) => void;
+  /** Runs a module update subject to platform rate limiting. */
   runAutoUpdateWithRateLimit: ModuleContext['runAutoUpdateWithRateLimit'];
 }
 
 interface ItchModule extends LibraryModule {
+  /** Generates an itch.io linkage code. */
   generateLinkageCode: () => Promise<string>;
 }
 
+/** Creates one platform module from the common runtime context. */
 type PlatformModuleFactory = (context: ModuleContext) => LibraryModule;
 
 const { createModalRoot, showDialog } = require('../ui/dialog.ts') as {
+  /** Creates the modal container used by shared UI. */
   createModalRoot: () => HTMLElement;
+  /** Opens a shared modal dialog. */
   showDialog: ShowDialog;
 };
-const { showToast } = require('../ui/toast.ts') as { showToast: ShowToast };
+const { showToast } = require('../ui/toast.ts') as {
+  /** Displays a shared toast notification. */
+  showToast: ShowToast;
+};
 const { createProgressController } = require('../ui/progress.ts') as {
+  /** Creates the shared progress panel controller. */
   createProgressController: (createRoot: () => HTMLElement) => ProgressController;
 };
 const { createSettingsController } = require('../core/settings.ts') as {
+  /** Creates the global settings controller. */
   createSettingsController: (options: { showDialog: ShowDialog }) => SettingsController;
 };
 const { createStartupFlow } = require('../core/startup.ts') as {
+  /** Creates the initial and manual library update controller. */
   createStartupFlow: (options: {
+    /** Opens dialogs needed by update flows. */
     showDialog: ShowDialog;
+    /** Shows per-platform update progress. */
     showProgressPanel: ProgressController['showProgressPanel'];
+    /** Removes the update progress display. */
     clearProgressPanel: ProgressController['clearProgressPanel'];
+    /** Displays update feedback. */
     showToast: ShowToast;
+    /** Prompts the user to reauthenticate after session expiration. */
     showLoginExpiredDialog: (platformName: string, loginUrl: string) => void;
     updateStatus: UpdateStatusConstants;
   }) => StartupFlowController;
 };
 const { createGistSyncController } = require('../core/gist-sync.ts') as {
+  /** Creates the Gist synchronization dialog controller. */
   createGistSyncController: (options: {
+    /** Opens Gist synchronization dialogs. */
     showDialog: ShowDialog;
+    /** Displays Gist synchronization feedback. */
     showToast: ShowToast;
-  }) => { openGistSyncDialog: () => void };
+  }) => {
+    /** Opens the Gist synchronization dialog. */
+    openGistSyncDialog: () => void;
+  };
 };
 const { UPDATE_STATUS, BASE_STYLE } = require('../shared/constants.ts') as {
   UPDATE_STATUS: UpdateStatusConstants;
@@ -74,12 +105,14 @@ const { createGogModule } = require('../platforms/gog.ts') as {
   createGogModule: PlatformModuleFactory;
 };
 const { createItchModule } = require('../platforms/itch.ts') as {
+  /** Creates the itch.io platform module. */
   createItchModule: (context: ModuleContext) => ItchModule;
 };
 // const { createCubeModule } = require('../platforms/cube.ts') as {
 //   createCubeModule: PlatformModuleFactory;
 // };
 const { createIgModule } = require('../platforms/ig.ts') as {
+  /** Creates the IndieGala platform module. */
   createIgModule: PlatformModuleFactory;
 };
 

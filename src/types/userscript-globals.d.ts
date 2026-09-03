@@ -1,9 +1,15 @@
+/** Reads a value from userscript storage. */
 declare function GM_getValue<T = unknown>(key: string, defaultValue?: T): T | undefined;
+/** Writes a value to userscript storage. */
 declare function GM_setValue(key: string, value: unknown): void;
+/** Removes a value from userscript storage. */
 declare function GM_deleteValue(key: string): void;
+/** Lists keys stored by the userscript. */
 declare function GM_listValues(): string[];
+/** Injects CSS into the current document. */
 declare function GM_addStyle(css: string): void;
 declare const unsafeWindow: Window & Record<string, unknown>;
+/** Loads a CommonJS module by name. */
 declare function require(moduleName: string): unknown;
 
 interface GMXmlHttpRequestResponse<TResponse = unknown> {
@@ -22,16 +28,22 @@ interface GMXmlHttpRequestDetails<TResponse = unknown> {
   headers?: Record<string, string>;
   data?: string | Document | XMLHttpRequestBodyInit | null;
   responseType?: XMLHttpRequestResponseType;
+  /** Handles a completed request response. */
   onload?: (response: GMXmlHttpRequestResponse<TResponse>) => void;
+  /** Handles a failed request response. */
   onerror?: (response: GMXmlHttpRequestResponse<TResponse>) => void;
+  /** Handles a request timeout response. */
   ontimeout?: (response: GMXmlHttpRequestResponse<TResponse>) => void;
   [key: string]: unknown;
 }
 
+/** Sends an asynchronous cross-origin userscript request. */
 declare function GM_xmlhttpRequest<TResponse = unknown>(
   details: GMXmlHttpRequestDetails<TResponse>
 ): void;
+/** Opens a URL in a browser tab through the userscript manager. */
 declare function GM_openInTab(url: string, options?: boolean | Record<string, unknown>): unknown;
+/** Registers a userscript menu command and its click handler. */
 declare function GM_registerMenuCommand(caption: string, onClick: () => void): unknown;
 
 interface GMCookie {

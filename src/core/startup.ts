@@ -12,10 +12,15 @@ import type {
 } from '../shared/types';
 
 interface StartupFlowOptions {
+  /** Opens selection and confirmation dialogs for startup flows. */
   showDialog: ShowDialog;
+  /** Shows the current per-platform update progress. */
   showProgressPanel: (stateMap: ProgressStateMap, options?: ProgressPanelOptions) => void;
+  /** Removes the active update progress display. */
   clearProgressPanel: () => void;
+  /** Displays user-facing startup and update feedback. */
   showToast: ShowToast;
+  /** Prompts the user to reauthenticate with an expired platform session. */
   showLoginExpiredDialog: (platformName: string, loginUrl: string) => void;
   updateStatus: UpdateStatusConstants;
 }

@@ -195,6 +195,7 @@ function createIgModule(context: ModuleContext): LibraryModule {
       if (started) return;
       started = true;
       markIgLinks();
+      /** Refreshes the IndieGala ownership cache without interactive status UI. */
       const autoUpdate = () => updateIgGameLibrary(false);
       let runner = autoUpdate;
       if (typeof runAutoUpdateWithRateLimit === 'function') {

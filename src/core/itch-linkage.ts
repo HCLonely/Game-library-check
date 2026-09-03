@@ -12,9 +12,13 @@ interface NavigatorWithDeviceMemory extends Navigator {
 }
 
 interface ItchLinkageOptions {
+  /** Reads the currently cached itch.io game identifiers. */
   getGames: () => string[];
+  /** Adds game identifiers to the itch.io ownership cache. */
   addGames: (games: string[]) => unknown;
+  /** Updates the itch.io ownership cache from the requested page sequence. */
   updateLibrary: (loop: boolean, page: number) => Awaitable<UpdateResult>;
+  /** Displays feedback while generating or using linkage data. */
   showToast: ShowToast;
 }
 

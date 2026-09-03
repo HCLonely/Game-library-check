@@ -76,6 +76,7 @@ function createGogModule(context: ModuleContext): LibraryModule {
           .filter((el) => !el.classList.contains(excludedClass));
         if (gogLink.length === 0) return;
         if (first) {
+          /** Refreshes the GOG ownership cache without interactive status UI. */
           const autoUpdate = () => updateGogGameLibrary(false);
           let runner = autoUpdate;
           if (typeof runAutoUpdateWithRateLimit === 'function') {
