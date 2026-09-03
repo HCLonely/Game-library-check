@@ -16,7 +16,7 @@ interface ItchLinkageOptions {
   showToast: ShowToast;
 }
 
-const { createItchLinkage } = require('../core/itch-linkage') as {
+const { createItchLinkage } = require('../core/itch-linkage.ts') as {
   createItchLinkage: (options: ItchLinkageOptions) => {
     generateLinkageCode: () => Promise<string>;
   };

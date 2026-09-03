@@ -36,18 +36,18 @@ interface ItchModule extends LibraryModule {
 
 type PlatformModuleFactory = (context: ModuleContext) => LibraryModule;
 
-const { createModalRoot, showDialog } = require('../ui/dialog') as {
+const { createModalRoot, showDialog } = require('../ui/dialog.ts') as {
   createModalRoot: () => HTMLElement;
   showDialog: ShowDialog;
 };
-const { showToast } = require('../ui/toast') as { showToast: ShowToast };
-const { createProgressController } = require('../ui/progress') as {
+const { showToast } = require('../ui/toast.ts') as { showToast: ShowToast };
+const { createProgressController } = require('../ui/progress.ts') as {
   createProgressController: (createRoot: () => HTMLElement) => ProgressController;
 };
-const { createSettingsController } = require('../core/settings') as {
+const { createSettingsController } = require('../core/settings.ts') as {
   createSettingsController: (options: { showDialog: ShowDialog }) => SettingsController;
 };
-const { createStartupFlow } = require('../core/startup') as {
+const { createStartupFlow } = require('../core/startup.ts') as {
   createStartupFlow: (options: {
     showDialog: ShowDialog;
     showProgressPanel: ProgressController['showProgressPanel'];
@@ -57,29 +57,29 @@ const { createStartupFlow } = require('../core/startup') as {
     updateStatus: UpdateStatusConstants;
   }) => StartupFlowController;
 };
-const { createGistSyncController } = require('../core/gist-sync') as {
+const { createGistSyncController } = require('../core/gist-sync.ts') as {
   createGistSyncController: (options: {
     showDialog: ShowDialog;
     showToast: ShowToast;
   }) => { openGistSyncDialog: () => void };
 };
-const { UPDATE_STATUS, BASE_STYLE } = require('../shared/constants') as {
+const { UPDATE_STATUS, BASE_STYLE } = require('../shared/constants.ts') as {
   UPDATE_STATUS: UpdateStatusConstants;
   BASE_STYLE: string;
 };
-const { createEpicModule } = require('../platforms/epic') as {
+const { createEpicModule } = require('../platforms/epic.ts') as {
   createEpicModule: PlatformModuleFactory;
 };
-const { createGogModule } = require('../platforms/gog') as {
+const { createGogModule } = require('../platforms/gog.ts') as {
   createGogModule: PlatformModuleFactory;
 };
-const { createItchModule } = require('../platforms/itch') as {
+const { createItchModule } = require('../platforms/itch.ts') as {
   createItchModule: (context: ModuleContext) => ItchModule;
 };
-// const { createCubeModule } = require('../platforms/cube') as {
+// const { createCubeModule } = require('../platforms/cube.ts') as {
 //   createCubeModule: PlatformModuleFactory;
 // };
-const { createIgModule } = require('../platforms/ig') as {
+const { createIgModule } = require('../platforms/ig.ts') as {
   createIgModule: PlatformModuleFactory;
 };
 

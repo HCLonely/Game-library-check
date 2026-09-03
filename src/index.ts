@@ -1,4 +1,4 @@
-const { bootstrapMergedRuntime } = require('./runtime/bootstrap') as {
+const { bootstrapMergedRuntime } = require('./runtime/bootstrap.ts') as {
   bootstrapMergedRuntime: () => void;
 };
 
