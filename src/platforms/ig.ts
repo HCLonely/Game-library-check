@@ -1,4 +1,16 @@
-function createIgModule(context) {
+import type { LibraryModule, ModuleContext, UpdateResult } from '../shared/types';
+
+interface IgOwnedCache {
+  time?: number;
+  games?: string[];
+}
+
+interface IgParsedShowcase {
+  pages: number;
+  games: string[];
+}
+
+function createIgModule(context: ModuleContext): LibraryModule {
   const {
     settings,
     queryLinks,
@@ -15,11 +27,13 @@ function createIgModule(context) {
 
   let started = false;
 
-  function getIgOwnedGames() {
-    return (GM_getValue('IG-Owned')?.games || []).filter(Boolean).map((item) => item.toLowerCase());
+  function getIgOwnedGames(): string[] {
+    return (GM_getValue<IgOwnedCache>('IG-Owned')?.games || [])
+      .filter(Boolean)
+      .map((item) => item.toLowerCase());
   }
 
-  function markIgLinks() {
+  function markIgLinks(): void {
     const owned = getIgOwnedGames();
     const links = queryLinks('a[href*=".indiegala.com"]:not(.ig-checked)');
     links.forEach((el) => {
@@ -37,8 +51,8 @@ function createIgModule(context) {
     });
   }
 
-  function getIgCookies() {
-    return new Promise((resolve, reject) => {
+  function getIgCookies(): Promise<string> {
+    return new Promise<string>((resolve, reject) => {
       GM_cookie.list({ url: 'https://www.indiegala.com/library/showcase/1' }, (cookies, error) => {
         if (error) {
           reject(error);
@@ -49,9 +63,12 @@ function createIgModule(context) {
     });
   }
 
-  async function requestIgShowcasePage(page, cookies) {
-    return new Promise((resolve, reject) => {
-      GM_xmlhttpRequest({
+  async function requestIgShowcasePage(
+    page: number,
+    cookies: string
+  ): Promise<GMXmlHttpRequestResponse<string>> {
+    return new Promise<GMXmlHttpRequestResponse<string>>((resolve, reject) => {
+      GM_xmlhttpRequest<string>({
         url: `https://www.indiegala.com/library/showcase/${page}`,
         method: 'GET',
         timeout: 30000,
@@ -65,7 +82,7 @@ function createIgModule(context) {
     });
   }
 
-  function parseIgShowcase(responseText, page) {
+  function parseIgShowcase(responseText: string, page: number): IgParsedShowcase {
     const doc = parseHtml(responseText);
     let pages = 1;
     if (page === 1) {
@@ -74,13 +91,13 @@ function createIgModule(context) {
       const parsedPage = Number((lastPageHref.match(/\d+/) || [1])[0]);
       pages = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1;
     }
-    const games = Array.from(doc.querySelectorAll('a.library-showcase-title'))
+    const games = Array.from(doc.querySelectorAll<HTMLAnchorElement>('a.library-showcase-title'))
       .map((el) => el.getAttribute('href')?.match(/https?:\/\/.*?\.indiegala\.com\/(.*)/)?.[1]?.toLowerCase())
-      .filter(Boolean);
+      .filter((game): game is string => Boolean(game));
     return { pages, games };
   }
 
-  async function updateIgGameLibrary(loop = true) {
+  async function updateIgGameLibrary(loop = true): Promise<UpdateResult> {
     try {
       const owned = getIgOwnedGames();
       if (loop) {
@@ -141,8 +158,8 @@ function createIgModule(context) {
       if (typeof runAutoUpdateWithRateLimit === 'function') {
         runner = () => runAutoUpdateWithRateLimit(moduleApi, autoUpdate);
       }
-      runner().then((result) => {
-        if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
+      Promise.resolve(runner()).then((result) => {
+        if (typeof result === 'object' && result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
           showToast('IG 登录状态已过期，请先登录', 'error', { duration: 0, closable: true, link: { href: result.loginUrl, text: '去登录' } });
         }
       });

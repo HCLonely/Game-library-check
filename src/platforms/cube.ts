@@ -1,4 +1,18 @@
-function createCubeModule(context) {
+import type { LibraryModule, ModuleContext, UpdateResult } from '../shared/types';
+
+interface CubeGame {
+  S_Id: number;
+}
+
+interface CubeLibraryResponse {
+  resultCode?: number;
+  result?: {
+    list?: CubeGame[];
+    total?: number;
+  };
+}
+
+function createCubeModule(context: ModuleContext): LibraryModule {
   const {
     settings,
     queryLinks,
@@ -11,15 +25,15 @@ function createCubeModule(context) {
     UPDATE_STATUS
   } = context;
 
-  let updateLibrary;
+  let updateLibrary: (() => Promise<UpdateResult> | void) | undefined;
   let started = false;
   const moduleApi = {
     key: 'cube',
     enabled: () => settings.platformEnabled.cube,
-    isCacheEmpty: () => (GM_getValue('cubeGames') || []).length === 0,
+    isCacheEmpty: () => (GM_getValue<number[]>('cubeGames') || []).length === 0,
     updateLibrary: () => {
       if (!updateLibrary) moduleApi.start();
-      return updateLibrary();
+      return updateLibrary!();
     },
     start: () => {
       if (started) return;
@@ -36,7 +50,7 @@ function createCubeModule(context) {
         subtree: true
       });
 
-      function checkCubeGame(first = true, again = false) {
+      function checkCubeGame(first = true, again = false): void {
         loadTimes++;
         if (loadTimes > 1000) {
           observer.disconnect();
@@ -48,8 +62,8 @@ function createCubeModule(context) {
           .filter((el) => !el.classList.contains(excludedClass));
         if (cubeLink.length === 0) return;
         if (first) {
-          updateCubeGameLibrary(false).then((result) => {
-            if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
+          Promise.resolve(updateCubeGameLibrary(false)).then((result) => {
+            if (typeof result === 'object' && result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
               showToast('方块 登录状态已过期，请先登录', 'error', { duration: 0, closable: true, link: { href: result.loginUrl, text: '去登录' } });
             }
           });
@@ -64,20 +78,24 @@ function createCubeModule(context) {
           }
         });
       }
-      function getCubeGameLibrary() {
-        return GM_getValue('cubeGames') || [];
+      function getCubeGameLibrary(): number[] {
+        return GM_getValue<number[]>('cubeGames') || [];
       }
-      function updateCubeGameLibrary(loop = true, i = 1, games = []) {
+      function updateCubeGameLibrary(
+        loop = true,
+        i = 1,
+        games: number[] = []
+      ): Promise<UpdateResult> | void {
         if (!loop && i !== 1) {
           GM_setValue('cubeGames', [...new Set([...getCubeGameLibrary(), ...games])]);
           checkCubeGame(false);
           return;
         }
-        return new Promise((resolve, reject) => {
+        return new Promise<GMXmlHttpRequestResponse<CubeLibraryResponse>>((resolve, reject) => {
           if (loop) {
             showUpdateStep('cube', `第 ${i} 页`);
           }
-          GM_xmlhttpRequest({
+          GM_xmlhttpRequest<CubeLibraryResponse>({
             method: 'POST',
             url: `https://account.cubejoy.com/Comment/MyGameReq?pageIndex=${i}&pageSize=24`,
             timeout: 15000,
@@ -105,7 +123,7 @@ function createCubeModule(context) {
           } else if (response.response?.result?.list?.length) {
             games = [...games, ...response.response.result.list.map((e) => e.S_Id)];
 
-            if (response.response?.result.total > i * 24) {
+            if ((response.response?.result.total || 0) > i * 24) {
               return await updateCubeGameLibrary(loop, ++i, games);
             } else if (loop) {
               GM_setValue('cubeGames', [...new Set(games)].filter((e) => e));

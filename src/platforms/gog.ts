@@ -1,4 +1,16 @@
-function createGogModule(context) {
+import type { LibraryModule, ModuleContext, UpdateResult } from '../shared/types';
+
+interface GogProduct {
+  slug?: string;
+  url?: string;
+}
+
+interface GogLibraryResponse {
+  products?: GogProduct[];
+  totalPages?: number;
+}
+
+function createGogModule(context: ModuleContext): LibraryModule {
   const {
     settings,
     queryLinks,
@@ -12,15 +24,15 @@ function createGogModule(context) {
     UPDATE_STATUS
   } = context;
 
-  let updateLibrary;
+  let updateLibrary: (() => Promise<UpdateResult> | void) | undefined;
   let started = false;
   const moduleApi = {
     key: 'gog',
     enabled: () => settings.platformEnabled.gog,
-    isCacheEmpty: () => (GM_getValue('gogGames') || []).length === 0,
+    isCacheEmpty: () => (GM_getValue<string[]>('gogGames') || []).length === 0,
     updateLibrary: () => {
       if (!updateLibrary) moduleApi.start();
-      return updateLibrary();
+      return updateLibrary!();
     },
     start: () => {
       if (started) return;
@@ -37,7 +49,7 @@ function createGogModule(context) {
         subtree: true
       });
 
-      function checkGogGame(first = true, again = false) {
+      function checkGogGame(first = true, again = false): void {
         loadTimes++;
         if (loadTimes > 1000) {
           observer.disconnect();
@@ -54,8 +66,8 @@ function createGogModule(context) {
           if (typeof runAutoUpdateWithRateLimit === 'function') {
             runner = () => runAutoUpdateWithRateLimit(moduleApi, autoUpdate);
           }
-          runner().then((result) => {
-            if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
+          Promise.resolve(runner()).then((result) => {
+            if (typeof result === 'object' && result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
               showToast('GOG 登录状态已过期，请先登录', 'error', { duration: 0, closable: true, link: { href: result.loginUrl, text: '去登录' } });
             }
           });
@@ -70,20 +82,24 @@ function createGogModule(context) {
           }
         });
       }
-      function getGogGameLibrary() {
-        return GM_getValue('gogGames') || [];
+      function getGogGameLibrary(): string[] {
+        return GM_getValue<string[]>('gogGames') || [];
       }
-      function updateGogGameLibrary(loop = true, i = 1, games = []) {
+      function updateGogGameLibrary(
+        loop = true,
+        i = 1,
+        games: string[] = []
+      ): Promise<UpdateResult> | void {
         if (!loop && i !== 1) {
           GM_setValue('gogGames', [...new Set([...getGogGameLibrary(), ...games])]);
           checkGogGame(false);
           return;
         }
-        return new Promise((resolve, reject) => {
+        return new Promise<GMXmlHttpRequestResponse<GogLibraryResponse>>((resolve, reject) => {
           if (loop) {
             showUpdateStep('gog', `第 ${i} 页`);
           }
-          GM_xmlhttpRequest({
+          GM_xmlhttpRequest<GogLibraryResponse>({
             method: 'GET',
             url: `https://www.gog.com/account/getFilteredProducts?hiddenFlag=0&mediaType=1&page=${i}&sortBy=date_purchased`,
             timeout: 15000,
@@ -103,9 +119,15 @@ function createGogModule(context) {
               loginUrl: 'https://www.gog.com/#openlogin'
             };
           } else if (response.response?.products?.length) {
-            games = [...games, ...response.response.products.map((e) => (e?.slug || e?.url?.split('/')?.[e?.url?.split('/').length - 1]))];
+            const pageGames = response.response.products
+              .map((product) => {
+                const urlParts = product.url?.split('/');
+                return product.slug || urlParts?.[urlParts.length - 1];
+              })
+              .filter((game): game is string => Boolean(game));
+            games = [...games, ...pageGames];
 
-            if (response.response?.totalPages > i) {
+            if ((response.response.totalPages || 0) > i) {
               return await updateGogGameLibrary(loop, ++i, games);
             } else if (loop) {
               GM_setValue('gogGames', [...new Set(games)].filter((e) => e));

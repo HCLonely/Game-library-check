@@ -1,6 +1,28 @@
-const { createItchLinkage } = require('../core/itch-linkage');
+import type { Awaitable, LibraryModule, ModuleContext, ShowToast, UpdateResult } from '../shared/types';
 
-function createItchModule(context) {
+interface ItchPurchasesResponse {
+  content?: string;
+  num_items?: number;
+}
+
+interface ItchModule extends LibraryModule {
+  generateLinkageCode: () => Promise<string>;
+}
+
+interface ItchLinkageOptions {
+  getGames: () => string[];
+  addGames: (games: string[]) => string[];
+  updateLibrary: (loop: boolean, page: number) => Awaitable<UpdateResult>;
+  showToast: ShowToast;
+}
+
+const { createItchLinkage } = require('../core/itch-linkage') as {
+  createItchLinkage: (options: ItchLinkageOptions) => {
+    generateLinkageCode: () => Promise<string>;
+  };
+};
+
+function createItchModule(context: ModuleContext): ItchModule {
   const {
     settings,
     queryLinks,
@@ -15,24 +37,24 @@ function createItchModule(context) {
     UPDATE_STATUS
   } = context;
 
-  let updateLibrary;
+  let updateLibrary: ((loop?: boolean, page?: number, games?: string[]) => Promise<UpdateResult> | void) | undefined;
   let started = false;
-  function getItchGameLibrary() {
-    return GM_getValue('itchGames') || [];
+  function getItchGameLibrary(): string[] {
+    return GM_getValue<string[]>('itchGames') || [];
   }
-  function addItchGames(games) {
+  function addItchGames(games: string[]): string[] {
     if (!Array.isArray(games)) return getItchGameLibrary();
     const library = [...new Set([...getItchGameLibrary(), ...games])];
     GM_setValue('itchGames', library);
     return library;
   }
-  const moduleApi = {
+  const moduleApi: LibraryModule & Partial<Pick<ItchModule, 'generateLinkageCode'>> = {
     key: 'itch',
     enabled: () => settings.platformEnabled.itch,
     isCacheEmpty: () => getItchGameLibrary().length === 0,
     updateLibrary: () => {
       if (!updateLibrary) moduleApi.start();
-      return updateLibrary();
+      return updateLibrary!();
     },
     start: () => {
       if (started) return;
@@ -49,7 +71,7 @@ function createItchModule(context) {
         subtree: true
       });
 
-      function checkItchGame(first = true, again = false) {
+      function checkItchGame(first = true, again = false): void {
         loadTimes++;
         if (loadTimes > 1000) {
           observer.disconnect();
@@ -66,8 +88,8 @@ function createItchModule(context) {
           if (typeof runAutoUpdateWithRateLimit === 'function') {
             runner = () => runAutoUpdateWithRateLimit(moduleApi, autoUpdate);
           }
-          runner().then((result) => {
-            if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
+          Promise.resolve(runner()).then((result) => {
+            if (typeof result === 'object' && result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
               showToast('itch.io 登录状态已过期，请先登录', 'error', { duration: 0, closable: true, link: { href: result.loginUrl, text: '去登录' } });
             }
           });
@@ -82,17 +104,21 @@ function createItchModule(context) {
           }
         });
       }
-      function updateItchGameLibrary(loop = true, i = 1, games = []) {
+      function updateItchGameLibrary(
+        loop = true,
+        i = 1,
+        games: string[] = []
+      ): Promise<UpdateResult> | void {
         if (!loop && i !== 1) {
           GM_setValue('itchGames', [...new Set([...getItchGameLibrary(), ...games])]);
           checkItchGame(false);
           return;
         }
-        return new Promise((resolve, reject) => {
+        return new Promise<GMXmlHttpRequestResponse<ItchPurchasesResponse>>((resolve, reject) => {
           if (loop) {
             showUpdateStep('itch', `第 ${i} 页`);
           }
-          GM_xmlhttpRequest({
+          GM_xmlhttpRequest<ItchPurchasesResponse>({
             method: 'GET',
             url: `https://itch.io/my-purchases?page=${i}&format=json`,
             timeout: 15000,
@@ -112,10 +138,12 @@ function createItchModule(context) {
               loginUrl: 'https://itch.io/login'
             };
           } else if (response.response?.num_items) {
-            const itchDoc = parseHtml(`<div>${response.response.content}</div>`);
+            const itchDoc = parseHtml(`<div>${response.response.content || ''}</div>`);
             const purchaseLinks = Array.from(itchDoc.querySelectorAll('a.thumb_link.game_link'));
-            games = [...games, ...purchaseLinks.map((el) => getHref(el)
-              .match(/https?:\/\/(.*?\/.*?)\//i)?.[1])];
+            const pageGames = purchaseLinks.map((el) => getHref(el)
+              .match(/https?:\/\/(.*?\/.*?)\//i)?.[1])
+              .filter((game): game is string => Boolean(game));
+            games = [...games, ...pageGames];
 
             if (response.response.num_items === 50) {
               return await updateItchGameLibrary(loop, ++i, games);
@@ -154,12 +182,12 @@ function createItchModule(context) {
     addGames: addItchGames,
     updateLibrary: (loop = false, i = 1) => {
       if (!started) moduleApi.start();
-      return updateLibrary(loop, i);
+      return updateLibrary!(loop, i);
     },
     showToast
   });
   moduleApi.generateLinkageCode = itchLinkage.generateLinkageCode;
-  return moduleApi;
+  return moduleApi as ItchModule;
 }
 
 module.exports = {

@@ -1,4 +1,45 @@
-function createEpicModule(context) {
+import type { LibraryModule, ModuleContext, UpdateResult } from '../shared/types';
+
+interface EpicCachedGame {
+  namespace: string;
+  offerId: string;
+  pageSlug: string[];
+}
+
+interface EpicWishlistGame {
+  offerId: string;
+  pageSlug: string[];
+}
+
+interface EpicCatalogResponse {
+  data?: {
+    Catalog?: {
+      catalogOffer?: {
+        offerMappings?: Array<{ pageSlug?: string }>;
+        urlSlug?: string;
+        customAttributes?: Array<{ key: string; value?: string }>;
+      };
+    };
+  };
+}
+
+interface EpicOrderItem {
+  namespace: string;
+  offerId: string;
+}
+
+interface EpicOrderHistoryResponse {
+  orders: Array<{ items?: EpicOrderItem[] }>;
+  nextPageToken?: string;
+  products?: unknown[];
+}
+
+type EpicRequestOptions = Omit<
+  GMXmlHttpRequestDetails<EpicOrderHistoryResponse>,
+  'url' | 'onload' | 'onerror' | 'ontimeout'
+>;
+
+function createEpicModule(context: ModuleContext): LibraryModule {
   const {
     settings,
     queryLinks,
@@ -12,15 +53,15 @@ function createEpicModule(context) {
     UPDATE_STATUS
   } = context;
 
-  let updateLibrary;
+  let updateLibrary: (() => Promise<UpdateResult>) | undefined;
   let started = false;
   const moduleApi = {
     key: 'epic',
     enabled: () => settings.platformEnabled.epic,
-    isCacheEmpty: () => (GM_getValue('ownedGames') || []).length === 0,
+    isCacheEmpty: () => (GM_getValue<EpicCachedGame[]>('ownedGames') || []).length === 0,
     updateLibrary: async () => {
       if (!updateLibrary) await moduleApi.start();
-      return updateLibrary();
+      return updateLibrary!();
     },
     start: async () => {
       if (started) return;
@@ -32,8 +73,8 @@ function createEpicModule(context) {
         GM_setValue('version', '1.1');
       }
       let loadTimes = 0;
-      let catalogOfferSha256Hash = false;
-      let locale = 'en-US';
+      let catalogOfferSha256Hash: string | false | undefined = false;
+      let locale: string | undefined = 'en-US';
 
       await getSha256Hash();
 
@@ -47,14 +88,14 @@ function createEpicModule(context) {
         subtree: true
       });
 
-      async function checkEpicGame(first = true, again = false) {
+      async function checkEpicGame(first = true, again = false): Promise<void> {
         loadTimes++;
         if (loadTimes > 1000) {
           observer.disconnect();
           return;
         }
         const ownedGames = getEpicOwnedGames();
-        const wishlistGames = GM_getValue('epicWishist') || [];
+        const wishlistGames = GM_getValue<EpicWishlistGame[]>('epicWishist') || [];
         const excludedClass = again ? 'epic-game-checked' : 'epic-game-link-owned';
         const epicLink = queryLinks('a[href*="www.epicgames.com/store/"],a[href*="store.epicgames.com/"]')
           .filter((el) => !el.classList.contains(excludedClass));
@@ -65,8 +106,8 @@ function createEpicModule(context) {
           if (typeof runAutoUpdateWithRateLimit === 'function') {
             runner = () => runAutoUpdateWithRateLimit(moduleApi, autoUpdate);
           }
-          runner().then((result) => {
-            if (result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
+          Promise.resolve(runner()).then((result) => {
+            if (typeof result === 'object' && result?.status === UPDATE_STATUS.AUTH_EXPIRED) {
               showToast('Epic 登录状态已过期，请先登录', 'error', { duration: 0, closable: true, link: { href: result.loginUrl, text: '去登录' } });
             }
           });
@@ -95,14 +136,14 @@ function createEpicModule(context) {
         });
       }
 
-      function getEpicOwnedGames() {
-        return GM_getValue('ownedGames') || [];
+      function getEpicOwnedGames(): EpicCachedGame[] {
+        return GM_getValue<EpicCachedGame[]>('ownedGames') || [];
       }
 
-      async function getSha256Hash() {
+      async function getSha256Hash(): Promise<void> {
         console.log('[EGLC] getSha256Hash...');
-        return new Promise((resolve, reject) => {
-          GM_xmlhttpRequest({
+        return new Promise<GMXmlHttpRequestResponse<string>>((resolve, reject) => {
+          GM_xmlhttpRequest<string>({
             method: 'GET',
             url: 'https://store.epicgames.com/p/grand-theft-auto-v?lang=zh-CN',
             timeout: 30000,
@@ -126,7 +167,7 @@ function createEpicModule(context) {
           });
       }
 
-      async function getPagePlug(namespace, offerId) {
+      async function getPagePlug(namespace: string, offerId: string): Promise<string[] | false> {
         console.log('[EGLC] getPagePlug...');
         if (catalogOfferSha256Hash === false) {
           await getSha256Hash();
@@ -135,8 +176,8 @@ function createEpicModule(context) {
           console.log('[EGLC] No catalogOfferSha256Hash');
           return false;
         }
-        return new Promise((resolve, reject) => {
-          GM_xmlhttpRequest({
+        return new Promise<GMXmlHttpRequestResponse<EpicCatalogResponse>>((resolve, reject) => {
+          GM_xmlhttpRequest<EpicCatalogResponse>({
             method: 'GET',
             url: `https://store.epicgames.com/graphql?operationName=getCatalogOffer&variables=%7B%22locale%22:%22zh-CN%22,%22country%22:%22CN%22,%22offerId%22:%22${offerId}%22,%22sandboxId%22:%22${namespace}%22%7D&extensions=%7B%22persistedQuery%22:%7B%22version%22:1,%22sha256Hash%22:%22${catalogOfferSha256Hash}%22%7D%7D`,
             timeout: 30000,
@@ -159,7 +200,7 @@ function createEpicModule(context) {
                 offerMappings?.[0]?.pageSlug,
                 urlSlug,
                 customAttributes?.find((e) => e.key === 'com.epicgames.app.productSlug')?.value?.replace(/\/home$/, '')
-              ].filter((e) => e))
+              ].filter((slug): slug is string => Boolean(slug)))
             ];
           }
           return false;
@@ -263,8 +304,8 @@ function createEpicModule(context) {
       //   return true;
       // }
 
-      function getEpicCookies(name) {
-        return new Promise((resolve, reject) => {
+      function getEpicCookies(name: string): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
           GM_cookie.list({ url: 'https://accounts.epicgames.com/', name }, (cookies, error) => {
             if (error) {
               reject(error);
@@ -275,8 +316,8 @@ function createEpicModule(context) {
         });
       }
 
-      function getAllEpicCookies() {
-        return new Promise((resolve, reject) => {
+      function getAllEpicCookies(): Promise<string> {
+        return new Promise<string>((resolve, reject) => {
           GM_cookie.list({ url: 'https://accounts.epicgames.com/' }, (cookies, error) => {
             if (error) {
               reject(error);
@@ -287,14 +328,14 @@ function createEpicModule(context) {
         });
       }
 
-      function parseSetCookieHeader(cookieString, fallbackUrl) {
+      function parseSetCookieHeader(cookieString: string, fallbackUrl: string): GMCookie & { url: string } {
         const parts = cookieString.split(';').map((s) => s.trim());
         const [nameValue, ...attrs] = parts;
         const eqIdx = nameValue.indexOf('=');
         const name = eqIdx >= 0 ? nameValue.slice(0, eqIdx).trim() : nameValue.trim();
         const value = eqIdx >= 0 ? nameValue.slice(eqIdx + 1).trim() : '';
 
-        const cookie = {
+        const cookie: GMCookie & { url: string } = {
           url: fallbackUrl,
           name,
           value: value || '',
@@ -325,7 +366,7 @@ function createEpicModule(context) {
         return cookie;
       }
 
-      function extractAndSetCookies(responseHeaders, url) {
+      function extractAndSetCookies(responseHeaders: string, url: string): Promise<void[]> | Promise<void> {
         if (!responseHeaders) return Promise.resolve();
         const setCookieLines = responseHeaders.split(/\r?\n/).filter((line) => /^set-cookie:\s*/i.test(line));
         if (!setCookieLines.length) return Promise.resolve();
@@ -333,7 +374,7 @@ function createEpicModule(context) {
         const cookiePromises = setCookieLines.map((line) => {
           const cookieStr = line.replace(/^set-cookie:\s*/i, '');
           const cookie = parseSetCookieHeader(cookieStr, url);
-          return new Promise((resolve) => {
+          return new Promise<void>((resolve) => {
             GM_cookie.set(cookie, (error) => {
               if (error) console.error('[EGLC] Cookie set error:', error);
               resolve();
@@ -344,17 +385,21 @@ function createEpicModule(context) {
         return Promise.all(cookiePromises);
       }
 
-      function getLocationHeader(responseHeaders) {
+      function getLocationHeader(responseHeaders: string): string | null {
         const match = responseHeaders?.match(/^location:\s*(.+)/im);
         return match ? match[1].trim() : null;
       }
 
-      async function requestWithRedirect(initialUrl, baseOptions, maxRedirects = 10) {
+      async function requestWithRedirect(
+        initialUrl: string,
+        baseOptions: EpicRequestOptions,
+        maxRedirects = 10
+      ): Promise<GMXmlHttpRequestResponse<EpicOrderHistoryResponse>> {
         let currentUrl = initialUrl;
 
         for (let i = 0; i < maxRedirects; i++) {
-          const response = await new Promise((res, rej) => {
-            GM_xmlhttpRequest({
+          const response = await new Promise<GMXmlHttpRequestResponse<EpicOrderHistoryResponse>>((res, rej) => {
+            GM_xmlhttpRequest<EpicOrderHistoryResponse>({
               ...baseOptions,
               url: currentUrl,
               redirect: 'manual',
@@ -383,7 +428,12 @@ function createEpicModule(context) {
         throw new Error('[EGLC] Too many redirects');
       }
 
-      async function updateEpicOwnedGames(loop = true, i = 0, games = GM_getValue('ownedGames') || [], nextPageToken = '') {
+      async function updateEpicOwnedGames(
+        loop = true,
+        i = 0,
+        games: EpicCachedGame[] = GM_getValue<EpicCachedGame[]>('ownedGames') || [],
+        nextPageToken = ''
+      ): Promise<UpdateResult> {
         console.log('[EGLC] updateEpicOwnedGames...');
         if (!loop && i !== 0) {
           GM_setValue('ownedGames', games);
@@ -405,7 +455,7 @@ function createEpicModule(context) {
             fetch: true,
             headers: {
               referer: 'https://accounts.epicgames.com/',
-              dnt: 1,
+              dnt: '1',
               pragma: 'no-cache',
               priority: 'u=1, i',
               'sec-ch-ua': '"Chromium";v="146", "Not-A.Brand";v="24", "Microsoft Edge";v="146"',
@@ -430,7 +480,9 @@ function createEpicModule(context) {
           }
           const ordersLength = response.response?.orders?.length || 0;
           if (ordersLength >= 0) {
-            const orderedGames = response.response.orders.map((e) => e?.items?.[0] || null).filter((e) => e);
+            const orderedGames = response.response.orders
+              .map((order) => order.items?.[0])
+              .filter((item): item is EpicOrderItem => Boolean(item));
             // console.info(orderedGames);
             await Promise.all(orderedGames.map(async (item) => {
               // console.info(item);

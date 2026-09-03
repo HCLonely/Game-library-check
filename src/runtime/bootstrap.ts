@@ -1,3 +1,5 @@
+import type { LibraryModule, ModuleContext } from '../shared/types';
+
 const { createModalRoot, showDialog } = require('../ui/dialog');
 const { showToast } = require('../ui/toast');
 const { createProgressController } = require('../ui/progress');
@@ -11,7 +13,7 @@ const { createItchModule } = require('../platforms/itch');
 // const { createCubeModule } = require('../platforms/cube');
 const { createIgModule } = require('../platforms/ig');
 
-function bootstrapMergedRuntime() {
+function bootstrapMergedRuntime(): void {
   const { showProgressPanel, clearProgressPanel } = createProgressController(createModalRoot);
 
   const {
@@ -26,23 +28,23 @@ function bootstrapMergedRuntime() {
     showToast
   });
 
-  function queryLinks(selector) {
+  function queryLinks(selector: string): Element[] {
     return Array.from(document.querySelectorAll(selector));
   }
 
-  function addClass(el, className) {
+  function addClass(el: Element | null | undefined, className: string): void {
     if (el && !el.classList.contains(className)) el.classList.add(className);
   }
 
-  function getHref(el) {
+  function getHref(el: Element | null | undefined): string {
     return (el && el.getAttribute('href')) || '';
   }
 
-  function parseHtml(html) {
+  function parseHtml(html: string): Document {
     return new DOMParser().parseFromString(html, 'text/html');
   }
 
-  function showLoginExpiredDialog(platformName, loginUrl) {
+  function showLoginExpiredDialog(platformName: string, loginUrl: string): void {
     showDialog({
       title: '登录状态已失效',
       bodyText: `${platformName} 登录凭证已过期，需要重新登录。`,
@@ -67,7 +69,7 @@ function bootstrapMergedRuntime() {
     updateStatus: UPDATE_STATUS
   });
 
-  const moduleContext = {
+  const moduleContext: ModuleContext = {
     settings,
     queryLinks,
     addClass,
@@ -91,7 +93,7 @@ function bootstrapMergedRuntime() {
 
   if (!isUrlEnabled(window.location.href)) return;
 
-  const modules = [
+  const modules: LibraryModule[] = [
     createEpicModule(moduleContext),
     createGogModule(moduleContext),
     itchModule,
