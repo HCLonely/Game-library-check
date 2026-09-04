@@ -374,7 +374,7 @@ function createEpicModule(context: ModuleContext): LibraryModule {
       /**
        * 将一个 Set-Cookie 响应头解析为 GM cookie API 所需的对象。
        *
-       * @param cookieString - 原始 Set-Cookie 请求头值。
+       * @param cookieString - 原始 Set-Cookie 响应头值。
        * @param fallbackUrl - 请求头未定义域名时使用的 URL。
        * @returns 包含回退 URL 和已解析属性的 Cookie 对象。
        */
