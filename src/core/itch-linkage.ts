@@ -12,24 +12,24 @@ interface NavigatorWithDeviceMemory extends Navigator {
 }
 
 interface ItchLinkageOptions {
-  /** Reads the currently cached itch.io game identifiers. */
+  /** 读取当前缓存的 itch.io 游戏标识符。 */
   getGames: () => string[];
-  /** Adds game identifiers to the itch.io ownership cache. */
+  /** 将游戏标识符添加到 itch.io 已拥有游戏缓存中。 */
   addGames: (games: string[]) => unknown;
-  /** Updates the itch.io ownership cache from the requested page sequence. */
+  /** 根据请求的页面序列更新 itch.io 已拥有游戏缓存。 */
   updateLibrary: (loop: boolean, page: number) => Awaitable<UpdateResult>;
-  /** Displays feedback while generating or using linkage data. */
+  /** 在生成或使用联动数据时显示反馈。 */
   showToast: ShowToast;
 }
 
 /**
- * Calculates a SHA-256 digest, falling back to the bundled implementation if Web Crypto is unavailable or fails.
+ * 计算 SHA-256 摘要；若 Web Crypto 不可用或失败，则回退到内置实现。
  *
- * @param value - UTF-8 text to hash.
- * @returns A promise for the lowercase hexadecimal digest.
+ * @param value - 要进行哈希的 UTF-8 文本。
+ * @returns 小写十六进制摘要的 promise。
  */
 function sha256(value: string): Promise<string> {
-  /** @returns The bundled SHA-256 digest when Web Crypto is unavailable or rejects. */
+  /** @returns 当 Web Crypto 不可用或拒绝时，返回内置的 SHA-256 摘要。 */
   const fallback = () => sha256Fallback(value);
   if (!globalThis.crypto?.subtle || typeof TextEncoder === 'undefined') {
     return Promise.resolve(fallback());
@@ -42,10 +42,10 @@ function sha256(value: string): Promise<string> {
 }
 
 /**
- * Calculates a SHA-256 digest without Web Crypto, encoding the input as UTF-8.
+ * 在不使用 Web Crypto 的情况下计算 SHA-256 摘要，并将输入编码为 UTF-8。
  *
- * @param value - Text to hash.
- * @returns The lowercase hexadecimal digest.
+ * @param value - 要进行哈希的文本。
+ * @returns 小写十六进制摘要。
  */
 function sha256Fallback(value: string): string {
   const bytes = unescape(encodeURIComponent(value)).split('')
@@ -66,7 +66,7 @@ function sha256Fallback(value: string): string {
     0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
   ];
   const hash = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];
-  /** Rotates a 32-bit word right by the requested number of bits. */
+  /** 将 32 位字向右循环移位指定的位数。 */
   const rotateRight = (number: number, bits: number): number => (
     (number >>> bits) | (number << (32 - bits))
   );
@@ -105,10 +105,10 @@ function sha256Fallback(value: string): string {
 }
 
 /**
- * Creates Itch library linkage support and restores any previously generated global linkage API.
+ * 创建 Itch 游戏库联动支持，并恢复此前生成的全局联动 API。
  *
- * @param options - Library access, update, and UI dependencies.
- * @returns A controller that generates and persists a linkage code.
+ * @param options - 游戏库访问、更新和 UI 依赖项。
+ * @returns 用于生成并持久化联动码的控制器。
  */
 function createItchLinkage({
   getGames,
@@ -116,7 +116,7 @@ function createItchLinkage({
   updateLibrary,
   showToast
 }: ItchLinkageOptions): {
-  /** Generates and persists an itch.io library linkage code. */
+  /** 生成并持久化 itch.io 游戏库联动码。 */
   generateLinkageCode: () => Promise<string>;
 } {
   let mousePosition: MousePosition = { x: 0, y: 0 };
@@ -126,10 +126,10 @@ function createItchLinkage({
     mousePosition = { x: event.clientX, y: event.clientY };
   }, { passive: true });
 
-  /** Exposes the current linkage API on `unsafeWindow` when a saved code is available. */
+  /** 当存在已保存的联动码时，在 `unsafeWindow` 上暴露当前联动 API。 */
   function exposeLinkage(): void {
     if (!linkageCode) return;
-    /** Marker function whose properties form the page-visible Itch linkage API. */
+    /** 标记函数；其属性构成页面可见的 Itch 联动 API。 */
     const linkage = function itchLibraryLinkage() {};
     Object.defineProperties(linkage, {
       connected: { enumerable: true, get: () => true },
@@ -148,9 +148,9 @@ function createItchLinkage({
   }
 
   /**
-   * Hashes a browser snapshot to generate, persist, expose, and prompt for a new linkage code.
+   * 对浏览器快照进行哈希，以生成、持久化、暴露并提示用户复制新的联动码。
    *
-   * @returns The generated code, or an empty string after a hashing failure and error toast.
+   * @returns 生成的联动码；哈希失败并显示错误提示后返回空字符串。
    */
   function generateLinkageCode(): Promise<string> {
     const navigatorInfo = navigator as NavigatorWithDeviceMemory;

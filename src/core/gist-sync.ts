@@ -26,16 +26,16 @@ interface GistRequestOptions {
 }
 
 interface GistSyncControllerOptions {
-  /** Opens modal dialogs needed by the Gist synchronization workflow. */
+  /** 打开 Gist 同步流程所需的模态对话框。 */
   showDialog: ShowDialog;
-  /** Displays user-facing feedback for Gist synchronization outcomes. */
+  /** 显示面向用户的 Gist 同步结果反馈。 */
   showToast: ShowToast;
 }
 
 /**
- * Reads the saved Gist connection details, supplying empty fields for missing values.
+ * 读取已保存的 Gist 连接详情，并为缺失值补充空字段。
  *
- * @returns The normalized Gist configuration stored in userscript storage.
+ * @returns 保存在用户脚本存储中的规范化 Gist 配置。
  */
 function getGistConf(): GistConf {
   const conf = GM_getValue<Partial<GistConf>>(GIST_CONF_KEY) || {};
@@ -47,23 +47,23 @@ function getGistConf(): GistConf {
 }
 
 /**
- * Persists Gist connection details in userscript storage.
+ * 将 Gist 连接详情持久化到用户脚本存储中。
  *
- * @param conf - The configuration to save.
+ * @param conf - 要保存的配置。
  */
 function setGistConf(conf: GistConf): void {
   GM_setValue(GIST_CONF_KEY, conf);
 }
 
 /**
- * Sends a privileged HTTP request and retries failures until the retry budget is exhausted.
+ * 发送特权 HTTP 请求，并在重试次数耗尽前重试失败请求。
  *
- * HTTP responses outside the 2xx–3xx range, network errors, and timeouts all consume one retry.
+ * 2xx–3xx 范围外的 HTTP 响应、网络错误和超时均会消耗一次重试机会。
  *
- * @param options - Request options passed to `GM_xmlhttpRequest`.
- * @param retry - Number of additional attempts allowed after the first attempt.
- * @returns The successful response.
- * @throws The final request error or unsuccessful response when no retries remain.
+ * @param options - 传递给 `GM_xmlhttpRequest` 的请求选项。
+ * @param retry - 首次尝试后允许的额外尝试次数。
+ * @returns 成功的响应。
+ * @throws 当没有剩余重试次数时，抛出最终的请求错误或未成功的响应。
  */
 function requestWithRetry<TResponse = unknown>(
   options: GistRequestOptions,
@@ -85,13 +85,13 @@ function requestWithRetry<TResponse = unknown>(
 }
 
 /**
- * Serializes local data and writes it to a file in the configured GitHub Gist.
+ * 序列化本地数据并将其写入已配置 GitHub Gist 中的文件。
  *
- * @param token - GitHub personal access token.
- * @param gistId - Target Gist identifier.
- * @param fileName - File in the Gist to replace.
- * @param content - Data to serialize and upload.
- * @returns Whether GitHub confirmed the expected file content after retrying failed requests.
+ * @param token - GitHub 个人访问令牌。
+ * @param gistId - 目标 Gist 标识符。
+ * @param fileName - Gist 中要替换的文件。
+ * @param content - 要序列化并上传的数据。
+ * @returns 在重试失败请求后，GitHub 是否确认了预期的文件内容。
  */
 function setGistData(
   token: string,
@@ -128,12 +128,12 @@ function setGistData(
 }
 
 /**
- * Fetches and parses a JSON file from a GitHub Gist.
+ * 从 GitHub Gist 获取并解析 JSON 文件。
  *
- * @param token - GitHub personal access token.
- * @param gistId - Source Gist identifier.
- * @param fileName - File to retrieve.
- * @returns Parsed remote data, or `false` when the request, response, or content is invalid.
+ * @param token - GitHub 个人访问令牌。
+ * @param gistId - 源 Gist 标识符。
+ * @param fileName - 要获取的文件。
+ * @returns 解析后的远程数据；当请求、响应或内容无效时返回 `false`。
  */
 function getGistData(token: string, gistId: string, fileName: string): Promise<unknown | false> {
   return requestWithRetry<GistResponseBody>({
@@ -158,13 +158,13 @@ function getGistData(token: string, gistId: string, fileName: string): Promise<u
 }
 
 /**
- * Creates a labeled input field for the Gist settings dialog.
+ * 为 Gist 设置对话框创建带标签的输入字段。
  *
- * @param labelText - Visible label text.
- * @param value - Initial input value.
- * @param placeholder - Placeholder displayed for an empty input.
- * @param type - HTML input type.
- * @returns The label wrapper and its input element.
+ * @param labelText - 可见的标签文本。
+ * @param value - 初始输入值。
+ * @param placeholder - 输入为空时显示的占位符。
+ * @param type - HTML 输入类型。
+ * @returns 标签包装元素及其输入元素。
  */
 function createLabeledInput(
   labelText: string,
@@ -191,26 +191,26 @@ function createLabeledInput(
 }
 
 /**
- * Creates the controller used to configure and synchronize userscript storage with a Gist.
+ * 创建用于配置并将用户脚本存储与 Gist 同步的控制器。
  *
- * @param options - Dialog and toast UI dependencies.
- * @returns A controller that opens the Gist synchronization dialog.
+ * @param options - 对话框和提示消息 UI 依赖项。
+ * @returns 可打开 Gist 同步对话框的控制器。
  */
 function createGistSyncController({ showDialog, showToast }: GistSyncControllerOptions) {
   /**
-   * Checks that every required Gist configuration field has a value.
+   * 检查每个必填的 Gist 配置字段是否都有值。
    *
-   * @param conf - Configuration to validate.
-   * @returns Whether the configuration can be used for a request.
+   * @param conf - 要验证的配置。
+   * @returns 该配置是否可用于请求。
    */
   function validateConf(conf: GistConf): boolean {
     return Boolean(conf.TOKEN && conf.GIST_ID && conf.FILE_NAME);
   }
 
   /**
-   * Collects all persisted userscript values except the Gist credentials.
+   * 收集除 Gist 凭据外的所有持久化用户脚本值。
    *
-   * @returns A storage snapshot suitable for upload.
+   * @returns 适合上传的存储快照。
    */
   function buildUploadPayload(): Record<string, unknown> {
     const payload: Record<string, unknown> = {};
@@ -223,9 +223,9 @@ function createGistSyncController({ showDialog, showToast }: GistSyncControllerO
   }
 
   /**
-   * Uploads the local storage snapshot and reports validation or sync outcomes through toasts.
+   * 上传本地存储快照，并通过提示消息报告验证或同步结果。
    *
-   * @param conf - Gist credentials and target file details.
+   * @param conf - Gist 凭据和目标文件详情。
    */
   async function uploadData(conf: GistConf): Promise<void> {
     if (!validateConf(conf)) {
@@ -242,9 +242,9 @@ function createGistSyncController({ showDialog, showToast }: GistSyncControllerO
   }
 
   /**
-   * Downloads remote data, writes each non-credential entry to userscript storage, and shows its outcome.
+   * 下载远程数据，将每个非凭据条目写入用户脚本存储，并显示结果。
    *
-   * @param conf - Gist credentials and source file details.
+   * @param conf - Gist 凭据和源文件详情。
    */
   async function downloadData(conf: GistConf): Promise<void> {
     if (!validateConf(conf)) {
@@ -263,7 +263,7 @@ function createGistSyncController({ showDialog, showToast }: GistSyncControllerO
     showToast('从 Gist 同步成功', 'success');
   }
 
-  /** Opens the Gist settings dialog, including upload, download, save, and connection-test actions. */
+  /** 打开 Gist 设置对话框，其中包含上传、下载、保存和连接测试操作。 */
   function openGistSyncDialog(): void {
     const conf = getGistConf();
     const bodyNode = document.createElement('div');
@@ -293,7 +293,7 @@ function createGistSyncController({ showDialog, showToast }: GistSyncControllerO
     actionRow.appendChild(downloadButton);
     bodyNode.appendChild(actionRow);
 
-    /** @returns The trimmed Gist configuration currently entered in the dialog. */
+    /** @returns 当前在对话框中输入的、已去除首尾空白的 Gist 配置。 */
     const readConfFromInputs = (): GistConf => ({
       TOKEN: tokenField.input.value.trim(),
       GIST_ID: gistIdField.input.value.trim(),

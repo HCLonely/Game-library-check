@@ -11,14 +11,14 @@ type StoredGlobalSettings = Partial<Omit<GlobalSettings, 'platformEnabled'>> & {
 };
 
 interface SettingsControllerOptions {
-  /** Opens settings dialogs. */
+  /** 打开设置对话框。 */
   showDialog: ShowDialog;
 }
 
 /**
- * Loads global settings from storage, merging them with legacy list values and platform defaults.
+ * 从存储中加载全局设置，并与旧版列表值和平台默认值合并。
  *
- * @returns Normalized global settings.
+ * @returns 规范化的全局设置。
  */
 function getGlobalSettings(): GlobalSettings {
   const defaults: GlobalSettings = {
@@ -35,22 +35,22 @@ function getGlobalSettings(): GlobalSettings {
 }
 
 /**
- * Persists the complete global-settings object in userscript storage.
+ * 将完整的全局设置对象持久化到用户脚本存储中。
  *
- * @param settings - Settings to save.
+ * @param settings - 要保存的设置。
  */
 function setGlobalSettings(settings: GlobalSettings): void {
   GM_setValue(SETTINGS_KEY, settings);
 }
 
 /**
- * Determines whether a URL is allowed by the configured whitelist or blacklist.
+ * 确定 URL 是否被配置的白名单或黑名单允许。
  *
- * A non-empty whitelist takes precedence; with neither list populated, every URL is allowed.
+ * 非空白名单具有优先级；两份列表均未填充时，允许所有 URL。
  *
- * @param url - URL to evaluate.
- * @param settings - Settings containing the URL lists.
- * @returns Whether the URL is enabled.
+ * @param url - 要评估的 URL。
+ * @param settings - 包含 URL 列表的设置。
+ * @returns 该 URL 是否已启用。
  */
 function isUrlEnabledByList(url: string, settings: GlobalSettings): boolean {
   const { whiteList, blackList } = settings;
@@ -60,15 +60,15 @@ function isUrlEnabledByList(url: string, settings: GlobalSettings): boolean {
 }
 
 /**
- * Creates settings actions backed by a shared, persisted settings object.
+ * 创建由共享的持久化设置对象支持的设置操作。
  *
- * @param options - Dialog UI dependency.
- * @returns Settings and methods that open the settings and platform-switch dialogs.
+ * @param options - 对话框 UI 依赖项。
+ * @returns 设置，以及用于打开设置和平台切换对话框的方法。
  */
 function createSettingsController({ showDialog }: SettingsControllerOptions) {
   const settings = getGlobalSettings();
 
-  /** Opens a dialog that saves enabled-platform selections to global settings. */
+  /** 打开对话框，将已启用的平台选择保存到全局设置中。 */
   function openPlatformSwitchDialog() {
     const current = settings.platformEnabled;
     const bodyNode = document.createElement('div');
@@ -110,11 +110,11 @@ function createSettingsController({ showDialog }: SettingsControllerOptions) {
   }
 
   /**
-   * Opens a newline-delimited list editor and passes its saved entries to a caller.
+   * 打开以换行符分隔的列表编辑器，并将保存的条目传递给调用方。
    *
-   * @param title - Dialog title.
-   * @param initialValue - Entries to prefill.
-   * @param onSave - Receives the saved entries.
+   * @param title - 对话框标题。
+   * @param initialValue - 要预填的条目。
+   * @param onSave - 接收保存后的条目。
    */
   function showListEditor(
     title: string,
@@ -136,7 +136,7 @@ function createSettingsController({ showDialog }: SettingsControllerOptions) {
     });
   }
 
-  /** Opens the whitelist editor and persists the saved whitelist. */
+  /** 打开白名单编辑器并持久化保存后的白名单。 */
   function addWhiteList() {
     showListEditor('添加白名单网站', settings.whiteList || [], (value) => {
       settings.whiteList = value;
@@ -145,7 +145,7 @@ function createSettingsController({ showDialog }: SettingsControllerOptions) {
     });
   }
 
-  /** Opens the blacklist editor and persists the saved blacklist. */
+  /** 打开黑名单编辑器并持久化保存后的黑名单。 */
   function addBlackList() {
     showListEditor('添加黑名单网站', settings.blackList || [], (value) => {
       settings.blackList = value;
@@ -154,7 +154,7 @@ function createSettingsController({ showDialog }: SettingsControllerOptions) {
     });
   }
 
-  /** Opens the top-level settings dialog with links to the whitelist and blacklist editors. */
+  /** 打开顶层设置对话框，其中包含通往白名单和黑名单编辑器的链接。 */
   function setting() {
     const bodyNode = document.createElement('div');
     const whiteButton = document.createElement('button');
@@ -181,7 +181,7 @@ function createSettingsController({ showDialog }: SettingsControllerOptions) {
     settings,
     setting,
     openPlatformSwitchDialog,
-    /** Determines whether a URL is enabled using this controller's current settings. */
+    /** 使用此控制器的当前设置确定 URL 是否已启用。 */
     isUrlEnabled: (url: string) => isUrlEnabledByList(url, settings)
   };
 }

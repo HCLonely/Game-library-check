@@ -12,15 +12,15 @@ import type {
 } from '../shared/types';
 
 interface StartupFlowOptions {
-  /** Opens selection and confirmation dialogs for startup flows. */
+  /** 为启动流程打开选择和确认对话框。 */
   showDialog: ShowDialog;
-  /** Shows the current per-platform update progress. */
+  /** 显示当前各平台的更新进度。 */
   showProgressPanel: (stateMap: ProgressStateMap, options?: ProgressPanelOptions) => void;
-  /** Removes the active update progress display. */
+  /** 移除当前显示的更新进度。 */
   clearProgressPanel: () => void;
-  /** Displays user-facing startup and update feedback. */
+  /** 显示面向用户的启动和更新反馈。 */
   showToast: ShowToast;
-  /** Prompts the user to reauthenticate with an expired platform session. */
+  /** 当平台会话过期时，提示用户重新认证。 */
   showLoginExpiredDialog: (platformName: string, loginUrl: string) => void;
   updateStatus: UpdateStatusConstants;
 }
@@ -28,10 +28,10 @@ interface StartupFlowOptions {
 type PlatformRateMap = Record<string, number[]>;
 
 /**
- * Creates the startup and update orchestration controller.
+ * 创建启动和更新编排控制器。
  *
- * @param options - UI dependencies and update-status constants.
- * @returns Methods for automatic, initial, and manually selected library updates.
+ * @param options - UI 依赖项和更新状态常量。
+ * @returns 用于自动更新、初始更新和手动选择游戏库更新的方法。
  */
 function createStartupFlow({
   showDialog,
@@ -48,11 +48,11 @@ function createStartupFlow({
   const ONE_HOUR_MS = 60 * 60 * 1000;
 
   /**
-   * Normalizes persisted update timestamps and removes entries outside the prior hour.
+   * 规范化持久化的更新时间戳，并移除前一小时范围外的条目。
    *
-   * @param raw - Untrusted storage value.
-   * @param now - Reference timestamp used for filtering.
-   * @returns Per-platform, in-window numeric timestamps.
+   * @param raw - 不可信的存储值。
+   * @param now - 用于筛选的参考时间戳。
+   * @returns 各平台位于时间窗口内的数值时间戳。
    */
   function sanitizePlatformRateMap(raw: unknown, now = Date.now()): PlatformRateMap {
     if (!raw || typeof raw !== 'object') return {};
@@ -69,13 +69,13 @@ function createStartupFlow({
   }
 
   /**
-   * Checks the per-platform automatic-update limits and persists the sanitized rate history.
+   * 检查各平台的自动更新限制，并持久化经清理的频率历史记录。
    *
-   * Allows fewer than five runs in ten minutes and fewer than 30 in one hour.
+   * 十分钟内少于五次、一个小时内少于 30 次运行时允许更新。
    *
-   * @param platformKey - Platform to evaluate.
-   * @param now - Reference timestamp for rate limiting.
-   * @returns Whether an automatic update may run.
+   * @param platformKey - 要评估的平台。
+   * @param now - 用于速率限制的参考时间戳。
+   * @returns 是否可以运行自动更新。
    */
   function canRunAutoUpdate(platformKey: string, now = Date.now()): boolean {
     const rateMap = sanitizePlatformRateMap(GM_getValue<unknown>(PLATFORM_UPDATE_RATE_KEY), now);
@@ -89,10 +89,10 @@ function createStartupFlow({
   }
 
   /**
-   * Records a successful automatic update in rate-history and last-update storage.
+   * 在频率历史记录和最后更新时间存储中记录一次成功的自动更新。
    *
-   * @param platformKey - Updated platform.
-   * @param now - Timestamp to record.
+   * @param platformKey - 已更新的平台。
+   * @param now - 要记录的时间戳。
    */
   function recordAutoUpdateSuccess(platformKey: string, now = Date.now()): void {
     const rateMap = sanitizePlatformRateMap(GM_getValue<unknown>(PLATFORM_UPDATE_RATE_KEY), now);
@@ -106,13 +106,13 @@ function createStartupFlow({
   }
 
   /**
-   * Runs an automatic updater only when the module and rate limit permit it.
+   * 仅在模块和速率限制允许时运行自动更新器。
    *
-   * Successful runs update the persisted rate history; invalid inputs or rate-limited runs return `false`.
+   * 成功运行会更新持久化频率历史记录；无效输入或受速率限制的运行返回 `false`。
    *
-   * @param libraryModule - Platform module being updated.
-   * @param autoUpdateRunner - Function that performs the update.
-   * @returns The runner's result, or `false` when it was not run.
+   * @param libraryModule - 正在更新的平台模块。
+   * @param autoUpdateRunner - 执行更新的函数。
+   * @returns 更新器的结果；未运行时返回 `false`。
    */
   async function runAutoUpdateWithRateLimit(
     libraryModule: LibraryModule,
@@ -126,10 +126,10 @@ function createStartupFlow({
   }
 
   /**
-   * Lists enabled modules that currently have no cached library data.
+   * 列出当前没有缓存游戏库数据的已启用模块。
    *
-   * @param enabledModules - Modules to inspect.
-   * @returns Keys for modules with empty caches.
+   * @param enabledModules - 要检查的模块。
+   * @returns 缓存为空的模块键。
    */
   function collectEmptyCaches(enabledModules: LibraryModule[]): string[] {
     return enabledModules.filter((libraryModule) => libraryModule.isCacheEmpty())
@@ -137,11 +137,11 @@ function createStartupFlow({
   }
 
   /**
-   * Opens a dialog that lets the user choose empty-cache platforms to update.
+   * 打开对话框，让用户选择要更新的缓存为空的平台。
    *
-   * @param emptyKeys - Platform keys with empty caches.
-   * @param onConfirm - Receives checked keys when the user starts updates.
-   * @param onCancel - Optional callback when the dialog is dismissed.
+   * @param emptyKeys - 缓存为空的平台键。
+   * @param onConfirm - 用户开始更新时接收已勾选的平台键。
+   * @param onCancel - 对话框关闭时的可选回调。
    */
   function showEmptyCacheAggregationDialog(
     emptyKeys: string[],
@@ -178,10 +178,10 @@ function createStartupFlow({
   }
 
   /**
-   * Reads checked, enabled platform keys from a dialog root.
+   * 从对话框根元素读取已勾选且启用的平台键。
    *
-   * @param root - Dialog content root.
-   * @returns Selected platform keys.
+   * @param root - 对话框内容根元素。
+   * @returns 已选择的平台键。
    */
   function getSelectedPlatformKeys(root: HTMLElement): string[] {
     return Array.from(root.querySelectorAll<HTMLInputElement>('input[data-platform]:checked:not(:disabled)'))
@@ -190,9 +190,9 @@ function createStartupFlow({
   }
 
   /**
-   * Enables the manual-update confirmation button only when a platform is selected.
+   * 仅当已选择平台时启用手动更新确认按钮。
    *
-   * @param root - Modal root, if it is currently mounted.
+   * @param root - 模态框根元素（如当前已挂载）。
    */
   function updateManualUpdateConfirmState(root: HTMLElement | null): void {
     if (!root) return;
@@ -201,13 +201,13 @@ function createStartupFlow({
   }
 
   /**
-   * Builds checkbox controls for manual platform selection.
+   * 为手动平台选择构建复选框控件。
    *
-   * Disabled modules are shown but cannot be selected.
+   * 已禁用模块会显示，但不可选择。
    *
-   * @param modules - Modules to display.
-   * @param onSelectionChange - Optional callback after checkbox changes.
-   * @returns Dialog body containing the platform checkboxes.
+   * @param modules - 要显示的模块。
+   * @param onSelectionChange - 复选框更改后的可选回调。
+   * @returns 包含平台复选框的对话框主体。
    */
   function buildPlatformCheckboxBody(
     modules: LibraryModule[],
@@ -234,9 +234,9 @@ function createStartupFlow({
   }
 
   /**
-   * Opens the manual update picker and runs the selected enabled modules after confirmation.
+   * 打开手动更新选择器，并在确认后运行已选择且启用的模块。
    *
-   * @param modules - Available library modules.
+   * @param modules - 可用的游戏库模块。
    */
   function openManualUpdateDialogAndRun(modules: LibraryModule[]): void {
     const enabledModules = modules.filter((libraryModule) => libraryModule.enabled());
@@ -259,10 +259,10 @@ function createStartupFlow({
   }
 
   /**
-   * Extracts a user-visible error message from a failed update result or thrown value.
+   * 从失败的更新结果或抛出的值中提取用户可见的错误消息。
    *
-   * @param failure - Failure value to inspect.
-   * @returns A specific reason when available, otherwise the localized unknown-error message.
+   * @param failure - 要检查的失败值。
+   * @returns 有明确原因时返回该原因；否则返回本地化的未知错误消息。
    */
   function extractFailureReason(failure: unknown): string {
     if (!failure) return '未知错误';
@@ -278,10 +278,10 @@ function createStartupFlow({
   }
 
   /**
-   * Opens a modal describing an update failure for one platform.
+   * 打开描述单个平台更新失败的模态框。
    *
-   * @param key - Failed platform key.
-   * @param failure - Result or error that explains the failure.
+   * @param key - 失败的平台键。
+   * @param failure - 用于说明失败原因的结果或错误。
    */
   function showUpdateFailureDialog(key: string, failure: unknown): void {
     const platform = key.toUpperCase();
@@ -295,10 +295,10 @@ function createStartupFlow({
   }
 
   /**
-   * Narrows an update result to the authentication-expired outcome.
+   * 将更新结果收窄为认证过期的结果类型。
    *
-   * @param result - Update result to inspect.
-   * @returns Whether the result signals that the user must log in again.
+   * @param result - 要检查的更新结果。
+   * @returns 该结果是否表示用户必须重新登录。
    */
   function isAuthExpiredResult(result: UpdateResult): result is AuthExpiredUpdateResult {
     return typeof result === 'object'
@@ -307,13 +307,13 @@ function createStartupFlow({
   }
 
   /**
-   * Updates selected platforms sequentially while reporting progress and per-platform failures.
+   * 按顺序更新已选择的平台，同时报告进度和各平台的失败情况。
    *
-   * Authentication expiry stops remaining work, clears progress, and opens the login dialog; otherwise the
-   * progress panel is cleared after all selected modules have been attempted.
+   * 认证过期会停止剩余工作、清除进度并打开登录对话框；否则，在尝试完所有已选择模块后
+   * 清除进度面板。
    *
-   * @param enabledModules - Modules eligible to run.
-   * @param selectedKeys - Platform keys selected by the user.
+   * @param enabledModules - 有资格运行的模块。
+   * @param selectedKeys - 用户选择的平台键。
    */
   async function batchUpdateSelectedModules(
     enabledModules: LibraryModule[],
@@ -359,9 +359,9 @@ function createStartupFlow({
   }
 
   /**
-   * Starts enabled modules, first offering a batch update when any enabled cache is empty.
+   * 启动已启用的模块；当任一已启用缓存为空时，先提供批量更新。
    *
-   * @param modules - Available library modules.
+   * @param modules - 可用的游戏库模块。
    */
   async function runInitialFlow(modules: LibraryModule[]): Promise<void> {
     const enabledModules = modules.filter((libraryModule) => libraryModule.enabled());
@@ -383,21 +383,21 @@ function createStartupFlow({
   }
 
   /**
-   * Displays an incremental progress message for one platform.
+   * 显示单个平台的增量进度消息。
    *
-   * @param platform - Platform whose progress changed.
-   * @param text - Progress text to show.
+   * @param platform - 进度发生变化的平台。
+   * @param text - 要显示的进度文本。
    */
   function showUpdateStep(platform: string, text: string): void {
     showProgressPanel({ [platform]: text });
   }
 
   /**
-   * Shows an update outcome, using a modal for batch-update errors and toasts otherwise.
+   * 显示更新结果；批量更新错误使用模态框，其他情况使用提示消息。
    *
-   * @param title - Outcome text.
-   * @param type - Toast severity.
-   * @returns A resolved acknowledgement promise after the outcome has been shown.
+   * @param title - 结果文本。
+   * @param type - 提示消息严重程度。
+   * @returns 显示结果后已解决的确认 promise。
    */
   function showUpdateResult(title: string, type: ToastType): Promise<boolean> {
     if (!inBatchUpdateFlow) clearProgressPanel();
