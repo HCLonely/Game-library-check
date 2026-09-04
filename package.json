@@ -32,5 +32,8 @@
     "esbuild": "^0.28.1",
     "eslint": "^8.10.0",
     "typescript": "^5.9.3"
-  }
+  },
+  "browserslist": [
+    "defaults"
+  ]
 }
