@@ -2,7 +2,7 @@
 // @name           游戏库检测-合集
 // @name:en        Game Library Check
 // @namespace      game-library-check
-// @version        2.0.1
+// @version        2.0.3
 // @description    检测Epic/GOG/itch/Cube游戏是否已拥有。
 // @description:en Check if Epic/GOG/itch/Cube games are already owned.
 // @author         HCLonely
@@ -50,11 +50,7 @@
 (() => {
   var __getOwnPropNames = Object.getOwnPropertyNames;
   var __commonJS = (cb, mod) => function __require() {
-    try {
-      return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
-    } catch (e) {
-      throw mod = 0, e;
-    }
+    return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
   };
 
   // src/ui/dialog.ts
@@ -405,6 +401,7 @@
           settings,
           setting,
           openPlatformSwitchDialog,
+          /** 使用此控制器的当前设置确定 URL 是否已启用。 */
           isUrlEnabled: (url) => isUrlEnabledByList(url, settings)
         };
       }
@@ -1223,7 +1220,7 @@
                     "sec-fetch-site": "same-origin",
                     "sec-gpc": "1",
                     "x-csrf-token": "null",
-                    "x-xsrf-token": xsrfToken,
+                    "x-xsrf-token": xsrfToken.toString(),
                     cookie: allCookies
                   }
                 }

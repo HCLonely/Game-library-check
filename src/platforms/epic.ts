@@ -550,7 +550,7 @@ function createEpicModule(context: ModuleContext): LibraryModule {
               'sec-fetch-site': 'same-origin',
               'sec-gpc': '1',
               'x-csrf-token': 'null',
-              'x-xsrf-token': xsrfToken,
+              'x-xsrf-token': xsrfToken.toString(),
               cookie: allCookies
             }
           }

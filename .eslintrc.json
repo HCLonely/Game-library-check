@@ -29,6 +29,7 @@
     "dayjs": "readonly"
   },
   "ignorePatterns": [
+    "*.user.js"
   ],
   "rules": {
     "indent": [

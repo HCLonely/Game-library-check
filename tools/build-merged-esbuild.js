@@ -1,9 +1,16 @@
 const fs = require('fs');
 const path = require('path');
 const esbuild = require('esbuild');
-const header = require('../src/meta/userscript-header.ts');
+const headerTemplate = require('../src/meta/userscript-header.ts');
 
 const outFile = path.resolve(__dirname, '../raw/Game-Library-Check.user.js');
+const packageJson = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../package.json'), 'utf8'));
+
+if (typeof packageJson.version !== 'string' || packageJson.version.length === 0) {
+  throw new Error('package.json must contain a non-empty version string');
+}
+
+const header = headerTemplate.replace('__PACKAGE_VERSION__', () => packageJson.version);
 
 esbuild.build({
   entryPoints: [path.resolve(__dirname, '../src/index.ts')],

@@ -24,6 +24,17 @@
 2. 之后浏览游戏页面时，脚本会自动检测并标记已拥有的游戏（绿色背景）。
 3. 如需手动更新游戏库，可在 Tampermonkey 菜单中找到 **"更新游戏库"** 命令。
 
+### Itch 联动码（与 RedeemHelper 联动）
+
+同时安装 [RedeemHelper](https://github.com/HCLonely/RedeemHelper) 后，可将本脚本的 itch.io 游戏库提供给 RedeemHelper 使用。RedeemHelper 在领取 itch.io 游戏或批量处理 bundle 时会跳过已拥有的游戏，并在领取完成后更新游戏库缓存。
+
+1. 在已登录 itch.io 的状态下，先使用 **"更新游戏库"** 获取 itch.io 游戏库。
+2. 在 Tampermonkey 的本脚本菜单中选择 **"生成Itch联动码"**，复制弹窗中的联动码。
+3. 在 RedeemHelper 菜单中选择 **"输入Itch联动码"**，粘贴并保存该联动码。
+4. 保持两个脚本启用；若 RedeemHelper 提示联动码不可用，请刷新网页后重试，并确认两个脚本均为支持联动的最新版本。
+
+联动码重新生成后，需要在 RedeemHelper 中重新输入新码。
+
 ### 支持的平台
 
 | 平台 | 网站 | 说明 |
@@ -39,6 +50,7 @@
 
 - **更新游戏库** — 手动触发游戏库数据更新（可选择平台）
 - **设置** — 打开设置面板，配置白名单/黑名单等选项
+- **生成Itch联动码** — 生成供 RedeemHelper 使用的 Itch 联动码
 
 ### 设置
 
