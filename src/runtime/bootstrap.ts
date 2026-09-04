@@ -49,7 +49,7 @@ interface ItchModule extends LibraryModule {
 type PlatformModuleFactory = (context: ModuleContext) => LibraryModule;
 
 const { createModalRoot, showDialog } = require('../ui/dialog.ts') as {
-  /** 创建供共享 UI 使用的模态容器。 */
+  /** 创建供共享用户界面使用的模态容器。 */
   createModalRoot: () => HTMLElement;
   /** 打开共享模态对话框。 */
   showDialog: ShowDialog;
@@ -122,7 +122,7 @@ const { createIgModule } = require('../platforms/ig.ts') as {
 };
 
 /**
- * 初始化合并后的用户脚本运行时、共享 UI 服务、平台模块、样式和菜单操作。
+ * 初始化合并后的用户脚本运行时、共享用户界面服务、平台模块、样式和菜单操作。
  *
  * 当前 URL 被用户设置禁用时，启动会在初始化平台前退出。
  */

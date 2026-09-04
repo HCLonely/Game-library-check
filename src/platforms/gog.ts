@@ -13,7 +13,7 @@ interface GogLibraryResponse {
 /**
  * 创建 GOG 游戏库模块，用于标记已拥有的商店链接并维护游戏库缓存。
  *
- * @param context - 共享运行时服务、设置、UI 反馈和更新状态常量。
+ * @param context - 共享运行时服务、设置、用户界面反馈和更新状态常量。
  * @returns 包含启动和更新操作的 GOG 游戏库模块。
  */
 function createGogModule(context: ModuleContext): LibraryModule {
@@ -75,7 +75,7 @@ function createGogModule(context: ModuleContext): LibraryModule {
           .filter((el) => !el.classList.contains(excludedClass));
         if (gogLink.length === 0) return;
         if (first) {
-          /** 在不显示交互式状态 UI 的情况下刷新 GOG 所有权缓存。 */
+          /** 在不显示交互式状态界面的情况下刷新 GOG 所有权缓存。 */
           const autoUpdate = () => updateGogGameLibrary(false);
           let runner = autoUpdate;
           if (typeof runAutoUpdateWithRateLimit === 'function') {

@@ -42,7 +42,7 @@ type EpicRequestOptions = Omit<
 /**
  * 创建 Epic Games 模块，用于标记已拥有和愿望单中的商店链接并维护其缓存。
  *
- * @param context - 共享运行时服务、设置、UI 反馈和更新状态常量。
+ * @param context - 共享运行时服务、设置、用户界面反馈和更新状态常量。
  * @returns 包含启动和更新操作的 Epic Games 游戏库模块。
  */
 function createEpicModule(context: ModuleContext): LibraryModule {
@@ -95,7 +95,7 @@ function createEpicModule(context: ModuleContext): LibraryModule {
       });
 
       /**
-       * 根据缓存的账户数据，将未处理的 Epic 商店链接标记为已拥有或愿望单中。
+       * 根据缓存的账户数据，将未处理的 Epic 商店链接标记为已拥有或已加入愿望单。
        *
        * 首次扫描会启动受速率限制的后台更新，并呈现其认证过期结果。
        *
@@ -115,7 +115,7 @@ function createEpicModule(context: ModuleContext): LibraryModule {
           .filter((el) => !el.classList.contains(excludedClass));
         if (epicLink.length === 0) return;
         if (first) {
-          /** 在不显示交互式状态 UI 的情况下刷新 Epic 所有权缓存。 */
+          /** 在不显示交互式状态界面的情况下刷新 Epic 所有权缓存。 */
           const autoUpdate = () => updateEpicOwnedGames(false);
           let runner = autoUpdate;
           if (typeof runAutoUpdateWithRateLimit === 'function') {

@@ -32,7 +32,7 @@ const { createItchLinkage } = require('../core/itch-linkage.ts') as {
 /**
  * 创建 itch.io 游戏库模块，包括所有权标记、缓存更新和关联代码支持。
  *
- * @param context - 共享运行时服务、设置、UI 反馈和更新状态常量。
+ * @param context - 共享运行时服务、设置、用户界面反馈和更新状态常量。
  * @returns 包含标准游戏库操作和关联代码生成的 itch.io 模块。
  */
 function createItchModule(context: ModuleContext): ItchModule {
@@ -115,7 +115,7 @@ function createItchModule(context: ModuleContext): ItchModule {
           .filter((el) => !el.classList.contains(excludedClass));
         if (itchLink.length === 0) return;
         if (first) {
-          /** 在不显示交互式状态 UI 的情况下刷新 itch.io 所有权缓存。 */
+          /** 在不显示交互式状态界面的情况下刷新 itch.io 所有权缓存。 */
           const autoUpdate = () => updateItchGameLibrary(false);
           let runner = autoUpdate;
           if (typeof runAutoUpdateWithRateLimit === 'function') {

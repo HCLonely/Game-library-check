@@ -15,7 +15,7 @@ interface CubeLibraryResponse {
 /**
  * 创建 CubeJoy 游戏库模块，用于标记已拥有的商店链接并更新缓存的游戏 ID。
  *
- * @param context - 共享运行时服务、设置、UI 反馈和更新状态常量。
+ * @param context - 共享运行时服务、设置、用户界面反馈和更新状态常量。
  * @returns 包含启动和更新操作的 CubeJoy 游戏库模块。
  */
 function createCubeModule(context: ModuleContext): LibraryModule {
