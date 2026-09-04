@@ -26,7 +26,7 @@ interface ItchLinkageOptions {
  * 计算 SHA-256 摘要；若 Web Crypto 不可用或失败，则回退到内置实现。
  *
  * @param value - 要进行哈希的 UTF-8 文本。
- * @returns 小写十六进制摘要的 promise。
+ * @returns 小写十六进制摘要的异步结果。
  */
 function sha256(value: string): Promise<string> {
   /** @returns 当 Web Crypto 不可用或拒绝时，返回内置的 SHA-256 摘要。 */

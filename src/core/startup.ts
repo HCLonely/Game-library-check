@@ -397,7 +397,7 @@ function createStartupFlow({
    *
    * @param title - 结果文本。
    * @param type - 提示消息严重程度。
-   * @returns 显示结果后已解决的确认 promise。
+   * @returns 显示结果后已完成的确认结果。
    */
   function showUpdateResult(title: string, type: ToastType): Promise<boolean> {
     if (!inBatchUpdateFlow) clearProgressPanel();
