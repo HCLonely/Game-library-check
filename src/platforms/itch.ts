@@ -6,34 +6,34 @@ interface ItchPurchasesResponse {
 }
 
 interface ItchModule extends LibraryModule {
-  /** Generates a code for linking the itch.io library with another installation. */
+  /** 生成用于将 itch.io 游戏库与另一安装实例关联的代码。 */
   generateLinkageCode: () => Promise<string>;
 }
 
 interface ItchLinkageOptions {
-  /** Reads the cached itch.io game identifiers. */
+  /** 读取缓存的 itch.io 游戏标识符。 */
   getGames: () => string[];
-  /** Adds game identifiers to the cached itch.io library. */
+  /** 将游戏标识符添加到缓存的 itch.io 游戏库。 */
   addGames: (games: string[]) => string[];
-  /** Updates the itch.io library using the requested pagination state. */
+  /** 使用指定的分页状态更新 itch.io 游戏库。 */
   updateLibrary: (loop: boolean, page: number) => Awaitable<UpdateResult>;
-  /** Displays linkage workflow feedback to the user. */
+  /** 向用户显示关联流程反馈。 */
   showToast: ShowToast;
 }
 
 const { createItchLinkage } = require('../core/itch-linkage.ts') as {
-  /** Creates the itch.io linkage service from its platform dependencies. */
+  /** 根据平台依赖创建 itch.io 关联服务。 */
   createItchLinkage: (options: ItchLinkageOptions) => {
-    /** Generates a code for linking the itch.io library. */
+    /** 生成用于关联 itch.io 游戏库的代码。 */
     generateLinkageCode: () => Promise<string>;
   };
 };
 
 /**
- * Creates the itch.io library module, including ownership marking, cache updates, and linkage-code support.
+ * 创建 itch.io 游戏库模块，包括所有权标记、缓存更新和关联代码支持。
  *
- * @param context - Shared runtime services, settings, UI feedback, and update-status constants.
- * @returns An itch.io module with standard library actions and linkage-code generation.
+ * @param context - 共享运行时服务、设置、UI 反馈和更新状态常量。
+ * @returns 包含标准游戏库操作和关联代码生成的 itch.io 模块。
  */
 function createItchModule(context: ModuleContext): ItchModule {
   const {
@@ -53,18 +53,18 @@ function createItchModule(context: ModuleContext): ItchModule {
   let updateLibrary: ((loop?: boolean, page?: number, games?: string[]) => Promise<UpdateResult> | void) | undefined;
   let started = false;
   /**
-   * Reads cached itch.io game identifiers from userscript storage.
+   * 从用户脚本存储中读取缓存的 itch.io 游戏标识符。
    *
-   * @returns Cached game identifiers, or an empty array when no cache exists.
+   * @returns 缓存的游戏标识符；不存在缓存时返回空数组。
    */
   function getItchGameLibrary(): string[] {
     return GM_getValue<string[]>('itchGames') || [];
   }
   /**
-   * Merges supplied itch.io game identifiers into the persistent library cache.
+   * 将提供的 itch.io 游戏标识符合并到持久化游戏库缓存中。
    *
-   * @param games - Identifiers to add, typically received through linkage import.
-   * @returns The deduplicated cache after the merge, or the existing cache for invalid input.
+   * @param games - 要添加的标识符，通常通过关联导入获得。
+   * @returns 合并后的去重缓存；输入无效时返回现有缓存。
    */
   function addItchGames(games: string[]): string[] {
     if (!Array.isArray(games)) return getItchGameLibrary();
@@ -96,12 +96,12 @@ function createItchModule(context: ModuleContext): ItchModule {
       });
 
       /**
-       * Marks unprocessed itch.io store links that appear in the cached ownership library.
+       * 标记出现在缓存所有权游戏库中的未处理 itch.io 商店链接。
        *
-       * The initial scan starts a rate-limited background refresh and shows an expired-login notice when needed.
+       * 首次扫描会启动受速率限制的后台刷新，并在需要时显示登录过期提示。
        *
-       * @param first - Whether this is the initial scan that may trigger an update.
-       * @param again - Whether a mutation-triggered scan should only skip already scanned links.
+       * @param first - 是否为可能触发更新的首次扫描。
+       * @param again - 由变更触发的扫描是否只跳过已扫描的链接。
        */
       function checkItchGame(first = true, again = false): void {
         loadTimes++;
@@ -115,7 +115,7 @@ function createItchModule(context: ModuleContext): ItchModule {
           .filter((el) => !el.classList.contains(excludedClass));
         if (itchLink.length === 0) return;
         if (first) {
-          /** Refreshes the itch.io ownership cache without interactive status UI. */
+          /** 在不显示交互式状态 UI 的情况下刷新 itch.io 所有权缓存。 */
           const autoUpdate = () => updateItchGameLibrary(false);
           let runner = autoUpdate;
           if (typeof runAutoUpdateWithRateLimit === 'function') {
@@ -138,15 +138,15 @@ function createItchModule(context: ModuleContext): ItchModule {
         });
       }
       /**
-       * Fetches paginated itch.io purchases and updates the persistent ownership cache.
+       * 获取分页的 itch.io 购买记录并更新持久化所有权缓存。
        *
-       * Interactive runs show progress and completion; a login redirect returns the authentication-expired
-       * sentinel for the caller to surface.
+       * 交互式运行会显示进度和完成状态；登录重定向会返回认证过期哨兵值，
+       * 以便调用方呈现。
        *
-       * @param loop - Whether to fetch all pages with interactive progress.
-       * @param i - Current one-based page number.
-       * @param games - Identifiers collected from earlier pages.
-       * @returns Update success, failure, or an authentication-expired result.
+       * @param loop - 是否获取所有页面并显示交互式进度。
+       * @param i - 当前从 1 开始的页码。
+       * @param games - 从先前页面收集的标识符。
+       * @returns 更新成功、失败或认证过期结果。
        */
       function updateItchGameLibrary(
         loop = true,

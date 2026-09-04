@@ -13,10 +13,10 @@ interface CubeLibraryResponse {
 }
 
 /**
- * Creates the CubeJoy library module that marks owned store links and updates the cached game IDs.
+ * 创建 CubeJoy 游戏库模块，用于标记已拥有的商店链接并更新缓存的游戏 ID。
  *
- * @param context - Shared runtime services, settings, UI feedback, and update-status constants.
- * @returns A CubeJoy library module with startup and update actions.
+ * @param context - 共享运行时服务、设置、UI 反馈和更新状态常量。
+ * @returns 包含启动和更新操作的 CubeJoy 游戏库模块。
  */
 function createCubeModule(context: ModuleContext): LibraryModule {
   const {
@@ -57,12 +57,12 @@ function createCubeModule(context: ModuleContext): LibraryModule {
       });
 
       /**
-       * Marks unprocessed CubeJoy store links whose game IDs exist in the persistent library cache.
+       * 标记游戏 ID 存在于持久化游戏库缓存中的未处理 CubeJoy 商店链接。
        *
-       * On its first pass, this also starts a background cache refresh and reports expired authentication.
+       * 首次扫描时还会启动后台缓存刷新并报告认证过期。
        *
-       * @param first - Whether this is the initial scan that may trigger an update.
-       * @param again - Whether a mutation-triggered scan should only skip already scanned links.
+       * @param first - 是否为可能触发更新的首次扫描。
+       * @param again - 由变更触发的扫描是否只跳过已扫描的链接。
        */
       function checkCubeGame(first = true, again = false): void {
         loadTimes++;
@@ -93,23 +93,23 @@ function createCubeModule(context: ModuleContext): LibraryModule {
         });
       }
       /**
-       * Reads the cached CubeJoy game IDs from userscript storage.
+       * 从用户脚本存储中读取缓存的 CubeJoy 游戏 ID。
        *
-       * @returns Cached IDs, or an empty array when no cache exists.
+       * @returns 缓存的 ID；不存在缓存时返回空数组。
        */
       function getCubeGameLibrary(): number[] {
         return GM_getValue<number[]>('cubeGames') || [];
       }
       /**
-       * Fetches paginated CubeJoy purchases and updates the persistent game-ID cache.
+       * 获取分页的 CubeJoy 购买记录并更新持久化游戏 ID 缓存。
        *
-       * Interactive runs show progress and a result message; background runs merge new IDs and may return the
-       * authentication-expired sentinel when the account endpoint rejects the session.
+       * 交互式运行会显示进度和结果消息；后台运行会合并新 ID，账户端点拒绝会话时可能返回
+       * 认证过期哨兵值。
        *
-       * @param loop - Whether to fetch every page and show interactive progress.
-       * @param i - Current one-based page number.
-       * @param games - IDs collected from earlier pages.
-       * @returns Update success, failure, or an authentication-expired result.
+       * @param loop - 是否获取每一页并显示交互式进度。
+       * @param i - 当前从 1 开始的页码。
+       * @param games - 从先前页面收集的 ID。
+       * @returns 更新成功、失败或认证过期结果。
        */
       function updateCubeGameLibrary(
         loop = true,

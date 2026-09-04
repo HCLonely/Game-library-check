@@ -11,89 +11,89 @@ import type {
 } from '../shared/types';
 
 interface ProgressController {
-  /** Shows the current per-platform update progress. */
+  /** 显示当前各平台的更新进度。 */
   showProgressPanel: (stateMap: ProgressStateMap, options?: ProgressPanelOptions) => void;
-  /** Removes the active update progress display. */
+  /** 移除当前的更新进度显示。 */
   clearProgressPanel: () => void;
 }
 
 interface SettingsController {
   settings: GlobalSettings;
-  /** Opens the global settings dialog. */
+  /** 打开全局设置对话框。 */
   setting: () => void;
-  /** Opens the platform enablement dialog. */
+  /** 打开平台启用设置对话框。 */
   openPlatformSwitchDialog: () => void;
-  /** Determines whether a URL is enabled by the saved allow/block lists. */
+  /** 判断 URL 是否由保存的允许/阻止列表启用。 */
   isUrlEnabled: (url: string) => boolean;
 }
 
 interface StartupFlowController {
-  /** Runs the initial update workflow for active modules. */
+  /** 为活动模块运行初始更新流程。 */
   runInitialFlow: (modules: LibraryModule[]) => Promise<void>;
-  /** Updates the visible status for one platform. */
+  /** 更新一个平台的可见状态。 */
   showUpdateStep: (platform: string, text: string) => void;
-  /** Shows the final status for one platform update. */
+  /** 显示一个平台更新的最终状态。 */
   showUpdateResult: (title: string, type: ToastType) => Promise<boolean>;
-  /** Opens the manual update selector and runs the chosen modules. */
+  /** 打开手动更新选择器并运行选定模块。 */
   openManualUpdateDialogAndRun: (modules: LibraryModule[]) => void;
-  /** Runs a module update subject to platform rate limiting. */
+  /** 在平台速率限制条件下运行模块更新。 */
   runAutoUpdateWithRateLimit: ModuleContext['runAutoUpdateWithRateLimit'];
 }
 
 interface ItchModule extends LibraryModule {
-  /** Generates an itch.io linkage code. */
+  /** 生成 itch.io 关联代码。 */
   generateLinkageCode: () => Promise<string>;
 }
 
-/** Creates one platform module from the common runtime context. */
+/** 根据通用运行时上下文创建一个平台模块。 */
 type PlatformModuleFactory = (context: ModuleContext) => LibraryModule;
 
 const { createModalRoot, showDialog } = require('../ui/dialog.ts') as {
-  /** Creates the modal container used by shared UI. */
+  /** 创建供共享 UI 使用的模态容器。 */
   createModalRoot: () => HTMLElement;
-  /** Opens a shared modal dialog. */
+  /** 打开共享模态对话框。 */
   showDialog: ShowDialog;
 };
 const { showToast } = require('../ui/toast.ts') as {
-  /** Displays a shared toast notification. */
+  /** 显示共享提示通知。 */
   showToast: ShowToast;
 };
 const { createProgressController } = require('../ui/progress.ts') as {
-  /** Creates the shared progress panel controller. */
+  /** 创建共享进度面板控制器。 */
   createProgressController: (createRoot: () => HTMLElement) => ProgressController;
 };
 const { createSettingsController } = require('../core/settings.ts') as {
-  /** Creates the global settings controller. */
+  /** 创建全局设置控制器。 */
   createSettingsController: (options: {
-    /** Opens settings dialogs. */
+    /** 打开设置对话框。 */
     showDialog: ShowDialog;
   }) => SettingsController;
 };
 const { createStartupFlow } = require('../core/startup.ts') as {
-  /** Creates the initial and manual library update controller. */
+  /** 创建初始和手动游戏库更新控制器。 */
   createStartupFlow: (options: {
-    /** Opens dialogs needed by update flows. */
+    /** 打开更新流程所需的对话框。 */
     showDialog: ShowDialog;
-    /** Shows per-platform update progress. */
+    /** 显示各平台更新进度。 */
     showProgressPanel: ProgressController['showProgressPanel'];
-    /** Removes the update progress display. */
+    /** 移除更新进度显示。 */
     clearProgressPanel: ProgressController['clearProgressPanel'];
-    /** Displays update feedback. */
+    /** 显示更新反馈。 */
     showToast: ShowToast;
-    /** Prompts the user to reauthenticate after session expiration. */
+    /** 在会话过期后提示用户重新认证。 */
     showLoginExpiredDialog: (platformName: string, loginUrl: string) => void;
     updateStatus: UpdateStatusConstants;
   }) => StartupFlowController;
 };
 const { createGistSyncController } = require('../core/gist-sync.ts') as {
-  /** Creates the Gist synchronization dialog controller. */
+  /** 创建 Gist 同步对话框控制器。 */
   createGistSyncController: (options: {
-    /** Opens Gist synchronization dialogs. */
+    /** 打开 Gist 同步对话框。 */
     showDialog: ShowDialog;
-    /** Displays Gist synchronization feedback. */
+    /** 显示 Gist 同步反馈。 */
     showToast: ShowToast;
   }) => {
-    /** Opens the Gist synchronization dialog. */
+    /** 打开 Gist 同步对话框。 */
     openGistSyncDialog: () => void;
   };
 };
@@ -102,29 +102,29 @@ const { UPDATE_STATUS, BASE_STYLE } = require('../shared/constants.ts') as {
   BASE_STYLE: string;
 };
 const { createEpicModule } = require('../platforms/epic.ts') as {
-  /** Creates the Epic Games Store platform module. */
+  /** 创建 Epic Games Store 平台模块。 */
   createEpicModule: PlatformModuleFactory;
 };
 const { createGogModule } = require('../platforms/gog.ts') as {
-  /** Creates the GOG platform module. */
+  /** 创建 GOG 平台模块。 */
   createGogModule: PlatformModuleFactory;
 };
 const { createItchModule } = require('../platforms/itch.ts') as {
-  /** Creates the itch.io platform module. */
+  /** 创建 itch.io 平台模块。 */
   createItchModule: (context: ModuleContext) => ItchModule;
 };
 // const { createCubeModule } = require('../platforms/cube.ts') as {
 //   createCubeModule: PlatformModuleFactory;
 // };
 const { createIgModule } = require('../platforms/ig.ts') as {
-  /** Creates the IndieGala platform module. */
+  /** 创建 IndieGala 平台模块。 */
   createIgModule: PlatformModuleFactory;
 };
 
 /**
- * Initializes the merged userscript runtime, shared UI services, platform modules, styles, and menu actions.
+ * 初始化合并后的用户脚本运行时、共享 UI 服务、平台模块、样式和菜单操作。
  *
- * Startup exits before platform initialization when the current URL is disabled by user settings.
+ * 当前 URL 被用户设置禁用时，启动会在初始化平台前退出。
  */
 function bootstrapMergedRuntime(): void {
   const { showProgressPanel, clearProgressPanel } = createProgressController(createModalRoot);
@@ -142,50 +142,50 @@ function bootstrapMergedRuntime(): void {
   });
 
   /**
-   * Finds elements matching a selector for platform link scanners.
+   * 查找与选择器匹配的元素，供平台链接扫描器使用。
    *
-   * @param selector - CSS selector to query from the document.
-   * @returns Matching elements as an array.
+   * @param selector - 要从文档查询的 CSS 选择器。
+   * @returns 匹配元素组成的数组。
    */
   function queryLinks(selector: string): Element[] {
     return Array.from(document.querySelectorAll(selector));
   }
 
   /**
-   * Adds a CSS class to an element when it is present and not already marked.
+   * 当元素存在且尚未标记时，为其添加 CSS 类。
    *
-   * @param el - Optional target element.
-   * @param className - Class to apply.
+   * @param el - 可选的目标元素。
+   * @param className - 要应用的类。
    */
   function addClass(el: Element | null | undefined, className: string): void {
     if (el && !el.classList.contains(className)) el.classList.add(className);
   }
 
   /**
-   * Reads an element's href attribute without requiring it to be an anchor.
+   * 无需元素为锚点即可读取其 href 属性。
    *
-   * @param el - Optional element whose href should be read.
-   * @returns The href attribute, or an empty string when unavailable.
+   * @param el - 要读取 href 的可选元素。
+   * @returns href 属性；不可用时返回空字符串。
    */
   function getHref(el: Element | null | undefined): string {
     return (el && el.getAttribute('href')) || '';
   }
 
   /**
-   * Parses remote HTML into an inert document for platform-specific scraping.
+   * 将远程 HTML 解析为惰性文档，供平台特定的抓取操作使用。
    *
-   * @param html - HTML source to parse.
-   * @returns A document created with the HTML parser.
+   * @param html - 要解析的 HTML 源码。
+   * @returns 使用 HTML 解析器创建的文档。
    */
   function parseHtml(html: string): Document {
     return new DOMParser().parseFromString(html, 'text/html');
   }
 
   /**
-   * Opens a login-expired dialog that can launch the affected platform's login page in a new tab.
+   * 打开登录过期对话框，可在新标签页中启动受影响平台的登录页。
    *
-   * @param platformName - Display name of the expired platform session.
-   * @param loginUrl - Login page to open after confirmation.
+   * @param platformName - 会话过期平台的显示名称。
+   * @param loginUrl - 确认后要打开的登录页。
    */
   function showLoginExpiredDialog(platformName: string, loginUrl: string): void {
     showDialog({

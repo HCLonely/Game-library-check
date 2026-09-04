@@ -40,10 +40,10 @@ type EpicRequestOptions = Omit<
 >;
 
 /**
- * Creates the Epic Games module that marks owned and wishlisted store links and maintains its cache.
+ * 创建 Epic Games 模块，用于标记已拥有和愿望单中的商店链接并维护其缓存。
  *
- * @param context - Shared runtime services, settings, UI feedback, and update-status constants.
- * @returns An Epic Games library module with startup and update actions.
+ * @param context - 共享运行时服务、设置、UI 反馈和更新状态常量。
+ * @returns 包含启动和更新操作的 Epic Games 游戏库模块。
  */
 function createEpicModule(context: ModuleContext): LibraryModule {
   const {
@@ -95,12 +95,12 @@ function createEpicModule(context: ModuleContext): LibraryModule {
       });
 
       /**
-       * Marks unprocessed Epic store links as owned or wishlisted from cached account data.
+       * 根据缓存的账户数据，将未处理的 Epic 商店链接标记为已拥有或愿望单中。
        *
-       * The initial scan starts a rate-limited background update and surfaces its authentication-expired result.
+       * 首次扫描会启动受速率限制的后台更新，并呈现其认证过期结果。
        *
-       * @param first - Whether this is the initial scan that may trigger an update.
-       * @param again - Whether a mutation-triggered scan should only skip already scanned links.
+       * @param first - 是否为可能触发更新的首次扫描。
+       * @param again - 由变更触发的扫描是否只跳过已扫描的链接。
        */
       async function checkEpicGame(first = true, again = false): Promise<void> {
         loadTimes++;
@@ -115,7 +115,7 @@ function createEpicModule(context: ModuleContext): LibraryModule {
           .filter((el) => !el.classList.contains(excludedClass));
         if (epicLink.length === 0) return;
         if (first) {
-          /** Refreshes the Epic ownership cache without interactive status UI. */
+          /** 在不显示交互式状态 UI 的情况下刷新 Epic 所有权缓存。 */
           const autoUpdate = () => updateEpicOwnedGames(false);
           let runner = autoUpdate;
           if (typeof runAutoUpdateWithRateLimit === 'function') {
@@ -152,18 +152,18 @@ function createEpicModule(context: ModuleContext): LibraryModule {
       }
 
       /**
-       * Reads cached Epic ownership records from userscript storage.
+       * 从用户脚本存储中读取缓存的 Epic 所有权记录。
        *
-       * @returns Owned game records, or an empty array when no cache exists.
+       * @returns 已拥有游戏记录；不存在缓存时返回空数组。
        */
       function getEpicOwnedGames(): EpicCachedGame[] {
         return GM_getValue<EpicCachedGame[]>('ownedGames') || [];
       }
 
       /**
-       * Loads Epic's store page to capture the persisted catalog-query hash and active locale.
+       * 加载 Epic 商店页面以获取持久化的目录查询哈希和当前区域设置。
        *
-       * Failures are logged and leave the catalog lookup unavailable until a later retry.
+       * 失败会被记录，并使目录查询不可用，直到后续重试。
        */
       async function getSha256Hash(): Promise<void> {
         console.log('[EGLC] getSha256Hash...');
@@ -193,11 +193,11 @@ function createEpicModule(context: ModuleContext): LibraryModule {
       }
 
       /**
-       * Resolves an Epic catalog offer into page slugs used to match store links.
+       * 将 Epic 目录优惠解析为用于匹配商店链接的页面短标识。
        *
-       * @param namespace - Epic sandbox namespace for the offer.
-       * @param offerId - Epic offer ID to query.
-       * @returns Deduplicated product slugs, or `false` when catalog data cannot be obtained.
+       * @param namespace - 此优惠的 Epic 沙盒命名空间。
+       * @param offerId - 要查询的 Epic 优惠 ID。
+       * @returns 去重后的产品短标识；无法获取目录数据时为 `false`。
        */
       async function getPagePlug(namespace: string, offerId: string): Promise<string[] | false> {
         console.log('[EGLC] getPagePlug...');
@@ -337,10 +337,10 @@ function createEpicModule(context: ModuleContext): LibraryModule {
       // }
 
       /**
-       * Reads one Epic account cookie for authenticated order-history requests.
+       * 读取一个 Epic 账户 Cookie，用于已认证的订单历史请求。
        *
-       * @param name - Cookie name to retrieve.
-       * @returns The cookie value, or the `null` string when it is absent.
+       * @param name - 要获取的 Cookie 名称。
+       * @returns Cookie 值；不存在时为 `null` 字符串。
        */
       function getEpicCookies(name: string): Promise<string> {
         return new Promise<string>((resolve, reject) => {
@@ -355,9 +355,9 @@ function createEpicModule(context: ModuleContext): LibraryModule {
       }
 
       /**
-       * Serializes all Epic account cookies into a request Cookie header.
+       * 将全部 Epic 账户 Cookie 序列化为请求 Cookie 头。
        *
-       * @returns A semicolon-delimited Cookie header value.
+       * @returns 以分号分隔的 Cookie 请求头值。
        */
       function getAllEpicCookies(): Promise<string> {
         return new Promise<string>((resolve, reject) => {
@@ -372,11 +372,11 @@ function createEpicModule(context: ModuleContext): LibraryModule {
       }
 
       /**
-       * Parses one Set-Cookie header into the object required by the GM cookie API.
+       * 将一个 Set-Cookie 请求头解析为 GM cookie API 所需的对象。
        *
-       * @param cookieString - Raw Set-Cookie header value.
-       * @param fallbackUrl - URL used when the header does not define a domain.
-       * @returns A cookie object with the fallback URL and parsed attributes.
+       * @param cookieString - 原始 Set-Cookie 请求头值。
+       * @param fallbackUrl - 请求头未定义域名时使用的 URL。
+       * @returns 包含回退 URL 和已解析属性的 Cookie 对象。
        */
       function parseSetCookieHeader(cookieString: string, fallbackUrl: string): GMCookie & { url: string } {
         const parts = cookieString.split(';').map((s) => s.trim());
@@ -417,11 +417,11 @@ function createEpicModule(context: ModuleContext): LibraryModule {
       }
 
       /**
-       * Extracts Set-Cookie headers from a response and persists them through the GM cookie API.
+       * 从响应中提取 Set-Cookie 请求头，并通过 GM cookie API 持久化。
        *
-       * @param responseHeaders - Raw HTTP response headers.
-       * @param url - URL that received the response.
-       * @returns A promise that resolves after every parsed cookie has been submitted.
+       * @param responseHeaders - 原始 HTTP 响应头。
+       * @param url - 接收该响应的 URL。
+       * @returns 每个解析出的 Cookie 都已提交后完成的 Promise。
        */
       function extractAndSetCookies(responseHeaders: string, url: string): Promise<void[]> | Promise<void> {
         if (!responseHeaders) return Promise.resolve();
@@ -443,10 +443,10 @@ function createEpicModule(context: ModuleContext): LibraryModule {
       }
 
       /**
-       * Reads the Location value from raw HTTP response headers.
+       * 从原始 HTTP 响应头中读取 Location 值。
        *
-       * @param responseHeaders - Raw HTTP response headers.
-       * @returns The redirect target, or `null` when no Location header exists.
+       * @param responseHeaders - 原始 HTTP 响应头。
+       * @returns 重定向目标；不存在 Location 请求头时为 `null`。
        */
       function getLocationHeader(responseHeaders: string): string | null {
         const match = responseHeaders?.match(/^location:\s*(.+)/im);
@@ -454,13 +454,13 @@ function createEpicModule(context: ModuleContext): LibraryModule {
       }
 
       /**
-       * Requests Epic order data while manually following redirects and persisting redirect cookies.
+       * 请求 Epic 订单数据，同时手动跟随重定向并持久化重定向 Cookie。
        *
-       * @param initialUrl - First URL to request.
-       * @param baseOptions - Request options shared by every redirect hop.
-       * @param maxRedirects - Maximum redirects allowed before failing.
-       * @returns The final successful order-history response.
-       * @throws When a redirect lacks a Location header, a response fails, or the redirect limit is exceeded.
+       * @param initialUrl - 首个要请求的 URL。
+       * @param baseOptions - 每次重定向跳转共享的请求选项。
+       * @param maxRedirects - 判定失败前允许的最大重定向次数。
+       * @returns 最终成功的订单历史响应。
+       * @throws 当重定向缺少 Location 请求头、响应失败或超过重定向限制时抛出。
        */
       async function requestWithRedirect(
         initialUrl: string,
@@ -501,16 +501,16 @@ function createEpicModule(context: ModuleContext): LibraryModule {
       }
 
       /**
-       * Fetches Epic order history, resolves catalog slugs, and writes owned games to persistent storage.
+       * 获取 Epic 订单历史、解析目录短标识，并将已拥有游戏写入持久化存储。
        *
-       * Interactive runs show progress and completion. Login redirects return the authentication-expired sentinel;
-       * background runs merge partial results and rescan links after each completed update.
+       * 交互式运行会显示进度和完成状态。登录重定向会返回认证过期哨兵值；后台运行会合并部分结果，
+       * 并在每次更新完成后重新扫描链接。
        *
-       * @param loop - Whether to fetch every page with interactive progress.
-       * @param i - Current zero-based order-history page index.
-       * @param games - Ownership records accumulated from prior pages.
-       * @param nextPageToken - Pagination token for the next order-history request.
-       * @returns Update success, failure, or an authentication-expired result.
+       * @param loop - 是否获取每一页并显示交互式进度。
+       * @param i - 当前从 0 开始的订单历史页索引。
+       * @param games - 从先前页面累积的所有权记录。
+       * @param nextPageToken - 下一次订单历史请求的分页令牌。
+       * @returns 更新成功、失败或认证过期结果。
        */
       async function updateEpicOwnedGames(
         loop = true,

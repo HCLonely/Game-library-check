@@ -1,9 +1,9 @@
 const { bootstrapMergedRuntime } = require('./runtime/bootstrap.ts') as {
-  /** Initializes the merged userscript runtime. */
+  /** 初始化合并后的用户脚本运行时。 */
   bootstrapMergedRuntime: () => void;
 };
 
-/** Starts the merged userscript runtime when the bundled entrypoint executes. */
+/** 当打包后的入口点执行时启动合并后的用户脚本运行时。 */
 (function main() {
   bootstrapMergedRuntime();
 })();

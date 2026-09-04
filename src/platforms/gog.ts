@@ -11,10 +11,10 @@ interface GogLibraryResponse {
 }
 
 /**
- * Creates the GOG library module that marks owned store links and maintains the cached library.
+ * 创建 GOG 游戏库模块，用于标记已拥有的商店链接并维护游戏库缓存。
  *
- * @param context - Shared runtime services, settings, UI feedback, and update-status constants.
- * @returns A GOG library module with startup and update actions.
+ * @param context - 共享运行时服务、设置、UI 反馈和更新状态常量。
+ * @returns 包含启动和更新操作的 GOG 游戏库模块。
  */
 function createGogModule(context: ModuleContext): LibraryModule {
   const {
@@ -56,13 +56,12 @@ function createGogModule(context: ModuleContext): LibraryModule {
       });
 
       /**
-       * Marks unprocessed GOG links that are present in the cached game library.
+       * 标记存在于缓存游戏库中的未处理 GOG 链接。
        *
-       * The initial scan starts a rate-limited background refresh and displays an authentication-expired notice
-       * when applicable.
+       * 首次扫描会启动受速率限制的后台刷新，并在需要时显示认证过期提示。
        *
-       * @param first - Whether this is the initial scan that may trigger an update.
-       * @param again - Whether a mutation-triggered scan should only skip already scanned links.
+       * @param first - 是否为可能触发更新的首次扫描。
+       * @param again - 由变更触发的扫描是否只跳过已扫描的链接。
        */
       function checkGogGame(first = true, again = false): void {
         loadTimes++;
@@ -76,7 +75,7 @@ function createGogModule(context: ModuleContext): LibraryModule {
           .filter((el) => !el.classList.contains(excludedClass));
         if (gogLink.length === 0) return;
         if (first) {
-          /** Refreshes the GOG ownership cache without interactive status UI. */
+          /** 在不显示交互式状态 UI 的情况下刷新 GOG 所有权缓存。 */
           const autoUpdate = () => updateGogGameLibrary(false);
           let runner = autoUpdate;
           if (typeof runAutoUpdateWithRateLimit === 'function') {
@@ -99,23 +98,23 @@ function createGogModule(context: ModuleContext): LibraryModule {
         });
       }
       /**
-       * Reads normalized GOG game slugs from userscript storage.
+       * 从用户脚本存储中读取规范化的 GOG 游戏短标识。
        *
-       * @returns Cached game slugs, or an empty array when no cache exists.
+       * @returns 缓存的游戏短标识；不存在缓存时返回空数组。
        */
       function getGogGameLibrary(): string[] {
         return GM_getValue<string[]>('gogGames') || [];
       }
       /**
-       * Fetches paginated GOG library data and writes the resulting slugs to persistent storage.
+       * 获取分页的 GOG 游戏库数据，并将得到的短标识写入持久化存储。
        *
-       * Interactive runs report progress and completion; a redirected login response returns the
-       * authentication-expired sentinel for the caller to handle.
+       * 交互式运行会报告进度和完成状态；重定向的登录响应会返回认证过期哨兵值，
+       * 由调用方处理。
        *
-       * @param loop - Whether to fetch all pages with interactive progress.
-       * @param i - Current one-based page number.
-       * @param games - Slugs collected from earlier pages.
-       * @returns Update success, failure, or an authentication-expired result.
+       * @param loop - 是否获取所有页面并显示交互式进度。
+       * @param i - 当前从 1 开始的页码。
+       * @param games - 从先前页面收集的短标识。
+       * @returns 更新成功、失败或认证过期结果。
        */
       function updateGogGameLibrary(
         loop = true,

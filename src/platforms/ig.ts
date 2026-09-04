@@ -11,10 +11,10 @@ interface IgParsedShowcase {
 }
 
 /**
- * Creates the IndieGala library module that marks owned links and synchronizes the showcase cache.
+ * 创建 IndieGala 游戏库模块，用于标记已拥有的链接并同步展示页缓存。
  *
- * @param context - Shared runtime services, settings, UI feedback, and update-status constants.
- * @returns An IndieGala library module with startup and update actions.
+ * @param context - 共享运行时服务、设置、UI 反馈和更新状态常量。
+ * @returns 包含启动和更新操作的 IndieGala 游戏库模块。
  */
 function createIgModule(context: ModuleContext): LibraryModule {
   const {
@@ -34,9 +34,9 @@ function createIgModule(context: ModuleContext): LibraryModule {
   let started = false;
 
   /**
-   * Reads and normalizes owned IndieGala paths from the persistent cache.
+   * 从持久化缓存中读取并规范化已拥有的 IndieGala 路径。
    *
-   * @returns Lowercase game path keys, or an empty array when no cache exists.
+   * @returns 小写的游戏路径键；不存在缓存时返回空数组。
    */
   function getIgOwnedGames(): string[] {
     return (GM_getValue<IgOwnedCache>('IG-Owned')?.games || [])
@@ -45,7 +45,7 @@ function createIgModule(context: ModuleContext): LibraryModule {
   }
 
   /**
-   * Marks unprocessed IndieGala links whose path or host key is present in the owned-games cache.
+   * 标记路径或主机键存在于已拥有游戏缓存中的未处理 IndieGala 链接。
    */
   function markIgLinks(): void {
     const owned = getIgOwnedGames();
@@ -66,9 +66,9 @@ function createIgModule(context: ModuleContext): LibraryModule {
   }
 
   /**
-   * Reads IndieGala cookies and serializes them for an authenticated showcase request.
+   * 读取 IndieGala cookie 并将其序列化，以供已认证的展示页请求使用。
    *
-   * @returns A semicolon-delimited Cookie header value.
+   * @returns 以分号分隔的 Cookie 请求头值。
    */
   function getIgCookies(): Promise<string> {
     return new Promise<string>((resolve, reject) => {
@@ -83,11 +83,11 @@ function createIgModule(context: ModuleContext): LibraryModule {
   }
 
   /**
-   * Requests one authenticated IndieGala library showcase page.
+   * 请求一个已认证的 IndieGala 游戏库展示页。
    *
-   * @param page - One-based showcase page number.
-   * @param cookies - Serialized authentication cookies.
-   * @returns The successful HTTP response, or rejects on request failure.
+   * @param page - 从 1 开始的展示页页码。
+   * @param cookies - 序列化的认证 cookie。
+   * @returns 成功的 HTTP 响应；请求失败时拒绝。
    */
   async function requestIgShowcasePage(
     page: number,
@@ -109,11 +109,11 @@ function createIgModule(context: ModuleContext): LibraryModule {
   }
 
   /**
-   * Parses showcase HTML into owned game paths and, on the first page, its page count.
+   * 将展示页 HTML 解析为已拥有游戏路径；在第一页还会解析总页数。
    *
-   * @param responseText - Showcase HTML response body.
-   * @param page - Page the response represents.
-   * @returns Parsed page count and normalized game paths.
+   * @param responseText - 展示页 HTML 响应正文。
+   * @param page - 响应所表示的页面。
+   * @returns 解析出的页数和规范化游戏路径。
    */
   function parseIgShowcase(responseText: string, page: number): IgParsedShowcase {
     const doc = parseHtml(responseText);
@@ -131,13 +131,13 @@ function createIgModule(context: ModuleContext): LibraryModule {
   }
 
   /**
-   * Fetches IndieGala showcase pages and persists the deduplicated owned-games cache.
+   * 获取 IndieGala 展示页并持久化去重后的已拥有游戏缓存。
    *
-   * Background updates merge the first page into the existing cache; interactive updates fetch every page and
-   * display progress. A login redirect returns the authentication-expired sentinel.
+   * 后台更新会将第一页合并到现有缓存；交互式更新会获取每一页并显示进度。登录重定向会返回
+   * 认证过期哨兵值。
    *
-   * @param loop - Whether to perform a full interactive synchronization.
-   * @returns Update success, failure, or an authentication-expired result.
+   * @param loop - 是否执行完整的交互式同步。
+   * @returns 更新成功、失败或认证过期结果。
    */
   async function updateIgGameLibrary(loop = true): Promise<UpdateResult> {
     try {
@@ -195,7 +195,7 @@ function createIgModule(context: ModuleContext): LibraryModule {
       if (started) return;
       started = true;
       markIgLinks();
-      /** Refreshes the IndieGala ownership cache without interactive status UI. */
+      /** 在不显示交互式状态 UI 的情况下刷新 IndieGala 所有权缓存。 */
       const autoUpdate = () => updateIgGameLibrary(false);
       let runner = autoUpdate;
       if (typeof runAutoUpdateWithRateLimit === 'function') {
