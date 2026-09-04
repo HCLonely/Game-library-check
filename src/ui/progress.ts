@@ -1,10 +1,10 @@
 import type { ProgressPanelOptions, ProgressStateMap } from '../shared/types';
 
-/** Creates progress-panel controls backed by a shared modal root. */
+/** 创建由共享模态框根节点承载的进度面板控制器。 */
 function createProgressController(createModalRoot: () => HTMLElement) {
   let progressPanelStateMap: ProgressStateMap = {};
 
-  /** Merges or replaces progress state, then redraws the progress panel. */
+  /** 合并或替换进度状态，然后重新渲染进度面板。 */
   function showProgressPanel(
     stateMap: ProgressStateMap,
     { replace = false }: ProgressPanelOptions = {}
@@ -42,7 +42,7 @@ function createProgressController(createModalRoot: () => HTMLElement) {
     }
   }
 
-  /** Clears stored progress state and removes the rendered progress panel. */
+  /** 清除已存储的进度状态，并移除已渲染的进度面板。 */
   function clearProgressPanel(): void {
     progressPanelStateMap = {};
     const root = createModalRoot();

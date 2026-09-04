@@ -2,7 +2,7 @@ import type { DialogOptions } from '../shared/types';
 
 let activeDialogClose: (() => void) | null = null;
 
-/** Returns the shared modal mount point, creating and appending it when absent. */
+/** 返回共享的模态框挂载点；若不存在则创建并追加该挂载点。 */
 function createModalRoot(): HTMLElement {
   let root = document.getElementById('glc-modal-root');
   if (root) return root;
@@ -12,7 +12,7 @@ function createModalRoot(): HTMLElement {
   return root;
 }
 
-/** Replaces the active dialog and manages its buttons, callbacks, keyboard, and mask lifecycle. */
+/** 替换当前活动的对话框，并管理其按钮、回调、键盘事件和遮罩层生命周期。 */
 function showDialog({
   title,
   bodyHtml,
@@ -72,7 +72,7 @@ function showDialog({
   if (confirmBtn) confirmBtn.textContent = confirmText;
 
   let closed = false;
-  /** Closes the active dialog and releases its event listeners. */
+  /** 关闭当前活动的对话框，并移除其事件监听器。 */
   const close = (): void => {
     if (closed) return;
     closed = true;
@@ -84,7 +84,7 @@ function showDialog({
     root.innerHTML = '';
   };
 
-  /** Invokes an optional dialog action before closing the dialog. */
+  /** 在关闭对话框前调用可选的对话框操作。 */
   const runAndClose = (callback?: (root: HTMLElement) => void | Promise<void>): void => {
     try {
       if (typeof callback === 'function') callback(root);
@@ -93,13 +93,13 @@ function showDialog({
     }
   };
 
-  /** Closes the dialog when its Escape-key shortcut is pressed. */
+  /** 按下 Escape 快捷键时关闭对话框。 */
   const onKeydown = (event: KeyboardEvent): void => {
     if (closed) return;
     if (event.key === 'Escape') runAndClose(onCancel);
   };
 
-  /** Closes the dialog when the user clicks its surrounding mask. */
+  /** 用户点击对话框周围的遮罩层时关闭对话框。 */
   const onMaskClick = (event: MouseEvent): void => {
     if (closed) return;
     if (event.target !== maskEl) return;

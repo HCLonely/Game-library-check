@@ -1,15 +1,15 @@
-/** Reads a value from userscript storage. */
+/** 从用户脚本存储中读取值。 */
 declare function GM_getValue<T = unknown>(key: string, defaultValue?: T): T | undefined;
-/** Writes a value to userscript storage. */
+/** 将值写入用户脚本存储。 */
 declare function GM_setValue(key: string, value: unknown): void;
-/** Removes a value from userscript storage. */
+/** 从用户脚本存储中移除值。 */
 declare function GM_deleteValue(key: string): void;
-/** Lists keys stored by the userscript. */
+/** 列出用户脚本存储的键。 */
 declare function GM_listValues(): string[];
-/** Injects CSS into the current document. */
+/** 将 CSS 注入当前文档。 */
 declare function GM_addStyle(css: string): void;
 declare const unsafeWindow: Window & Record<string, unknown>;
-/** Loads a CommonJS module by name. */
+/** 按名称加载 CommonJS 模块。 */
 declare function require(moduleName: string): unknown;
 
 interface GMXmlHttpRequestResponse<TResponse = unknown> {
@@ -28,22 +28,22 @@ interface GMXmlHttpRequestDetails<TResponse = unknown> {
   headers?: Record<string, string>;
   data?: string | Document | XMLHttpRequestBodyInit | null;
   responseType?: XMLHttpRequestResponseType;
-  /** Handles a completed request response. */
+  /** 处理已完成的请求响应。 */
   onload?: (response: GMXmlHttpRequestResponse<TResponse>) => void;
-  /** Handles a failed request response. */
+  /** 处理失败的请求响应。 */
   onerror?: (response: GMXmlHttpRequestResponse<TResponse>) => void;
-  /** Handles a request timeout response. */
+  /** 处理请求超时响应。 */
   ontimeout?: (response: GMXmlHttpRequestResponse<TResponse>) => void;
   [key: string]: unknown;
 }
 
-/** Sends an asynchronous cross-origin userscript request. */
+/** 发送异步跨域用户脚本请求。 */
 declare function GM_xmlhttpRequest<TResponse = unknown>(
   details: GMXmlHttpRequestDetails<TResponse>
 ): void;
-/** Opens a URL in a browser tab through the userscript manager. */
+/** 通过用户脚本管理器在浏览器标签页中打开 URL。 */
 declare function GM_openInTab(url: string, options?: boolean | Record<string, unknown>): unknown;
-/** Registers a userscript menu command and its click handler. */
+/** 注册用户脚本菜单命令及其点击处理程序。 */
 declare function GM_registerMenuCommand(caption: string, onClick: () => void): unknown;
 
 interface GMCookie {
@@ -57,13 +57,13 @@ interface GMCookie {
 }
 
 interface GMCookieApi {
-  /** Lists cookies matching the requested URL and optional cookie name. */
+  /** 列出与请求的 URL 及可选 Cookie 名称匹配的 Cookie。 */
   list(
     details: { url: string; name?: string },
     callback: (cookies: GMCookie[], error?: unknown) => void
   ): void;
 
-  /** Sets a cookie, reporting any Greasemonkey API error through the callback. */
+  /** 设置 Cookie，并通过回调报告任何 Greasemonkey API 错误。 */
   set(cookie: GMCookie & { url: string }, callback: (error?: unknown) => void): void;
 }
 

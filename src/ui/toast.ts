@@ -1,6 +1,6 @@
 import type { ToastOptions, ToastType } from '../shared/types';
 
-/** Returns the shared toast container, creating and appending it when absent. */
+/** 返回共享的提示消息容器；若不存在则创建并追加该容器。 */
 function createToastContainer(): HTMLElement {
   let container = document.getElementById('glc-toast-container');
   if (container) return container;
@@ -10,7 +10,7 @@ function createToastContainer(): HTMLElement {
   return container;
 }
 
-/** Displays a typed toast with optional link, close button, and timed dismissal. */
+/** 显示指定类型的提示消息，可选地附带链接、关闭按钮和定时关闭功能。 */
 function showToast(
   message: string,
   type: ToastType = 'info',
