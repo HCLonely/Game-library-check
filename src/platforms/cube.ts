@@ -1,3 +1,4 @@
+const { setSyncValue } = require('../core/sync-data.ts') as typeof import('../core/sync-data');
 import type { LibraryModule, ModuleContext, UpdateResult } from '../shared/types';
 
 interface CubeGame {
@@ -47,6 +48,7 @@ function createCubeModule(context: ModuleContext): LibraryModule {
       let loadTimes = 0;
 
       checkCubeGame();
+      window.addEventListener?.('glc-library-synced', () => { if (settings.platformEnabled.cube) { loadTimes = 0; void checkCubeGame(false); } });
 
       const observer = new MutationObserver(() => { checkCubeGame(false, true); });
       observer.observe(document.documentElement, {
@@ -65,6 +67,7 @@ function createCubeModule(context: ModuleContext): LibraryModule {
        * @param again - 由变更触发的扫描是否只跳过已扫描的链接。
        */
       function checkCubeGame(first = true, again = false): void {
+        if (!settings.platformEnabled.cube) return;
         loadTimes++;
         if (loadTimes > 1000) {
           observer.disconnect();
@@ -117,7 +120,7 @@ function createCubeModule(context: ModuleContext): LibraryModule {
         games: number[] = []
       ): Promise<UpdateResult> | void {
         if (!loop && i !== 1) {
-          GM_setValue('cubeGames', [...new Set([...getCubeGameLibrary(), ...games])]);
+          setSyncValue('cubeGames', [...new Set([...getCubeGameLibrary(), ...games])]);
           checkCubeGame(false);
           return;
         }
@@ -156,11 +159,11 @@ function createCubeModule(context: ModuleContext): LibraryModule {
             if ((response.response?.result.total || 0) > i * 24) {
               return await updateCubeGameLibrary(loop, ++i, games);
             } else if (loop) {
-              GM_setValue('cubeGames', [...new Set(games)].filter((e) => e));
+              setSyncValue('cubeGames', [...new Set(games)].filter((e) => e));
               await showUpdateResult('cube游戏库数据更新完成', 'success');
               return true;
             }
-            GM_setValue('cubeGames', [...new Set([...getCubeGameLibrary(), ...games])].filter((e) => e));
+            setSyncValue('cubeGames', [...new Set([...getCubeGameLibrary(), ...games])].filter((e) => e));
             checkCubeGame(false);
             return true;
           } else if (response.response?.result?.list?.length !== 0) {

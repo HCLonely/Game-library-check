@@ -45,6 +45,9 @@ declare function GM_xmlhttpRequest<TResponse = unknown>(
 declare function GM_openInTab(url: string, options?: boolean | Record<string, unknown>): unknown;
 /** 注册用户脚本菜单命令及其点击处理程序。 */
 declare function GM_registerMenuCommand(caption: string, onClick: () => void): unknown;
+declare function GM_unregisterMenuCommand(id: unknown): void;
+declare function GM_addValueChangeListener(key: string, callback: (key: string, oldValue: unknown, newValue: unknown, remote: boolean) => void): number;
+declare function GM_removeValueChangeListener(id: number): void;
 
 interface GMCookie {
   name: string;

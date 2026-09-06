@@ -1,3 +1,4 @@
+const { setSyncValue } = require('../core/sync-data.ts') as typeof import('../core/sync-data');
 import type { LibraryModule, ModuleContext, UpdateResult } from '../shared/types';
 
 interface IgOwnedCache {
@@ -48,6 +49,7 @@ function createIgModule(context: ModuleContext): LibraryModule {
    * 标记路径或主机键存在于已拥有游戏缓存中的未处理 IndieGala 链接。
    */
   function markIgLinks(): void {
+    if (!settings.platformEnabled.ig) return;
     const owned = getIgOwnedGames();
     const links = queryLinks('a[href*=".indiegala.com"]:not(.ig-checked)');
     links.forEach((el) => {
@@ -160,7 +162,7 @@ function createIgModule(context: ModuleContext): LibraryModule {
 
       if (!loop) {
         allGames = Array.from(new Set(allGames)).filter(Boolean);
-        GM_setValue('IG-Owned', { time: Date.now(), games: allGames });
+        setSyncValue('IG-Owned', { time: Date.now(), games: allGames });
         markIgLinks();
         return true;
       }
@@ -173,7 +175,7 @@ function createIgModule(context: ModuleContext): LibraryModule {
       }
 
       allGames = Array.from(new Set(allGames)).filter(Boolean);
-      GM_setValue('IG-Owned', { time: Date.now(), games: allGames });
+      setSyncValue('IG-Owned', { time: Date.now(), games: allGames });
       await showUpdateResult('IG游戏库数据更新完成', 'success');
       markIgLinks();
       return true;
@@ -195,6 +197,7 @@ function createIgModule(context: ModuleContext): LibraryModule {
       if (started) return;
       started = true;
       markIgLinks();
+      window.addEventListener?.('glc-library-synced', () => { if (settings.platformEnabled.ig) markIgLinks(); });
       /** 在不显示交互式状态界面的情况下刷新 IndieGala 所有权缓存。 */
       const autoUpdate = () => updateIgGameLibrary(false);
       let runner = autoUpdate;

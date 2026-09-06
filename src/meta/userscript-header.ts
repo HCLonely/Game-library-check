@@ -29,6 +29,9 @@ module.exports = `// ==UserScript==
 // @grant          GM_addStyle
 // @grant          GM_xmlhttpRequest
 // @grant          GM_registerMenuCommand
+// @grant          GM_unregisterMenuCommand
+// @grant          GM_addValueChangeListener
+// @grant          GM_removeValueChangeListener
 // @grant          GM_openInTab
 // @grant          GM_cookie
 // @grant          unsafeWindow
@@ -42,6 +45,7 @@ module.exports = `// ==UserScript==
 // @connect        account.cubejoy.com
 // @connect        indiegala.com
 // @connect        api.github.com
+// @connect        gist.githubusercontent.com
 // @connect        cdn.jsdelivr.net
 // @run-at         document-end
 // @noframes

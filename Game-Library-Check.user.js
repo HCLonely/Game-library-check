@@ -29,6 +29,9 @@
 // @grant          GM_addStyle
 // @grant          GM_xmlhttpRequest
 // @grant          GM_registerMenuCommand
+// @grant          GM_unregisterMenuCommand
+// @grant          GM_addValueChangeListener
+// @grant          GM_removeValueChangeListener
 // @grant          GM_openInTab
 // @grant          GM_cookie
 // @grant          unsafeWindow
@@ -42,6 +45,7 @@
 // @connect        account.cubejoy.com
 // @connect        indiegala.com
 // @connect        api.github.com
+// @connect        gist.githubusercontent.com
 // @connect        cdn.jsdelivr.net
 // @run-at         document-end
 // @noframes
@@ -49,7 +53,18 @@
 "use strict";
 
 (() => {
+  var __defProp = Object.defineProperty;
+  var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
   var __getOwnPropNames = Object.getOwnPropertyNames;
+  var __hasOwnProp = Object.prototype.hasOwnProperty;
+  var __esm = (fn, res, err) => function __init() {
+    if (err) throw err[0];
+    try {
+      return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+    } catch (e) {
+      throw err = [e], e;
+    }
+  };
   var __commonJS = (cb, mod) => function __require() {
     try {
       return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = {
@@ -59,6 +74,24 @@
       throw mod = 0, e;
     }
   };
+  var __export = (target, all) => {
+    for (var name in all) __defProp(target, name, {
+      get: all[name],
+      enumerable: true
+    });
+  };
+  var __copyProps = (to, from, except, desc) => {
+    if (from && typeof from === "object" || typeof from === "function") {
+      for (let key of __getOwnPropNames(from)) if (!__hasOwnProp.call(to, key) && key !== except) __defProp(to, key, {
+        get: () => from[key],
+        enumerable: !(desc = __getOwnPropDesc(from, key)) || desc.enumerable
+      });
+    }
+    return to;
+  };
+  var __toCommonJS = mod => __copyProps(__defProp({}, "__esModule", {
+    value: true
+  }), mod);
 
   // src/ui/dialog.ts
   var require_dialog = __commonJS({
@@ -296,11 +329,228 @@
     }
   });
 
+  // src/core/sha256.ts
+  var sha256_exports = {};
+  __export(sha256_exports, {
+    sha256: () => sha256
+  });
+  function sha256(bytes) {
+    const constants = [1116352408, 1899447441, 3049323471, 3921009573, 961987163, 1508970993, 2453635748, 2870763221, 3624381080, 310598401, 607225278, 1426881987, 1925078388, 2162078206, 2614888103, 3248222580, 3835390401, 4022224774, 264347078, 604807628, 770255983, 1249150122, 1555081692, 1996064986, 2554220882, 2821834349, 2952996808, 3210313671, 3336571891, 3584528711, 113926993, 338241895, 666307205, 773529912, 1294757372, 1396182291, 1695183700, 1986661051, 2177026350, 2456956037, 2730485921, 2820302411, 3259730800, 3345764771, 3516065817, 3600352804, 4094571909, 275423344, 430227734, 506948616, 659060556, 883997877, 958139571, 1322822218, 1537002063, 1747873779, 1955562222, 2024104815, 2227730452, 2361852424, 2428436474, 2756734187, 3204031479, 3329325298];
+    const state = [1779033703, 3144134277, 1013904242, 2773480762, 1359893119, 2600822924, 528734635, 1541459225];
+    const padded = new Uint8Array(Math.ceil((bytes.length + 9) / 64) * 64);
+    padded.set(bytes);
+    padded[bytes.length] = 128;
+    const view = new DataView(padded.buffer);
+    view.setUint32(padded.length - 8, Math.floor(bytes.length / 536870912));
+    view.setUint32(padded.length - 4, bytes.length * 8);
+    const rotate = (x, n) => x >>> n | x << 32 - n;
+    const words = new Int32Array(64);
+    for (let offset = 0; offset < padded.length; offset += 64) {
+      for (let i = 0; i < 16; i++) words[i] = view.getInt32(offset + i * 4);
+      for (let i = 16; i < 64; i++) {
+        const x = words[i - 15],
+          y = words[i - 2];
+        words[i] = words[i - 16] + (rotate(x, 7) ^ rotate(x, 18) ^ x >>> 3) + words[i - 7] + (rotate(y, 17) ^ rotate(y, 19) ^ y >>> 10);
+      }
+      let [a, b, c, d, e, f, g, h] = state;
+      for (let i = 0; i < 64; i++) {
+        const t1 = h + (rotate(e, 6) ^ rotate(e, 11) ^ rotate(e, 25)) + (e & f ^ ~e & g) + constants[i] + words[i] | 0;
+        const t2 = (rotate(a, 2) ^ rotate(a, 13) ^ rotate(a, 22)) + (a & b ^ a & c ^ b & c) | 0;
+        h = g;
+        g = f;
+        f = e;
+        e = d + t1 | 0;
+        d = c;
+        c = b;
+        b = a;
+        a = t1 + t2 | 0;
+      }
+      [a, b, c, d, e, f, g, h].forEach((value, i) => {
+        state[i] = state[i] + value | 0;
+      });
+    }
+    return state.map(value => (value >>> 0).toString(16).padStart(8, "0")).join("");
+  }
+  var init_sha256 = __esm({
+    "src/core/sha256.ts"() {
+      "use strict";
+    }
+  });
+
+  // src/core/sync-data.ts
+  var sync_data_exports = {};
+  __export(sync_data_exports, {
+    SYNC_KEYS: () => SYNC_KEYS,
+    applySnapshot: () => applySnapshot,
+    canonical: () => canonical,
+    chooseDirection: () => chooseDirection,
+    hashData: () => hashData,
+    libraryUpdateInProgress: () => libraryUpdateInProgress,
+    localVersion: () => localVersion,
+    makeSnapshot: () => makeSnapshot,
+    parseSnapshot: () => parseSnapshot,
+    readData: () => readData,
+    setSyncValue: () => setSyncValue,
+    trackLibraryUpdate: () => trackLibraryUpdate,
+    validateData: () => validateData
+  });
+  async function trackLibraryUpdate(work) {
+    const key = `gistLibraryUpdate:${Date.now()}:${Math.random()}`;
+    GM_setValue(key, Date.now() + 9e5);
+    const heartbeat = setInterval(() => GM_setValue(key, Date.now() + 9e5), 6e4);
+    try {
+      return await work();
+    } finally {
+      clearInterval(heartbeat);
+      GM_deleteValue(key);
+    }
+  }
+  function libraryUpdateInProgress() {
+    let updating = false;
+    for (const key of GM_listValues()) {
+      if (!key.startsWith("gistLibraryUpdate:")) continue;
+      if (Number(GM_getValue(key)) > Date.now()) updating = true;else GM_deleteValue(key);
+    }
+    return updating;
+  }
+  function canonical(value) {
+    if (Array.isArray(value)) return `[${value.map(canonical).sort().join(",")}]`;
+    if (value && typeof value === "object") return `{${Object.keys(value).sort().map(key => `${JSON.stringify(key)}:${canonical(value[key])}`).join(",")}}`;
+    return JSON.stringify(value) ?? "null";
+  }
+  function businessValue(key, value) {
+    if (key === "IG-Owned" && value && typeof value === "object") return {
+      games: value.games
+    };
+    return value;
+  }
+  function readData() {
+    const data = {};
+    for (const key of SYNC_KEYS) {
+      const value = GM_getValue(key);
+      if (value !== void 0) data[key] = businessValue(key, value);
+    }
+    return data;
+  }
+  function setSyncValue(key, value) {
+    const changed = canonical(businessValue(key, GM_getValue(key))) !== canonical(businessValue(key, value));
+    GM_setValue(key, value);
+    if (changed) {
+      const previous = GM_getValue(VERSION_KEY);
+      GM_setValue(VERSION_KEY, {
+        updatedAt: Math.max(Date.now(), (previous?.updatedAt || 0) + 1),
+        fingerprint: canonical(readData())
+      });
+    }
+  }
+  function localVersion() {
+    const data = readData();
+    const fingerprint = canonical(data);
+    const version = GM_getValue(VERSION_KEY);
+    return {
+      data,
+      fingerprint,
+      updatedAt: version?.fingerprint === fingerprint ? version.updatedAt : 0
+    };
+  }
+  async function hashData(data) {
+    const bytes = new TextEncoder().encode(canonical(data));
+    if (typeof crypto === "undefined" || !crypto.subtle) {
+      const {
+        sha256: sha2562
+      } = (init_sha256(), __toCommonJS(sha256_exports));
+      return sha2562(bytes);
+    }
+    const hash = await crypto.subtle.digest("SHA-256", bytes);
+    return Array.from(new Uint8Array(hash), byte => byte.toString(16).padStart(2, "0")).join("");
+  }
+  async function makeSnapshot(data, updatedAt) {
+    return {
+      schemaVersion: 2,
+      dataUpdatedAt: updatedAt,
+      dataHash: await hashData(data),
+      data
+    };
+  }
+  function isRecord(value) {
+    return Boolean(value && typeof value === "object" && !Array.isArray(value));
+  }
+  function validateData(raw) {
+    if (!isRecord(raw)) throw new Error("远程备份格式无效");
+    const data = {};
+    const strings = v => Array.isArray(v) && v.every(x => typeof x === "string");
+    for (const key of SYNC_KEYS) {
+      if (!Object.prototype.hasOwnProperty.call(raw, key)) continue;
+      const value = raw[key];
+      let valid = false;
+      if (["gogGames", "itchGames", "whiteList", "blackList"].includes(key)) valid = strings(value);
+      if (key === "cubeGames") valid = Array.isArray(value) && value.every(x => typeof x === "number" && Number.isFinite(x));
+      if (key === "IG-Owned") valid = isRecord(value) && strings(value.games);
+      if (key === "ownedGames" || key === "epicWishist") valid = Array.isArray(value) && value.every(x => isRecord(x) && typeof x.offerId === "string" && strings(x.pageSlug) && (key !== "ownedGames" || typeof x.namespace === "string"));
+      if (key === "globalSettings") valid = isRecord(value) && strings(value.whiteList) && strings(value.blackList) && isRecord(value.platformEnabled) && Object.values(value.platformEnabled).every(x => typeof x === "boolean");
+      if (!valid) throw new Error(`远程备份中的 ${key} 格式无效`);
+      data[key] = businessValue(key, value);
+    }
+    if (!Object.keys(data).length) throw new Error("备份没有可同步的数据");
+    return data;
+  }
+  async function parseSnapshot(raw) {
+    if (!isRecord(raw)) throw new Error("远程备份格式无效");
+    if (!("schemaVersion" in raw)) return makeSnapshot(validateData(raw), 0);
+    if (raw.schemaVersion !== 2) throw new Error("不支持的备份版本");
+    if (!Number.isSafeInteger(raw.dataUpdatedAt) || Number(raw.dataUpdatedAt) <= 0 || Number(raw.dataUpdatedAt) > Date.now() + 3e5) throw new Error("备份时间无效，请检查设备时间");
+    const snapshot = await makeSnapshot(validateData(raw.data), Number(raw.dataUpdatedAt));
+    if (snapshot.dataHash !== raw.dataHash) throw new Error("备份内容校验失败");
+    return snapshot;
+  }
+  function chooseDirection(local, remote) {
+    if (!Number.isSafeInteger(local.dataUpdatedAt) || local.dataUpdatedAt < 0 || local.dataUpdatedAt > Date.now() + 3e5) throw new Error("本地数据时间异常，请检查设备时间");
+    if (!remote) {
+      if (local.dataUpdatedAt > 0 && Object.keys(local.data).length) return "upload";
+      throw new Error("本地数据没有更新时间，请手动上传建立基线");
+    }
+    if (local.dataHash === remote.dataHash && remote.dataUpdatedAt > 0) return "unchanged";
+    if (!Object.keys(local.data).length && remote.dataUpdatedAt > 0) return "download";
+    if (!local.dataUpdatedAt || !remote.dataUpdatedAt) throw new Error("旧数据缺少更新时间，请手动选择上传或下载建立基线");
+    if (local.dataUpdatedAt === remote.dataUpdatedAt) throw new Error("两端时间相同但内容不同，请手动选择上传或下载");
+    return local.dataUpdatedAt > remote.dataUpdatedAt ? "upload" : "download";
+  }
+  function applySnapshot(snapshot) {
+    const old = new Map([...SYNC_KEYS, VERSION_KEY, "version"].map(key => [key, GM_getValue(key)]));
+    try {
+      for (const key of SYNC_KEYS) {
+        if (Object.prototype.hasOwnProperty.call(snapshot.data, key)) GM_setValue(key, snapshot.data[key]);else GM_deleteValue(key);
+      }
+      if ("ownedGames" in snapshot.data) GM_setValue("version", "1.1");
+      GM_setValue(VERSION_KEY, {
+        updatedAt: snapshot.dataUpdatedAt,
+        fingerprint: canonical(snapshot.data)
+      });
+    } catch (error) {
+      for (const [key, value] of old) {
+        if (value === void 0) GM_deleteValue(key);else GM_setValue(key, value);
+      }
+      throw error;
+    }
+  }
+  var SYNC_KEYS, VERSION_KEY;
+  var init_sync_data = __esm({
+    "src/core/sync-data.ts"() {
+      "use strict";
+
+      SYNC_KEYS = ["ownedGames", "epicWishist", "gogGames", "itchGames", "cubeGames", "IG-Owned", "globalSettings", "whiteList", "blackList"];
+      VERSION_KEY = "gistDataVersion";
+    }
+  });
+
   // src/core/settings.ts
   var require_settings = __commonJS({
     "src/core/settings.ts"(exports, module) {
       "use strict";
 
+      var {
+        setSyncValue: setSyncValue2
+      } = (init_sync_data(), __toCommonJS(sync_data_exports));
       var SETTINGS_KEY = "globalSettings";
       function getGlobalSettings() {
         const defaults = {
@@ -325,7 +575,7 @@
         };
       }
       function setGlobalSettings(settings) {
-        GM_setValue(SETTINGS_KEY, settings);
+        setSyncValue2(SETTINGS_KEY, settings);
       }
       function isUrlEnabledByList(url, settings) {
         const {
@@ -447,6 +697,9 @@
     "src/core/startup.ts"(exports, module) {
       "use strict";
 
+      var {
+        trackLibraryUpdate: trackLibraryUpdate2
+      } = (init_sync_data(), __toCommonJS(sync_data_exports));
       function createStartupFlow({
         showDialog,
         showProgressPanel,
@@ -493,7 +746,7 @@
         async function runAutoUpdateWithRateLimit(libraryModule, autoUpdateRunner) {
           if (!libraryModule?.key || typeof autoUpdateRunner !== "function") return false;
           if (!canRunAutoUpdate(libraryModule.key)) return false;
-          const result = await autoUpdateRunner();
+          const result = await trackLibraryUpdate2(autoUpdateRunner);
           if (result === true) recordAutoUpdateSuccess(libraryModule.key);
           return result;
         }
@@ -615,7 +868,7 @@
                 [key]: state[key]
               });
               try {
-                const updateResult = await libraryModule.updateLibrary();
+                const updateResult = await trackLibraryUpdate2(() => libraryModule.updateLibrary());
                 if (updateResult === true) {
                   state[key] = "success";
                 } else if (isAuthExpiredResult(updateResult)) {
@@ -696,213 +949,586 @@
     }
   });
 
+  // src/core/gist-transport.ts
+  var gist_transport_exports = {};
+  __export(gist_transport_exports, {
+    SyncError: () => SyncError,
+    readRemote: () => readRemote,
+    request: () => request,
+    writeRemote: () => writeRemote
+  });
+  function request(url, conf, method = "GET", data) {
+    return new Promise((resolve, reject) => {
+      GM_xmlhttpRequest({
+        url,
+        method,
+        data,
+        responseType: "json",
+        timeout: 3e4,
+        headers: {
+          Accept: "application/vnd.github+json",
+          Authorization: `Bearer ${conf.TOKEN}`,
+          "Content-Type": "application/json",
+          "Cache-Control": "no-cache"
+        },
+        onerror: () => reject(new SyncError("网络异常，请检查连接")),
+        ontimeout: () => reject(new SyncError("连接超时，请稍后重试")),
+        onload: response => {
+          if (response.status >= 200 && response.status < 300) {
+            resolve(response);
+            return;
+          }
+          const headers = response.responseHeaders || "";
+          const retry = headers.match(/^retry-after:\s*(.+)$/im)?.[1]?.trim();
+          const reset = headers.match(/^x-ratelimit-reset:\s*(\d+)/im)?.[1];
+          const apiMessage = response.response?.message;
+          const limited = response.status === 429 || response.status === 403 && (/^x-ratelimit-remaining:\s*0\s*$/im.test(headers) || Boolean(retry) || typeof apiMessage === "string" && /secondary rate limit|rate limit exceeded/i.test(apiMessage));
+          if (limited) {
+            const retryAt = retry ? /^\d+$/.test(retry) ? Date.now() + Number(retry) * 1e3 : Date.parse(retry) : Number(reset) * 1e3;
+            reject(new SyncError("GitHub 请求限流，稍后自动重试", false, Number.isFinite(retryAt) ? retryAt : 0));
+          } else if (response.status === 401 || response.status === 403) reject(new SyncError("Token 无效或权限不足，请重新保存配置并测试", true));else if (response.status === 404) reject(new SyncError("Gist 不存在或没有访问权限", true));else reject(new SyncError(`GitHub 请求失败（${response.status}）`, response.status < 500));
+        }
+      });
+    });
+  }
+  async function readRemote(conf) {
+    const response = await request(urlFor(conf), conf);
+    const body = response.response;
+    if (!body?.files || typeof body.files !== "object" || body.truncated) throw new SyncError("Gist 文件列表不完整，无法安全同步", true);
+    const file = Object.prototype.hasOwnProperty.call(body.files, conf.FILE_NAME) ? body.files[conf.FILE_NAME] : void 0;
+    if (!file) return null;
+    let raw;
+    if (file.truncated) {
+      const rawUrl = file.raw_url && new URL(file.raw_url);
+      if (!rawUrl || rawUrl.protocol !== "https:" || rawUrl.hostname !== "gist.githubusercontent.com") throw new SyncError("远程文件地址无效", true);
+      const response2 = await new Promise((resolve, reject) => GM_xmlhttpRequest({
+        url: rawUrl.href,
+        method: "GET",
+        timeout: 3e4,
+        responseType: "text",
+        onload: resolve,
+        onerror: () => reject(new SyncError("下载完整备份失败")),
+        ontimeout: () => reject(new SyncError("下载完整备份超时"))
+      }));
+      if (response2.status !== 200) throw new SyncError("无法下载完整备份");
+      try {
+        raw = JSON.parse(response2.responseText);
+      } catch {
+        throw new SyncError("远程文件不是有效 JSON", true);
+      }
+    } else {
+      try {
+        raw = JSON.parse(file.content || "");
+      } catch {
+        throw new SyncError("远程文件不是有效 JSON", true);
+      }
+    }
+    try {
+      return await parseSnapshot2(raw);
+    } catch (error) {
+      throw new SyncError(error.message, true);
+    }
+  }
+  async function writeRemote(conf, snapshot) {
+    await request(urlFor(conf), conf, "PATCH", JSON.stringify({
+      files: {
+        [conf.FILE_NAME]: {
+          content: JSON.stringify(snapshot)
+        }
+      }
+    }));
+    const confirmed = await readRemote(conf);
+    if (!confirmed || confirmed.dataHash !== snapshot.dataHash || confirmed.dataUpdatedAt !== snapshot.dataUpdatedAt) throw new SyncError("远程内容已变化，未能确认上传结果");
+  }
+  var parseSnapshot2, SyncError, urlFor;
+  var init_gist_transport = __esm({
+    "src/core/gist-transport.ts"() {
+      "use strict";
+
+      ({
+        parseSnapshot: parseSnapshot2
+      } = (init_sync_data(), __toCommonJS(sync_data_exports)));
+      SyncError = class extends Error {
+        constructor(message, permanent = false, retryAt = 0) {
+          super(message);
+          this.permanent = permanent;
+          this.retryAt = retryAt;
+        }
+      };
+      urlFor = conf => `https://api.github.com/gists/${encodeURIComponent(conf.GIST_ID)}`;
+    }
+  });
+
+  // src/core/gist-auto-sync.ts
+  var gist_auto_sync_exports = {};
+  __export(gist_auto_sync_exports, {
+    CONF_KEY: () => CONF_KEY,
+    createSyncEngine: () => createSyncEngine,
+    getGistConf: () => getGistConf,
+    getState: () => getState,
+    isDue: () => isDue,
+    relativeTime: () => relativeTime,
+    stateKey: () => stateKey
+  });
+  function getGistConf() {
+    const conf = GM_getValue(CONF_KEY) || {};
+    return {
+      TOKEN: conf.TOKEN || "",
+      GIST_ID: conf.GIST_ID || "",
+      FILE_NAME: conf.FILE_NAME || "",
+      enabled: conf.enabled === true,
+      intervalHours: Number.isInteger(conf.intervalHours) && Number(conf.intervalHours) >= 1 && Number(conf.intervalHours) <= 720 ? Number(conf.intervalHours) : 24
+    };
+  }
+  function stateKey(conf) {
+    return `gistSyncState:${JSON.stringify([conf.GIST_ID, conf.FILE_NAME])}`;
+  }
+  function getState(conf = getGistConf()) {
+    return GM_getValue(stateKey(conf)) || {};
+  }
+  function relativeTime(at, now = Date.now()) {
+    if (!at) return "尚未同步";
+    const minutes = Math.max(0, Math.floor((now - at) / 6e4));
+    return minutes < 1 ? "刚刚同步" : minutes < 60 ? `${minutes} 分钟前同步` : minutes < 1440 ? `${Math.floor(minutes / 60)} 小时前同步` : `${Math.floor(minutes / 1440)} 天前同步`;
+  }
+  function isDue(conf, state, now = Date.now()) {
+    return conf.enabled && !state.paused && (state.nextRetryAt ? now >= state.nextRetryAt : !state.lastSyncSuccessAt || now >= state.lastSyncSuccessAt + conf.intervalHours * 36e5);
+  }
+  function createSyncEngine(options) {
+    const read = options.read || readRemote2;
+    const write = options.write || writeRemote2;
+    const delay = options.delay || (ms => new Promise(resolve => window.setTimeout(resolve, ms)));
+    const owner = `${Date.now()}-${Math.random()}`;
+    let busy = false;
+    let disposed = false;
+    const lease = () => GM_getValue(LOCK_KEY);
+    const sameConf = conf => JSON.stringify(conf) === JSON.stringify(getGistConf());
+    function release() {
+      if (lease()?.owner === owner) GM_deleteValue(LOCK_KEY);
+    }
+    async function run(mode = "auto", scheduled = false) {
+      if (busy || disposed) return;
+      const conf = getGistConf();
+      if (!conf.TOKEN || !conf.GIST_ID || !conf.FILE_NAME) {
+        if (!scheduled) options.notify("请先保存完整的 Gist 配置并测试", true);
+        return;
+      }
+      if (scheduled && (!options.allowed() || !isDue(conf, getState(conf)))) return;
+      if (libraryUpdateInProgress2()) {
+        if (!scheduled) options.notify("游戏库正在更新，完成后再同步", false);
+        return;
+      }
+      busy = true;
+      let acquired = false;
+      const guard = () => {
+        if (disposed || !sameConf(conf) || lease()?.owner !== owner || scheduled && !options.allowed()) throw new SyncError2("同步条件已变化，请重新同步");
+        GM_setValue(LOCK_KEY, {
+          owner,
+          until: Date.now() + 3e5
+        });
+      };
+      try {
+        await delay(100 + Math.random() * 200);
+        const current = lease();
+        if (current && current.until > Date.now()) {
+          if (!scheduled) options.notify("其他标签页正在同步，请稍后再试", false);
+          return;
+        }
+        GM_setValue(LOCK_KEY, {
+          owner,
+          until: Date.now() + 3e5
+        });
+        await delay(150);
+        if (lease()?.owner !== owner) return;
+        acquired = true;
+        guard();
+        if (scheduled && !isDue(conf, getState(conf))) return;
+        GM_setValue(stateKey(conf), {
+          ...getState(conf),
+          lastAttemptAt: Date.now()
+        });
+        options.changed();
+        const initial = localVersion2();
+        const local = await makeSnapshot2(initial.data, initial.updatedAt);
+        const remote = await read(conf);
+        guard();
+        const unchangedLocal = () => {
+          const current2 = localVersion2();
+          if (libraryUpdateInProgress2() || current2.fingerprint !== initial.fingerprint || current2.updatedAt !== initial.updatedAt) throw new SyncError2("本地数据刚刚更新，将重新比较后同步");
+        };
+        unchangedLocal();
+        let direction;
+        try {
+          direction = mode === "auto" ? chooseDirection2(local, remote) : mode;
+        } catch (error) {
+          throw new SyncError2(error.message, true);
+        }
+        let resultTime = remote?.dataUpdatedAt;
+        if (direction === "upload") {
+          if (!Object.keys(local.data).length) throw new SyncError2("本地没有可上传的数据", true);
+          try {
+            validateData2(local.data);
+          } catch {
+            throw new SyncError2("本地游戏库或设置格式无效，请先更新游戏库并保存设置", true);
+          }
+          const snapshot = mode === "upload" ? await makeSnapshot2(local.data, Date.now()) : local;
+          const latest = await read(conf);
+          guard();
+          unchangedLocal();
+          if (latest?.dataHash !== remote?.dataHash || latest?.dataUpdatedAt !== remote?.dataUpdatedAt) throw new SyncError2("远程数据刚刚更新，将重新比较后同步");
+          await write(conf, snapshot);
+          guard();
+          unchangedLocal();
+          GM_setValue("gistDataVersion", {
+            updatedAt: snapshot.dataUpdatedAt,
+            fingerprint: initial.fingerprint
+          });
+          resultTime = snapshot.dataUpdatedAt;
+        } else if (direction === "download") {
+          if (!remote) throw new SyncError2("远程文件不存在，无法下载", true);
+          const snapshot = remote.dataUpdatedAt ? remote : await makeSnapshot2(remote.data, Date.now());
+          guard();
+          unchangedLocal();
+          if (!remote.dataUpdatedAt) {
+            const latest = await read(conf);
+            guard();
+            unchangedLocal();
+            if (latest?.dataHash !== remote.dataHash || latest.dataUpdatedAt !== 0) throw new SyncError2("远程数据刚刚更新，请重新下载");
+            await write(conf, snapshot);
+            guard();
+            unchangedLocal();
+          }
+          applySnapshot2(snapshot);
+          resultTime = snapshot.dataUpdatedAt;
+        } else if (remote) {
+          GM_setValue("gistDataVersion", {
+            updatedAt: remote.dataUpdatedAt,
+            fingerprint: initial.fingerprint
+          });
+        }
+        GM_setValue(stateKey(conf), {
+          lastSyncSuccessAt: Date.now(),
+          lastAttemptAt: Date.now(),
+          lastDirection: direction,
+          remoteUpdatedAt: resultTime
+        });
+        options.notify(direction === "upload" ? "Gist 同步成功：已上传本地数据" : direction === "download" ? "Gist 同步成功：已下载远程数据" : "Gist 同步成功：两端数据已一致", false);
+        if (direction === "download") options.applied();
+      } catch (error) {
+        if (acquired && !disposed && sameConf(conf) && lease()?.owner === owner) {
+          const failure = error instanceof SyncError2 ? error : new SyncError2("同步失败，无法完成数据读写");
+          const state = getState(conf);
+          const failures = (state.failures || 0) + 1;
+          GM_setValue(stateKey(conf), {
+            ...state,
+            lastError: failure.message,
+            failures,
+            paused: failure.permanent,
+            nextRetryAt: Math.max(failure.retryAt, Date.now() + [5, 15, 60][Math.min(failures - 1, 2)] * 6e4)
+          });
+          options.notify(`Gist 同步失败：${failure.message}`, true);
+        }
+      } finally {
+        if (acquired) release();
+        busy = false;
+        options.changed();
+      }
+    }
+    return {
+      run,
+      isBusy: () => busy,
+      dispose: () => {
+        disposed = true;
+        release();
+      }
+    };
+  }
+  var SyncError2, readRemote2, writeRemote2, localVersion2, makeSnapshot2, chooseDirection2, applySnapshot2, libraryUpdateInProgress2, validateData2, CONF_KEY, LOCK_KEY;
+  var init_gist_auto_sync = __esm({
+    "src/core/gist-auto-sync.ts"() {
+      "use strict";
+
+      ({
+        SyncError: SyncError2,
+        readRemote: readRemote2,
+        writeRemote: writeRemote2
+      } = (init_gist_transport(), __toCommonJS(gist_transport_exports)));
+      ({
+        localVersion: localVersion2,
+        makeSnapshot: makeSnapshot2,
+        chooseDirection: chooseDirection2,
+        applySnapshot: applySnapshot2,
+        libraryUpdateInProgress: libraryUpdateInProgress2,
+        validateData: validateData2
+      } = (init_sync_data(), __toCommonJS(sync_data_exports)));
+      CONF_KEY = "gistConf";
+      LOCK_KEY = "gistSyncLease";
+    }
+  });
+
   // src/core/gist-sync.ts
   var require_gist_sync = __commonJS({
     "src/core/gist-sync.ts"(exports, module) {
       "use strict";
 
-      var GIST_CONF_KEY = "gistConf";
-      function getGistConf() {
-        const conf = GM_getValue(GIST_CONF_KEY) || {};
-        return {
-          TOKEN: conf.TOKEN || "",
-          GIST_ID: conf.GIST_ID || "",
-          FILE_NAME: conf.FILE_NAME || ""
-        };
-      }
-      function setGistConf(conf) {
-        GM_setValue(GIST_CONF_KEY, conf);
-      }
-      function requestWithRetry(options, retry = 0) {
-        return new Promise((resolve, reject) => {
-          GM_xmlhttpRequest({
-            ...options,
-            onerror: reject,
-            ontimeout: reject,
-            onload: response => {
-              response.status >= 200 && response.status < 400 ? resolve(response) : reject(response);
-            }
-          });
-        }).catch(error => {
-          if (retry <= 0) throw error;
-          return requestWithRetry(options, retry - 1);
-        });
-      }
-      function setGistData(token, gistId, fileName, content) {
-        const data = JSON.stringify({
-          files: {
-            [fileName]: {
-              content: JSON.stringify(content)
-            }
-          }
-        });
-        return requestWithRetry({
-          url: `https://api.github.com/gists/${gistId}`,
-          headers: {
-            Accept: "application/vnd.github.v3+json",
-            Authorization: `token ${token}`
-          },
-          data,
-          responseType: "json",
-          method: "PATCH",
-          timeout: 3e4
-        }, 3).then(response => {
-          const body = response.response;
-          const remoteContent = body?.files?.[fileName]?.content;
-          return response.status === 200 && remoteContent === JSON.stringify(content);
-        }).catch(error => {
-          console.error(error);
-          return false;
-        });
-      }
-      function getGistData(token, gistId, fileName) {
-        return requestWithRetry({
-          url: `https://api.github.com/gists/${gistId}`,
-          headers: {
-            Accept: "application/vnd.github.v3+json",
-            Authorization: `token ${token}`
-          },
-          responseType: "json",
-          method: "GET",
-          timeout: 3e4
-        }, 3).then(response => {
-          if (response.status !== 200) return false;
-          const body = response.response;
-          const content = body?.files?.[fileName]?.content;
-          if (!content) return false;
-          return JSON.parse(content);
-        }).catch(error => {
-          console.error(error);
-          return false;
-        });
-      }
-      function createLabeledInput(labelText, value, placeholder, type = "text") {
-        const wrapper = document.createElement("label");
-        wrapper.className = "glc-form-field";
-        const text = document.createElement("div");
-        text.className = "glc-input-label";
-        text.textContent = labelText;
-        const input = document.createElement("input");
-        input.className = "glc-input";
-        input.type = type;
-        input.placeholder = placeholder;
-        input.value = value;
-        wrapper.appendChild(text);
-        wrapper.appendChild(input);
-        return {
-          wrapper,
-          input
-        };
-      }
+      var {
+        getGistConf: getGistConf2,
+        getState: getState2,
+        stateKey: stateKey2,
+        relativeTime: relativeTime2,
+        createSyncEngine: createSyncEngine2,
+        CONF_KEY: CONF_KEY2
+      } = (init_gist_auto_sync(), __toCommonJS(gist_auto_sync_exports));
+      var {
+        readRemote: readRemote3
+      } = (init_gist_transport(), __toCommonJS(gist_transport_exports));
+      var {
+        localVersion: localVersion3
+      } = (init_sync_data(), __toCommonJS(sync_data_exports));
       function createGistSyncController({
         showDialog,
-        showToast
+        showToast,
+        isAllowed = () => true,
+        onDataApplied = () => {}
       }) {
-        function validateConf(conf) {
-          return Boolean(conf.TOKEN && conf.GIST_ID && conf.FILE_NAME);
-        }
-        function buildUploadPayload() {
-          const payload = {};
-          const keys = GM_listValues();
-          keys.forEach(key => {
-            if (key === GIST_CONF_KEY) return;
-            payload[key] = GM_getValue(key);
+        let menuId;
+        let caption = "";
+        let timer;
+        let statusNode;
+        let pending;
+        let active = false;
+        let stateListener;
+        let watchedState = "";
+        const listeners = [];
+        const notify = (message, error) => {
+          if (document.visibilityState === "hidden") {
+            pending = {
+              message,
+              error
+            };
+            return;
+          }
+          showToast(message, error ? "error" : "success", {
+            duration: error ? 1e4 : 6e3,
+            closable: true
           });
-          return payload;
+        };
+        const engineOptions = {
+          notify,
+          changed: refresh,
+          applied: onDataApplied,
+          allowed: isAllowed
+        };
+        let engine = createSyncEngine2(engineOptions);
+        const absolute = at => at ? new Date(at).toLocaleString() : "无记录";
+        function refresh() {
+          const conf = getGistConf2();
+          const state = getState2(conf);
+          if (active && typeof GM_addValueChangeListener === "function" && watchedState !== stateKey2(conf)) {
+            if (stateListener !== void 0 && typeof GM_removeValueChangeListener === "function") GM_removeValueChangeListener(stateListener);
+            watchedState = stateKey2(conf);
+            stateListener = GM_addValueChangeListener(watchedState, refresh);
+          }
+          let label = relativeTime2(state.lastSyncSuccessAt);
+          if (state.lastError) label = `同步失败 · ${state.lastSyncSuccessAt ? "上次成功 " + relativeTime2(state.lastSyncSuccessAt).replace("同步", "") : "尚未成功同步"}`;
+          if (engine.isBusy()) label = "正在同步…";
+          const nextCaption = `数据同步设置（${label}）`;
+          if (active && nextCaption !== caption) {
+            if (menuId !== void 0 && typeof GM_unregisterMenuCommand === "function") GM_unregisterMenuCommand(menuId);
+            if (!caption || typeof GM_unregisterMenuCommand === "function") menuId = GM_registerMenuCommand(nextCaption, openGistSyncDialog);
+            caption = nextCaption;
+          }
+          if (statusNode?.isConnected) {
+            const next = !conf.enabled ? "自动同步已关闭" : state.paused ? "已暂停，请处理错误后重新保存并测试" : absolute(state.nextRetryAt || (state.lastSyncSuccessAt ? state.lastSyncSuccessAt + conf.intervalHours * 36e5 : Date.now()));
+            statusNode.textContent = `最近同步：${relativeTime2(state.lastSyncSuccessAt)}（${absolute(state.lastSyncSuccessAt)}）
+上次结果：${state.lastDirection ? {
+              upload: "已上传",
+              download: "已下载",
+              unchanged: "两端一致"
+            }[state.lastDirection] : "无记录"}
+本地数据更新：${absolute(localVersion3().updatedAt)}
+远程数据更新：${absolute(state.remoteUpdatedAt)}
+下次同步：${next}${state.lastError ? "\n最近错误：" + state.lastError : ""}`;
+          }
         }
-        async function uploadData(conf) {
-          if (!validateConf(conf)) {
-            showToast("请先保存配置并测试", "error");
-            return;
+        function tick() {
+          refresh();
+          if (document.visibilityState !== "hidden" && pending) {
+            const item = pending;
+            pending = void 0;
+            notify(item.message, item.error);
           }
-          const payload = buildUploadPayload();
-          const ok = await setGistData(conf.TOKEN, conf.GIST_ID, conf.FILE_NAME, payload);
-          if (ok) {
-            showToast("同步到 Gist 成功", "success");
-            return;
-          }
-          showToast("同步到 Gist 失败，请查看控制台错误", "error");
+          void engine.run("auto", true);
         }
-        async function downloadData(conf) {
-          if (!validateConf(conf)) {
-            showToast("请先保存配置并测试", "error");
-            return;
-          }
-          const remoteData = await getGistData(conf.TOKEN, conf.GIST_ID, conf.FILE_NAME);
-          if (!remoteData || typeof remoteData !== "object") {
-            showToast("未检测到远程数据，请检查配置", "error");
-            return;
-          }
-          Object.entries(remoteData).forEach(([key, value]) => {
-            if (key === GIST_CONF_KEY) return;
-            GM_setValue(key, value);
+        function start() {
+          if (active) return;
+          engine = createSyncEngine2(engineOptions);
+          active = true;
+          refresh();
+          timer = window.setInterval(tick, 6e4);
+          document.addEventListener("visibilitychange", tick);
+          window.addEventListener("pagehide", stop, {
+            once: true
           });
-          showToast("从 Gist 同步成功", "success");
+          if (typeof GM_addValueChangeListener === "function") {
+            listeners.push(GM_addValueChangeListener(CONF_KEY2, () => {
+              refresh();
+              void engine.run("auto", true);
+            }));
+            listeners.push(GM_addValueChangeListener("gistDataVersion", (_key, _old, _value, remote) => {
+              if (remote) onDataApplied();
+              refresh();
+            }));
+          }
+          tick();
+        }
+        function stop() {
+          active = false;
+          if (timer !== void 0) window.clearInterval(timer);
+          document.removeEventListener("visibilitychange", tick);
+          for (const id of listeners) if (typeof GM_removeValueChangeListener === "function") GM_removeValueChangeListener(id);
+          listeners.length = 0;
+          if (stateListener !== void 0 && typeof GM_removeValueChangeListener === "function") GM_removeValueChangeListener(stateListener);
+          stateListener = void 0;
+          watchedState = "";
+          engine.dispose();
+        }
+        window.addEventListener("pageshow", event => {
+          if (event.persisted) start();
+        });
+        function field(body, label, value, type = "text") {
+          const wrapper = document.createElement("label");
+          wrapper.className = "glc-form-field";
+          const title = document.createElement("div");
+          title.className = "glc-input-label";
+          title.textContent = label;
+          const input = document.createElement("input");
+          input.className = "glc-input";
+          input.type = type;
+          input.value = value;
+          wrapper.appendChild(title);
+          wrapper.appendChild(input);
+          body.appendChild(wrapper);
+          return input;
         }
         function openGistSyncDialog() {
-          const conf = getGistConf();
-          const bodyNode = document.createElement("div");
-          const tokenField = createLabeledInput("Github Token", conf.TOKEN, "Github Token");
-          const gistIdField = createLabeledInput("Gist ID", conf.GIST_ID, "Gist ID");
-          const fileNameField = createLabeledInput("文件名", conf.FILE_NAME, "文件名");
-          bodyNode.appendChild(tokenField.wrapper);
-          bodyNode.appendChild(gistIdField.wrapper);
-          bodyNode.appendChild(fileNameField.wrapper);
-          const actionRow = document.createElement("div");
-          actionRow.className = "glc-inline-actions";
-          const uploadButton = document.createElement("button");
-          uploadButton.type = "button";
-          uploadButton.className = "glc-inline-button";
-          uploadButton.textContent = "同步到Gist";
-          const downloadButton = document.createElement("button");
-          downloadButton.type = "button";
-          downloadButton.className = "glc-inline-button";
-          downloadButton.textContent = "从Gist同步";
-          actionRow.appendChild(uploadButton);
-          actionRow.appendChild(downloadButton);
-          bodyNode.appendChild(actionRow);
-          const readConfFromInputs = () => ({
-            TOKEN: tokenField.input.value.trim(),
-            GIST_ID: gistIdField.input.value.trim(),
-            FILE_NAME: fileNameField.input.value.trim()
-          });
-          uploadButton.addEventListener("click", () => {
-            uploadData(readConfFromInputs());
-          });
-          downloadButton.addEventListener("click", () => {
-            downloadData(readConfFromInputs());
-          });
-          showDialog({
-            title: "Gist 设置",
-            bodyNode,
-            confirmText: "保存配置并测试",
-            cancelText: "关闭",
-            onConfirm: async () => {
-              const nextConf = readConfFromInputs();
-              setGistConf(nextConf);
-              if (!validateConf(nextConf)) {
-                showToast("配置不完整，请填写 Token、Gist ID 和文件名", "error");
-                return;
+          const conf = getGistConf2();
+          const body = document.createElement("div");
+          const token = field(body, "GitHub Token", conf.TOKEN, "password");
+          const gist = field(body, "Gist ID", conf.GIST_ID);
+          const file = field(body, "文件名", conf.FILE_NAME);
+          const enabled = field(body, "自动同步 Gist（按数据更新时间上传或下载）", "", "checkbox");
+          enabled.checked = conf.enabled;
+          const interval = field(body, "同步间隔（1 小时～30 天）", String(conf.intervalHours % 24 === 0 ? conf.intervalHours / 24 : conf.intervalHours), "number");
+          interval.min = "1";
+          interval.step = "1";
+          const unit = document.createElement("select");
+          unit.className = "glc-input";
+          unit.setAttribute("aria-label", "同步间隔单位");
+          for (const [value, text] of [["1", "小时"], ["24", "天"]]) {
+            const option = document.createElement("option");
+            option.value = value;
+            option.textContent = text;
+            unit.appendChild(option);
+          }
+          unit.value = conf.intervalHours % 24 === 0 ? "24" : "1";
+          body.appendChild(unit);
+          const updateDisabled = () => {
+            interval.disabled = unit.disabled = !enabled.checked;
+            interval.max = unit.value === "24" ? "30" : "720";
+          };
+          enabled.addEventListener("change", updateDisabled);
+          unit.addEventListener("change", updateDisabled);
+          updateDisabled();
+          const note = document.createElement("p");
+          note.textContent = "较新整份数据覆盖较旧数据。浏览器关闭时不运行，下次打开适用网页补同步。旧备份首次使用请手动选择上传或下载建立基线。";
+          body.appendChild(note);
+          statusNode = document.createElement("p");
+          statusNode.style.whiteSpace = "pre-line";
+          body.appendChild(statusNode);
+          const actions = document.createElement("div");
+          actions.className = "glc-inline-actions";
+          body.appendChild(actions);
+          const buttons = [];
+          function button(text, action) {
+            const button2 = document.createElement("button");
+            button2.type = "button";
+            button2.className = "glc-inline-button";
+            button2.textContent = text;
+            button2.addEventListener("click", async () => {
+              if (buttons.some(item => item.disabled)) return;
+              buttons.forEach(item => {
+                item.disabled = true;
+              });
+              try {
+                await action();
+              } finally {
+                buttons.forEach(item => {
+                  item.disabled = false;
+                });
+                refresh();
               }
-              const ok = await getGistData(nextConf.TOKEN, nextConf.GIST_ID, nextConf.FILE_NAME);
-              if (ok !== false) {
-                showToast("测试成功", "success");
-                return;
-              }
-              showToast("测试失败，请检查配置", "error");
+            });
+            buttons.push(button2);
+            actions.appendChild(button2);
+          }
+          const readInputs = () => ({
+            TOKEN: token.value.trim(),
+            GIST_ID: gist.value.trim(),
+            FILE_NAME: file.value.trim(),
+            enabled: enabled.checked,
+            intervalHours: enabled.checked ? Number(interval.value) * Number(unit.value) : conf.intervalHours
+          });
+          button("保存配置并测试", async () => {
+            const next = readInputs();
+            if (!next.TOKEN || !next.GIST_ID || !next.FILE_NAME || !Number.isInteger(Number(interval.value)) || !Number.isInteger(next.intervalHours) || next.intervalHours < 1 || next.intervalHours > 720) {
+              notify("请填写完整配置，间隔须为 1 小时～30 天的整数小时或天数", true);
+              return;
+            }
+            try {
+              if (!next.enabled) GM_setValue(CONF_KEY2, next);
+              await readRemote3(next);
+              const state = getState2(next);
+              GM_setValue(stateKey2(next), {
+                ...state,
+                paused: false,
+                lastError: void 0,
+                nextRetryAt: void 0,
+                failures: 0
+              });
+              GM_setValue(CONF_KEY2, next);
+              notify("配置已保存，连接测试成功", false);
+              void engine.run("auto", true);
+            } catch (error) {
+              notify(`连接测试失败：${error.message}`, true);
             }
           });
+          for (const [text, mode] of [["立即同步", "auto"], ["手动上传（覆盖远程）", "upload"], ["手动下载（覆盖本地）", "download"]]) {
+            button(text, async () => {
+              if (JSON.stringify(readInputs()) !== JSON.stringify(getGistConf2())) {
+                notify("配置已修改，请先保存配置并测试", true);
+                return;
+              }
+              await engine.run(mode);
+            });
+          }
+          showDialog({
+            title: "Gist 数据同步设置",
+            bodyNode: body,
+            confirmText: "关闭",
+            hideCancel: true
+          });
+          refresh();
         }
         return {
-          openGistSyncDialog
+          openGistSyncDialog,
+          start,
+          stop
         };
       }
       module.exports = {
         createGistSyncController,
-        getGistConf,
-        setGistConf,
-        getGistData,
-        setGistData
+        getGistConf: getGistConf2
       };
     }
   });
@@ -922,6 +1548,9 @@
 .glc-dialog{background:#fff;color:#0f172a;border:1px solid #e2e8f0;padding:20px;border-radius:12px;min-width:360px;max-width:580px;font-size:14px;box-shadow:0 14px 36px rgba(15,23,42,.16),0 4px 14px rgba(15,23,42,.08)}
 .glc-dialog-title{margin:0 0 12px;font-size:18px;line-height:1.35;color:#0f172a;font-weight:700}
 .glc-dialog-body{line-height:1.6;color:#334155}
+.glc-dialog{box-sizing:border-box;min-width:min(360px,100%);max-width:min(580px,100%);max-height:calc(100dvh - 40px);display:flex;flex-direction:column}
+.glc-dialog-body{min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.glc-dialog-title,.glc-dialog-actions{flex-shrink:0}
 .glc-dialog-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid #f1f5f9}
 .glc-dialog-actions button{border:1px solid #e2e8f0;border-radius:8px;background:#fff;color:#0f172a;padding:8px 14px;cursor:pointer;transition:background-color .14s ease,border-color .14s ease,box-shadow .14s ease}
 .glc-dialog-actions button:hover{background:#f8fbff;border-color:#c6d4e8}
@@ -933,6 +1562,9 @@
 .glc-input-label{margin-bottom:6px;color:#334155}
 .glc-input{width:100%;box-sizing:border-box;border:1px solid #d0dbe8;border-radius:8px;padding:8px 10px;color:#0f172a;background:#fff}
 .glc-inline-actions{display:flex;gap:10px;margin-top:8px}
+.glc-inline-actions{flex-wrap:wrap}
+.glc-input[type=checkbox]{width:auto;accent-color:#2563eb}
+.glc-input:disabled,.glc-inline-button:disabled{opacity:.55;cursor:not-allowed}
 .glc-inline-button{border:1px solid #e2e8f0;border-radius:8px;background:#fff;color:#0f172a;padding:8px 14px;cursor:pointer;transition:background-color .14s ease,border-color .14s ease}
 .glc-inline-button:hover{background:#f8fbff;border-color:#c6d4e8}
 #glc-toast-container{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:2147483647;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none}
@@ -963,6 +1595,9 @@
     "src/platforms/epic.ts"(exports, module) {
       "use strict";
 
+      var {
+        setSyncValue: setSyncValue2
+      } = (init_sync_data(), __toCommonJS(sync_data_exports));
       function createEpicModule(context) {
         const {
           settings,
@@ -1000,6 +1635,12 @@
             let locale = "en-US";
             await getSha256Hash();
             checkEpicGame();
+            window.addEventListener?.("glc-library-synced", () => {
+              if (settings.platformEnabled.epic) {
+                loadTimes = 0;
+                void checkEpicGame(false);
+              }
+            });
             const observer = new MutationObserver(() => {
               checkEpicGame(false, true);
             });
@@ -1010,6 +1651,7 @@
               subtree: true
             });
             async function checkEpicGame(first = true, again = false) {
+              if (!settings.platformEnabled.epic) return;
               loadTimes++;
               if (loadTimes > 1e3) {
                 observer.disconnect();
@@ -1238,10 +1880,10 @@
               }
               throw new Error("[EGLC] Too many redirects");
             }
-            async function updateEpicOwnedGames(loop = true, i = 0, games = GM_getValue("ownedGames") || [], nextPageToken = "") {
+            async function updateEpicOwnedGames(loop = true, i = 0, games = [...(GM_getValue("ownedGames") || [])], nextPageToken = "") {
               console.log("[EGLC] updateEpicOwnedGames...");
               if (!loop && i !== 0) {
-                GM_setValue("ownedGames", games);
+                setSyncValue2("ownedGames", games);
                 checkEpicGame(false);
                 return;
               }
@@ -1295,7 +1937,6 @@
                         offerId: item.offerId,
                         pageSlug
                       });
-                      GM_setValue("ownedGames", games);
                     }
                     return true;
                   }));
@@ -1312,11 +1953,11 @@
                     }
                     return await updateEpicOwnedGames(loop, ++i, games, nextPageToken2);
                   } else if (loop) {
-                    GM_setValue("ownedGames", games);
+                    setSyncValue2("ownedGames", games);
                     await showUpdateResult("Epic已拥有游戏数据更新完成", "success");
                     return true;
                   }
-                  GM_setValue("ownedGames", games);
+                  setSyncValue2("ownedGames", games);
                   checkEpicGame(false);
                   console.log("[EGLC] updateEpicOwnedGames: Finish!");
                   return true;
@@ -1357,6 +1998,9 @@
     "src/platforms/gog.ts"(exports, module) {
       "use strict";
 
+      var {
+        setSyncValue: setSyncValue2
+      } = (init_sync_data(), __toCommonJS(sync_data_exports));
       function createGogModule(context) {
         const {
           settings,
@@ -1385,6 +2029,12 @@
             started = true;
             let loadTimes = 0;
             checkGogGame();
+            window.addEventListener?.("glc-library-synced", () => {
+              if (settings.platformEnabled.gog) {
+                loadTimes = 0;
+                void checkGogGame(false);
+              }
+            });
             const observer = new MutationObserver(() => {
               checkGogGame(false, true);
             });
@@ -1395,6 +2045,7 @@
               subtree: true
             });
             function checkGogGame(first = true, again = false) {
+              if (!settings.platformEnabled.gog) return;
               loadTimes++;
               if (loadTimes > 1e3) {
                 observer.disconnect();
@@ -1438,7 +2089,7 @@
             }
             function updateGogGameLibrary(loop = true, i = 1, games = []) {
               if (!loop && i !== 1) {
-                GM_setValue("gogGames", [... /* @__PURE__ */new Set([...getGogGameLibrary(), ...games])]);
+                setSyncValue2("gogGames", [... /* @__PURE__ */new Set([...getGogGameLibrary(), ...games])]);
                 checkGogGame(false);
                 return;
               }
@@ -1474,11 +2125,11 @@
                   if ((response.response.totalPages || 0) > i) {
                     return await updateGogGameLibrary(loop, ++i, games);
                   } else if (loop) {
-                    GM_setValue("gogGames", [...new Set(games)].filter(e => e));
+                    setSyncValue2("gogGames", [...new Set(games)].filter(e => e));
                     await showUpdateResult("gog游戏库数据更新完成", "success");
                     return true;
                   }
-                  GM_setValue("gogGames", [... /* @__PURE__ */new Set([...getGogGameLibrary(), ...games])].filter(e => e));
+                  setSyncValue2("gogGames", [... /* @__PURE__ */new Set([...getGogGameLibrary(), ...games])].filter(e => e));
                   checkGogGame(false);
                   return true;
                 } else if (response.response?.products?.length !== 0) {
@@ -1511,7 +2162,7 @@
       "use strict";
 
       var ITCH_LINKAGE_CODE_KEY = "itchLinkageCode";
-      function sha256(value) {
+      function sha2562(value) {
         const fallback = () => sha256Fallback(value);
         if (!globalThis.crypto?.subtle || typeof TextEncoder === "undefined") {
           return Promise.resolve(fallback());
@@ -1637,7 +2288,7 @@
             },
             mouse: mousePosition
           });
-          return sha256(fingerprint).then(code => {
+          return sha2562(fingerprint).then(code => {
             linkageCode = code;
             GM_setValue(ITCH_LINKAGE_CODE_KEY, linkageCode);
             exposeLinkage();
@@ -1666,6 +2317,10 @@
       "use strict";
 
       var {
+        setSyncValue: setSyncValue2,
+        trackLibraryUpdate: trackLibraryUpdate2
+      } = (init_sync_data(), __toCommonJS(sync_data_exports));
+      var {
         createItchLinkage
       } = require_itch_linkage();
       function createItchModule(context) {
@@ -1690,7 +2345,7 @@
         function addItchGames(games) {
           if (!Array.isArray(games)) return getItchGameLibrary();
           const library = [... /* @__PURE__ */new Set([...getItchGameLibrary(), ...games])];
-          GM_setValue("itchGames", library);
+          setSyncValue2("itchGames", library);
           return library;
         }
         const moduleApi = {
@@ -1706,6 +2361,12 @@
             started = true;
             let loadTimes = 0;
             checkItchGame();
+            window.addEventListener?.("glc-library-synced", () => {
+              if (settings.platformEnabled.itch) {
+                loadTimes = 0;
+                void checkItchGame(false);
+              }
+            });
             const observer = new MutationObserver(() => {
               checkItchGame(false, true);
             });
@@ -1716,6 +2377,7 @@
               subtree: true
             });
             function checkItchGame(first = true, again = false) {
+              if (!settings.platformEnabled.itch) return;
               loadTimes++;
               if (loadTimes > 1e3) {
                 observer.disconnect();
@@ -1756,7 +2418,7 @@
             }
             function updateItchGameLibrary(loop = true, i = 1, games = []) {
               if (!loop && i !== 1) {
-                GM_setValue("itchGames", [... /* @__PURE__ */new Set([...getItchGameLibrary(), ...games])]);
+                setSyncValue2("itchGames", [... /* @__PURE__ */new Set([...getItchGameLibrary(), ...games])]);
                 checkItchGame(false);
                 return;
               }
@@ -1791,15 +2453,15 @@
                   if (response.response.num_items === 50) {
                     return await updateItchGameLibrary(loop, ++i, games);
                   } else if (loop) {
-                    GM_setValue("itchGames", [...new Set(games)]);
+                    setSyncValue2("itchGames", [...new Set(games)]);
                     await showUpdateResult("itch游戏库数据更新完成", "success");
                     return true;
                   }
-                  GM_setValue("itchGames", [... /* @__PURE__ */new Set([...getItchGameLibrary(), ...games])]);
+                  setSyncValue2("itchGames", [... /* @__PURE__ */new Set([...getItchGameLibrary(), ...games])]);
                   checkItchGame(false);
                   return true;
                 } else if (response.response?.num_items === 0) {
-                  GM_setValue("itchGames", [...new Set(games)]);
+                  setSyncValue2("itchGames", [...new Set(games)]);
                   await showUpdateResult("itch游戏库数据更新完成", "success");
                   return true;
                 }
@@ -1822,7 +2484,7 @@
           addGames: addItchGames,
           updateLibrary: (loop = false, i = 1) => {
             if (!started) moduleApi.start();
-            return updateLibrary(loop, i);
+            return trackLibraryUpdate2(() => updateLibrary(loop, i));
           },
           showToast
         });
@@ -1840,6 +2502,9 @@
     "src/platforms/ig.ts"(exports, module) {
       "use strict";
 
+      var {
+        setSyncValue: setSyncValue2
+      } = (init_sync_data(), __toCommonJS(sync_data_exports));
       function createIgModule(context) {
         const {
           settings,
@@ -1859,6 +2524,7 @@
           return (GM_getValue("IG-Owned")?.games || []).filter(Boolean).map(item => item.toLowerCase());
         }
         function markIgLinks() {
+          if (!settings.platformEnabled.ig) return;
           const owned = getIgOwnedGames();
           const links = queryLinks('a[href*=".indiegala.com"]:not(.ig-checked)');
           links.forEach(el => {
@@ -1939,7 +2605,7 @@
             let allGames = [...owned, ...firstParsed.games];
             if (!loop) {
               allGames = Array.from(new Set(allGames)).filter(Boolean);
-              GM_setValue("IG-Owned", {
+              setSyncValue2("IG-Owned", {
                 time: Date.now(),
                 games: allGames
               });
@@ -1953,7 +2619,7 @@
               allGames = allGames.concat(parsed.games);
             }
             allGames = Array.from(new Set(allGames)).filter(Boolean);
-            GM_setValue("IG-Owned", {
+            setSyncValue2("IG-Owned", {
               time: Date.now(),
               games: allGames
             });
@@ -1977,6 +2643,9 @@
             if (started) return;
             started = true;
             markIgLinks();
+            window.addEventListener?.("glc-library-synced", () => {
+              if (settings.platformEnabled.ig) markIgLinks();
+            });
             const autoUpdate = () => updateIgGameLibrary(false);
             let runner = autoUpdate;
             if (typeof runAutoUpdateWithRateLimit === "function") {
@@ -2067,11 +2736,25 @@
         } = createSettingsController({
           showDialog
         });
+        let modules = [];
         const {
-          openGistSyncDialog
+          start: startGistSync
         } = createGistSyncController({
           showDialog,
-          showToast
+          showToast,
+          isAllowed: () => isUrlEnabled(window.location.href),
+          onDataApplied: () => {
+            const {
+              getGlobalSettings
+            } = require_settings();
+            Object.assign(settings, getGlobalSettings());
+            const classes = ["epic-game-checked", "epic-game-link-owned", "epic-game-link-wishlist", "gog-game-checked", "gog-game-link-owned", "itch-io-game-checked", "itch-io-game-link-owned", "cube-game-checked", "cube-game-link-owned", "ig-checked", "ig-owned"];
+            document.querySelectorAll(classes.map(name => `.${name}`).join(",")).forEach(el => el.classList.remove(...classes));
+            if (isUrlEnabled(window.location.href)) {
+              modules.filter(item => item.enabled()).forEach(item => item.start());
+              window.dispatchEvent(new Event("glc-library-synced"));
+            }
+          }
         });
         function queryLinks(selector) {
           return Array.from(document.querySelectorAll(selector));
@@ -2129,14 +2812,14 @@
         };
         GM_registerMenuCommand("设置", setting);
         GM_registerMenuCommand("平台开关", openPlatformSwitchDialog);
-        GM_registerMenuCommand("数据同步设置", openGistSyncDialog);
         GM_addStyle(BASE_STYLE);
+        startGistSync();
         const itchModule = createItchModule(moduleContext);
         GM_registerMenuCommand("生成Itch联动码", () => itchModule.generateLinkageCode());
-        if (!isUrlEnabled(window.location.href)) return;
-        const modules = [createEpicModule(moduleContext), createGogModule(moduleContext), itchModule,
+        modules = [createEpicModule(moduleContext), createGogModule(moduleContext), itchModule,
         // createCubeModule(moduleContext),
         createIgModule(moduleContext)];
+        if (!isUrlEnabled(window.location.href)) return;
         GM_registerMenuCommand("更新游戏库", () => {
           openManualUpdateDialogAndRun(modules);
         });

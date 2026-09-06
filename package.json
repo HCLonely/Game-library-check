@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "node --test",
+    "test": "node --require ./tools/register-typescript.cjs --test tests/*.test.js",
     "itch": "node ./tools/itch.js",
     "gog": "node ./tools/gog.js",
     "epic": "node ./tools/epic.js",

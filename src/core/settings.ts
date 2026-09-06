@@ -1,3 +1,4 @@
+const { setSyncValue } = require('./sync-data.ts') as typeof import('./sync-data');
 import type {
   GlobalSettings,
   PlatformEnabledSettings,
@@ -40,7 +41,7 @@ function getGlobalSettings(): GlobalSettings {
  * @param settings - 要保存的设置。
  */
 function setGlobalSettings(settings: GlobalSettings): void {
-  GM_setValue(SETTINGS_KEY, settings);
+  setSyncValue(SETTINGS_KEY, settings);
 }
 
 /**

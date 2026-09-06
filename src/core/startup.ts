@@ -1,3 +1,4 @@
+const { trackLibraryUpdate } = require('./sync-data.ts') as typeof import('./sync-data');
 import type {
   AuthExpiredUpdateResult,
   AutoUpdateRunner,
@@ -120,7 +121,7 @@ function createStartupFlow({
   ): Promise<UpdateResult> {
     if (!libraryModule?.key || typeof autoUpdateRunner !== 'function') return false;
     if (!canRunAutoUpdate(libraryModule.key)) return false;
-    const result = await autoUpdateRunner();
+    const result = await trackLibraryUpdate(autoUpdateRunner);
     if (result === true) recordAutoUpdateSuccess(libraryModule.key);
     return result;
   }
@@ -332,7 +333,7 @@ function createStartupFlow({
         state[key] = 'running';
         showProgressPanel({ [key]: state[key] });
         try {
-          const updateResult = await libraryModule.updateLibrary();
+          const updateResult = await trackLibraryUpdate(() => libraryModule.updateLibrary());
           if (updateResult === true) {
             state[key] = 'success';
           } else if (isAuthExpiredResult(updateResult)) {

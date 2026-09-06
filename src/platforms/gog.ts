@@ -1,3 +1,4 @@
+const { setSyncValue } = require('../core/sync-data.ts') as typeof import('../core/sync-data');
 import type { LibraryModule, ModuleContext, UpdateResult } from '../shared/types';
 
 interface GogProduct {
@@ -46,6 +47,7 @@ function createGogModule(context: ModuleContext): LibraryModule {
       let loadTimes = 0;
 
       checkGogGame();
+      window.addEventListener?.('glc-library-synced', () => { if (settings.platformEnabled.gog) { loadTimes = 0; void checkGogGame(false); } });
 
       const observer = new MutationObserver(() => { checkGogGame(false, true); });
       observer.observe(document.documentElement, {
@@ -64,6 +66,7 @@ function createGogModule(context: ModuleContext): LibraryModule {
        * @param again - 由变更触发的扫描是否只跳过已扫描的链接。
        */
       function checkGogGame(first = true, again = false): void {
+        if (!settings.platformEnabled.gog) return;
         loadTimes++;
         if (loadTimes > 1000) {
           observer.disconnect();
@@ -122,7 +125,7 @@ function createGogModule(context: ModuleContext): LibraryModule {
         games: string[] = []
       ): Promise<UpdateResult> | void {
         if (!loop && i !== 1) {
-          GM_setValue('gogGames', [...new Set([...getGogGameLibrary(), ...games])]);
+          setSyncValue('gogGames', [...new Set([...getGogGameLibrary(), ...games])]);
           checkGogGame(false);
           return;
         }
@@ -161,11 +164,11 @@ function createGogModule(context: ModuleContext): LibraryModule {
             if ((response.response.totalPages || 0) > i) {
               return await updateGogGameLibrary(loop, ++i, games);
             } else if (loop) {
-              GM_setValue('gogGames', [...new Set(games)].filter((e) => e));
+              setSyncValue('gogGames', [...new Set(games)].filter((e) => e));
               await showUpdateResult('gog游戏库数据更新完成', 'success');
               return true;
             }
-            GM_setValue('gogGames', [...new Set([...getGogGameLibrary(), ...games])].filter((e) => e));
+            setSyncValue('gogGames', [...new Set([...getGogGameLibrary(), ...games])].filter((e) => e));
             checkGogGame(false);
             return true;
           } else if (response.response?.products?.length !== 0) {

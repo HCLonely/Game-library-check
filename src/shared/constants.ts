@@ -9,6 +9,9 @@ const BASE_STYLE = `
 .glc-dialog{background:#fff;color:#0f172a;border:1px solid #e2e8f0;padding:20px;border-radius:12px;min-width:360px;max-width:580px;font-size:14px;box-shadow:0 14px 36px rgba(15,23,42,.16),0 4px 14px rgba(15,23,42,.08)}
 .glc-dialog-title{margin:0 0 12px;font-size:18px;line-height:1.35;color:#0f172a;font-weight:700}
 .glc-dialog-body{line-height:1.6;color:#334155}
+.glc-dialog{box-sizing:border-box;min-width:min(360px,100%);max-width:min(580px,100%);max-height:calc(100dvh - 40px);display:flex;flex-direction:column}
+.glc-dialog-body{min-height:0;overflow-y:auto;overscroll-behavior:contain}
+.glc-dialog-title,.glc-dialog-actions{flex-shrink:0}
 .glc-dialog-actions{display:flex;justify-content:flex-end;gap:12px;margin-top:16px;padding-top:12px;border-top:1px solid #f1f5f9}
 .glc-dialog-actions button{border:1px solid #e2e8f0;border-radius:8px;background:#fff;color:#0f172a;padding:8px 14px;cursor:pointer;transition:background-color .14s ease,border-color .14s ease,box-shadow .14s ease}
 .glc-dialog-actions button:hover{background:#f8fbff;border-color:#c6d4e8}
@@ -20,6 +23,9 @@ const BASE_STYLE = `
 .glc-input-label{margin-bottom:6px;color:#334155}
 .glc-input{width:100%;box-sizing:border-box;border:1px solid #d0dbe8;border-radius:8px;padding:8px 10px;color:#0f172a;background:#fff}
 .glc-inline-actions{display:flex;gap:10px;margin-top:8px}
+.glc-inline-actions{flex-wrap:wrap}
+.glc-input[type=checkbox]{width:auto;accent-color:#2563eb}
+.glc-input:disabled,.glc-inline-button:disabled{opacity:.55;cursor:not-allowed}
 .glc-inline-button{border:1px solid #e2e8f0;border-radius:8px;background:#fff;color:#0f172a;padding:8px 14px;cursor:pointer;transition:background-color .14s ease,border-color .14s ease}
 .glc-inline-button:hover{background:#f8fbff;border-color:#c6d4e8}
 #glc-toast-container{position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:2147483647;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none}

@@ -92,7 +92,10 @@ const { createGistSyncController } = require('../core/gist-sync.ts') as {
     showDialog: ShowDialog;
     /** 显示 Gist 同步反馈。 */
     showToast: ShowToast;
+    isAllowed: () => boolean;
+    onDataApplied: () => void;
   }) => {
+    start: () => void;
     /** 打开 Gist 同步对话框。 */
     openGistSyncDialog: () => void;
   };
@@ -136,9 +139,21 @@ function bootstrapMergedRuntime(): void {
     isUrlEnabled
   } = createSettingsController({ showDialog });
 
-  const { openGistSyncDialog } = createGistSyncController({
+  let modules: LibraryModule[] = [];
+  const { start: startGistSync } = createGistSyncController({
     showDialog,
-    showToast
+    showToast,
+    isAllowed: () => isUrlEnabled(window.location.href),
+    onDataApplied: () => {
+      const { getGlobalSettings } = require('../core/settings.ts') as { getGlobalSettings: () => GlobalSettings };
+      Object.assign(settings, getGlobalSettings());
+      const classes = ['epic-game-checked', 'epic-game-link-owned', 'epic-game-link-wishlist', 'gog-game-checked', 'gog-game-link-owned', 'itch-io-game-checked', 'itch-io-game-link-owned', 'cube-game-checked', 'cube-game-link-owned', 'ig-checked', 'ig-owned'];
+      document.querySelectorAll(classes.map(name => `.${name}`).join(',')).forEach(el => el.classList.remove(...classes));
+      if (isUrlEnabled(window.location.href)) {
+        modules.filter(item => item.enabled()).forEach(item => item.start());
+        window.dispatchEvent(new Event('glc-library-synced'));
+      }
+    }
   });
 
   /**
@@ -230,21 +245,21 @@ function bootstrapMergedRuntime(): void {
 
   GM_registerMenuCommand('设置', setting);
   GM_registerMenuCommand('平台开关', openPlatformSwitchDialog);
-  GM_registerMenuCommand('数据同步设置', openGistSyncDialog);
   GM_addStyle(BASE_STYLE);
+  startGistSync();
 
   const itchModule = createItchModule(moduleContext);
   GM_registerMenuCommand('生成Itch联动码', () => itchModule.generateLinkageCode());
 
-  if (!isUrlEnabled(window.location.href)) return;
-
-  const modules: LibraryModule[] = [
+  modules = [
     createEpicModule(moduleContext),
     createGogModule(moduleContext),
     itchModule,
     // createCubeModule(moduleContext),
     createIgModule(moduleContext)
   ];
+
+  if (!isUrlEnabled(window.location.href)) return;
 
   GM_registerMenuCommand('更新游戏库', () => {
     openManualUpdateDialogAndRun(modules);

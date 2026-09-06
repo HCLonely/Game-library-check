@@ -1,3 +1,4 @@
+const { setSyncValue, trackLibraryUpdate } = require('../core/sync-data.ts') as typeof import('../core/sync-data');
 import type { Awaitable, LibraryModule, ModuleContext, ShowToast, UpdateResult } from '../shared/types';
 
 interface ItchPurchasesResponse {
@@ -69,7 +70,7 @@ function createItchModule(context: ModuleContext): ItchModule {
   function addItchGames(games: string[]): string[] {
     if (!Array.isArray(games)) return getItchGameLibrary();
     const library = [...new Set([...getItchGameLibrary(), ...games])];
-    GM_setValue('itchGames', library);
+    setSyncValue('itchGames', library);
     return library;
   }
   const moduleApi: LibraryModule & Partial<Pick<ItchModule, 'generateLinkageCode'>> = {
@@ -86,6 +87,7 @@ function createItchModule(context: ModuleContext): ItchModule {
       let loadTimes = 0;
 
       checkItchGame();
+      window.addEventListener?.('glc-library-synced', () => { if (settings.platformEnabled.itch) { loadTimes = 0; void checkItchGame(false); } });
 
       const observer = new MutationObserver(() => { checkItchGame(false, true); });
       observer.observe(document.documentElement, {
@@ -104,6 +106,7 @@ function createItchModule(context: ModuleContext): ItchModule {
        * @param again - 由变更触发的扫描是否只跳过已扫描的链接。
        */
       function checkItchGame(first = true, again = false): void {
+        if (!settings.platformEnabled.itch) return;
         loadTimes++;
         if (loadTimes > 1000) {
           observer.disconnect();
@@ -154,7 +157,7 @@ function createItchModule(context: ModuleContext): ItchModule {
         games: string[] = []
       ): Promise<UpdateResult> | void {
         if (!loop && i !== 1) {
-          GM_setValue('itchGames', [...new Set([...getItchGameLibrary(), ...games])]);
+          setSyncValue('itchGames', [...new Set([...getItchGameLibrary(), ...games])]);
           checkItchGame(false);
           return;
         }
@@ -192,15 +195,15 @@ function createItchModule(context: ModuleContext): ItchModule {
             if (response.response.num_items === 50) {
               return await updateItchGameLibrary(loop, ++i, games);
             } else if (loop) {
-              GM_setValue('itchGames', [...new Set(games)]);
+              setSyncValue('itchGames', [...new Set(games)]);
               await showUpdateResult('itch游戏库数据更新完成', 'success');
               return true;
             }
-            GM_setValue('itchGames', [...new Set([...getItchGameLibrary(), ...games])]);
+            setSyncValue('itchGames', [...new Set([...getItchGameLibrary(), ...games])]);
             checkItchGame(false);
             return true;
           } else if (response.response?.num_items === 0) {
-            GM_setValue('itchGames', [...new Set(games)]);
+            setSyncValue('itchGames', [...new Set(games)]);
             await showUpdateResult('itch游戏库数据更新完成', 'success');
             return true;
           }
@@ -226,7 +229,7 @@ function createItchModule(context: ModuleContext): ItchModule {
     addGames: addItchGames,
     updateLibrary: (loop = false, i = 1) => {
       if (!started) moduleApi.start();
-      return updateLibrary!(loop, i);
+      return trackLibraryUpdate(() => updateLibrary!(loop, i));
     },
     showToast
   });

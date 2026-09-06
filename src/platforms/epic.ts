@@ -1,3 +1,4 @@
+const { setSyncValue } = require('../core/sync-data.ts') as typeof import('../core/sync-data');
 import type { LibraryModule, ModuleContext, UpdateResult } from '../shared/types';
 
 interface EpicCachedGame {
@@ -85,6 +86,7 @@ function createEpicModule(context: ModuleContext): LibraryModule {
       await getSha256Hash();
 
       checkEpicGame();
+      window.addEventListener?.('glc-library-synced', () => { if (settings.platformEnabled.epic) { loadTimes = 0; void checkEpicGame(false); } });
 
       const observer = new MutationObserver(() => { checkEpicGame(false, true); });
       observer.observe(document.documentElement, {
@@ -103,6 +105,7 @@ function createEpicModule(context: ModuleContext): LibraryModule {
        * @param again - 由变更触发的扫描是否只跳过已扫描的链接。
        */
       async function checkEpicGame(first = true, again = false): Promise<void> {
+        if (!settings.platformEnabled.epic) return;
         loadTimes++;
         if (loadTimes > 1000) {
           observer.disconnect();
@@ -515,12 +518,12 @@ function createEpicModule(context: ModuleContext): LibraryModule {
       async function updateEpicOwnedGames(
         loop = true,
         i = 0,
-        games: EpicCachedGame[] = GM_getValue<EpicCachedGame[]>('ownedGames') || [],
+        games: EpicCachedGame[] = [...(GM_getValue<EpicCachedGame[]>('ownedGames') || [])],
         nextPageToken = ''
       ): Promise<UpdateResult> {
         console.log('[EGLC] updateEpicOwnedGames...');
         if (!loop && i !== 0) {
-          GM_setValue('ownedGames', games);
+          setSyncValue('ownedGames', games);
           checkEpicGame(false);
           return;
         }
@@ -584,7 +587,7 @@ function createEpicModule(context: ModuleContext): LibraryModule {
                   offerId: item.offerId,
                   pageSlug
                 });
-                GM_setValue('ownedGames', games);
+                // Commit once the complete response/pagination has finished.
               }
               return true;
             }));
@@ -600,11 +603,11 @@ function createEpicModule(context: ModuleContext): LibraryModule {
               }
               return await updateEpicOwnedGames(loop, ++i, games, nextPageToken);
             } else if (loop) {
-              GM_setValue('ownedGames', games);
+              setSyncValue('ownedGames', games);
               await showUpdateResult('Epic已拥有游戏数据更新完成', 'success');
               return true;
             }
-            GM_setValue('ownedGames', games);
+            setSyncValue('ownedGames', games);
             checkEpicGame(false);
             console.log('[EGLC] updateEpicOwnedGames: Finish!');
             return true;
